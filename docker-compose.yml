@@ -16,12 +16,6 @@ services:
       - PHP_MAX_EXECUTION_TIME=${PHP_MAX_EXECUTION_TIME:-300}
       - PHP_MAX_INPUT_TIME=${PHP_MAX_INPUT_TIME:-300}
       - PHP_DISPLAY_ERRORS=${PHP_DISPLAY_ERRORS:-On}
-      - DB_CONNECTION=mysql
-      - DB_HOST=mysql-db
-      - DB_PORT=3306
-      - DB_DATABASE=${DB_DATABASE:-comprof_cms}
-      - DB_USERNAME=${DB_USERNAME:-root}
-      - DB_PASSWORD=${DB_PASSWORD:-root}
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
@@ -44,12 +38,6 @@ services:
       - PHP_MAX_EXECUTION_TIME=${PHP_MAX_EXECUTION_TIME:-300}
       - PHP_MAX_INPUT_TIME=${PHP_MAX_INPUT_TIME:-300}
       - PHP_DISPLAY_ERRORS=${PHP_DISPLAY_ERRORS:-On}
-      - DB_CONNECTION=mysql
-      - DB_HOST=mysql-db
-      - DB_PORT=3306
-      - DB_DATABASE=${DB_DATABASE:-comprof_cms}
-      - DB_USERNAME=${DB_USERNAME:-root}
-      - DB_PASSWORD=${DB_PASSWORD:-root}
     depends_on:
       - singlepage
     extra_hosts:
