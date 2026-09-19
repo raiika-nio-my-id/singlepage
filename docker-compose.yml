@@ -2,9 +2,9 @@
 # global-proxy / Nginx Proxy Manager on host network → 127.0.0.1:${APP_PORT}).
 # Create the network once: docker network create shared-services
 services:
-  comprof:
+  singlepage:
     build: .
-    container_name: comprof-app
+    container_name: singlepage-app
     restart: unless-stopped
     volumes:
       - .:/var/www
@@ -29,7 +29,7 @@ services:
 
   scheduler:
     build: .
-    container_name: comprof-scheduler
+    container_name: singlepage-scheduler
     restart: unless-stopped
     user: root
     entrypoint: ["/usr/local/bin/scheduler-entrypoint.sh"]
@@ -51,7 +51,7 @@ services:
       - DB_USERNAME=${DB_USERNAME:-root}
       - DB_PASSWORD=${DB_PASSWORD:-root}
     depends_on:
-      - comprof
+      - singlepage
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
@@ -59,7 +59,7 @@ services:
 
   nginx:
     image: nginx:alpine
-    container_name: comprof-nginx
+    container_name: singlepage-nginx
     restart: unless-stopped
     ports:
       # 8080 is used by invoiceku-nginx / global-proxy → invoiceku.test
@@ -68,7 +68,7 @@ services:
       - .:/var/www
       - ./docker-config/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
-      - comprof
+      - singlepage
     networks:
       - shared-services
 

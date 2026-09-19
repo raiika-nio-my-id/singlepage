@@ -20,7 +20,7 @@ cd ~/project/comprof-cms && docker compose up -d
 Then migrate and seed:
 
 ```bash
-docker compose exec comprof php artisan migrate --seed
+docker compose exec singlepage php artisan migrate --seed
 ```
 
 Seeded logins (password: `password`):
