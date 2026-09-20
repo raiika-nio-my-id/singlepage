@@ -15,6 +15,7 @@ class LegalNoticeInjector
         $notice = view('tenant.legal-notice', [
             'termsUrl' => $termsUrl,
             'platformName' => (string) config('singlepage.platform_name', 'Jadidaring'),
+            'marketingUrl' => (string) config('singlepage.marketing_url', 'https://jadidaring.com/'),
         ])->render();
 
         $replaced = preg_replace('/<\/body>/i', $notice.'</body>', $html, 1, $count);

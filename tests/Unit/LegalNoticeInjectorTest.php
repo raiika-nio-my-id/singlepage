@@ -17,7 +17,10 @@ class LegalNoticeInjectorTest extends TestCase
         $this->assertStringContainsString('Acme', $html);
         $this->assertStringContainsString('data-jadidaring-legal-notice', $html);
         $this->assertStringContainsString('http://acme.jadidaring.test/syarat-ketentuan', $html);
-        $this->assertStringContainsString('bukan tanggung jawab Jadidaring', $html);
+        $this->assertStringContainsString('Syarat &amp; Ketentuan', $html);
+        $this->assertStringContainsString('https://jadidaring.com/', $html);
+        $this->assertStringContainsString('>Jadidaring</a>', $html);
+        $this->assertStringNotContainsString('bukan tanggung jawab', $html);
         $this->assertMatchesRegularExpression('/data-jadidaring-legal-notice[\s\S]*<\/body>/', $html);
     }
 

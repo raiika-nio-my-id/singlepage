@@ -27,7 +27,10 @@ class TenantLegalNoticeTest extends TestCase
         $this->assertSame(200, $response->getStatusCode());
         $this->assertStringContainsString('Acme public site', $html);
         $this->assertStringContainsString('data-jadidaring-legal-notice', $html);
-        $this->assertStringContainsString('bukan tanggung jawab Jadidaring', $html);
+        $this->assertStringContainsString('Syarat &amp; Ketentuan', $html);
+        $this->assertStringContainsString('https://jadidaring.com/', $html);
+        $this->assertStringContainsString('>Jadidaring</a>', $html);
+        $this->assertStringNotContainsString('bukan tanggung jawab', $html);
         $this->assertStringContainsString('http://acme.jadidaring.test/syarat-ketentuan', $html);
     }
 

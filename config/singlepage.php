@@ -40,6 +40,8 @@ return [
 
     'platform_name' => env('PLATFORM_NAME', 'Jadidaring'),
 
+    'marketing_url' => env('PLATFORM_MARKETING_URL', 'https://jadidaring.com/'),
+
     'terms_updated_on' => '2026-09-20',
 
     'reserved_subdomains' => [

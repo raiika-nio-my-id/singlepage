@@ -36,7 +36,7 @@
 
             <label for="html">Published HTML</label>
             <textarea id="html" class="html-editor" name="html" data-live-preview-source spellcheck="false" required>{{ old('html', '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Company</title></head><body><h1>Company</h1></body></html>') }}</textarea>
-            <p class="muted">A Jadidaring terms footer is attached automatically on the public website. It cannot be removed from this editor.</p>
+            <p class="muted">A discreet Terms link is attached automatically on the public website.</p>
 
             <label>
                 <input type="checkbox" name="status" value="published" @checked(old('status') === 'published')>

@@ -35,7 +35,9 @@ class TenantSiteTest extends TestCase
             ->assertOk()
             ->assertSee('Acme public site', false)
             ->assertSee('data-jadidaring-legal-notice', false)
-            ->assertSee('bukan tanggung jawab Jadidaring', false)
+            ->assertSee('Syarat &amp; Ketentuan', false)
+            ->assertSee('https://jadidaring.com/', false)
+            ->assertDontSee('bukan tanggung jawab', false)
             ->assertSee('http://acme.jadidaring.test/syarat-ketentuan', false)
             ->assertHeader('X-Content-Type-Options', 'nosniff');
     }
