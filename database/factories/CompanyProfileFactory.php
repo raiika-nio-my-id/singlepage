@@ -26,6 +26,7 @@ class CompanyProfileFactory extends Factory
             'html' => '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>'.e($name).'</title></head><body><h1>'.e($name).'</h1></body></html>',
             'status' => ProfileStatus::Draft,
             'expires_at' => now()->addYear()->toDateString(),
+            'hide_footer' => false,
         ];
     }
 
@@ -33,6 +34,13 @@ class CompanyProfileFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'status' => ProfileStatus::Published,
+        ]);
+    }
+
+    public function hiddenFooter(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'hide_footer' => true,
         ]);
     }
 

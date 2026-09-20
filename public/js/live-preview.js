@@ -35,3 +35,31 @@
     source.addEventListener('change', schedule);
     render();
 })();
+
+(() => {
+    const subdomainField = document.querySelector('#subdomain');
+    const siteLink = document.querySelector('[data-site-link]');
+    const template = siteLink?.dataset.siteUrlTemplate;
+
+    if (!siteLink || !template || !(subdomainField instanceof HTMLInputElement)) {
+        return;
+    }
+
+    const sync = () => {
+        const subdomain = subdomainField.value.trim();
+
+        if (subdomain === '') {
+            siteLink.setAttribute('aria-disabled', 'true');
+            siteLink.removeAttribute('href');
+
+            return;
+        }
+
+        siteLink.removeAttribute('aria-disabled');
+        siteLink.href = template.replace('{subdomain}', subdomain);
+    };
+
+    subdomainField.addEventListener('input', sync);
+    subdomainField.addEventListener('change', sync);
+    sync();
+})();

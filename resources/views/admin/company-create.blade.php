@@ -36,18 +36,26 @@
 
             <label for="html">Published HTML</label>
             <textarea id="html" class="html-editor" name="html" data-live-preview-source spellcheck="false" required>{{ old('html', '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Company</title></head><body><h1>Company</h1></body></html>') }}</textarea>
-            <p class="muted">A discreet Terms link is attached automatically on the public website.</p>
+            <p class="muted">A discreet Terms and Jadidaring link is attached on the public site unless you hide it below.</p>
 
             <label>
                 <input type="checkbox" name="status" value="published" @checked(old('status') === 'published')>
                 Published
             </label>
 
+            <label>
+                <input type="checkbox" name="hide_footer" value="1" @checked((bool) old('hide_footer'))>
+                Hide platform footer
+            </label>
+            <p class="muted">Paid extra. Removes the Jadidaring credit and Terms link from the public website.</p>
+
             <p><button type="submit">Create client</button></p>
         </form>
 
         <section class="card editor-pane preview-panel" aria-label="Live preview">
-            <h2>Live preview</h2>
+            @include('admin.partials.preview-header', [
+                'siteSubdomain' => old('subdomain'),
+            ])
             <div data-live-preview-mount>
                 <iframe class="preview" sandbox="allow-scripts" title="Sandboxed company preview" srcdoc="{{ old('html', '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Company</title></head><body><h1>Company</h1></body></html>') }}"></iframe>
             </div>

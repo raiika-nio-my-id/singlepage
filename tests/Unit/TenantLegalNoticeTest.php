@@ -34,6 +34,24 @@ class TenantLegalNoticeTest extends TestCase
         $this->assertStringContainsString('http://acme.jadidaring.test/syarat-ketentuan', $html);
     }
 
+    public function test_hidden_footer_profile_is_served_without_the_platform_notice(): void
+    {
+        $profile = new CompanyProfile([
+            'subdomain' => 'acme',
+            'html' => '<html><body>Acme public site</body></html>',
+            'hide_footer' => true,
+        ]);
+
+        $request = Request::create('http://acme.jadidaring.test/', 'GET');
+        $request->attributes->set('tenantProfile', $profile);
+
+        $html = (new TenantController)->show($request, new LegalNoticeInjector)->getContent();
+
+        $this->assertSame('<html><body>Acme public site</body></html>', $html);
+        $this->assertStringNotContainsString('data-jadidaring-legal-notice', $html);
+        $this->assertStringNotContainsString('Syarat &amp; Ketentuan', $html);
+    }
+
     public function test_terms_page_is_rendered_from_the_tenant_controller(): void
     {
         $profile = new CompanyProfile([

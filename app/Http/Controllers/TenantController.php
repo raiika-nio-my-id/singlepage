@@ -14,8 +14,11 @@ class TenantController extends Controller
     public function show(Request $request, LegalNoticeInjector $injector): Response
     {
         $profile = $this->profile($request);
+        $html = $profile->hide_footer
+            ? $profile->html
+            : $injector->inject($profile->html, $this->termsUrl($request));
 
-        return response($injector->inject($profile->html, $this->termsUrl($request)), 200, [
+        return response($html, 200, [
             'Content-Type' => 'text/html; charset=UTF-8',
             'X-Content-Type-Options' => 'nosniff',
             'Referrer-Policy' => 'strict-origin-when-cross-origin',

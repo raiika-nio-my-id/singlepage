@@ -42,6 +42,20 @@ class TenantSiteTest extends TestCase
             ->assertHeader('X-Content-Type-Options', 'nosniff');
     }
 
+    public function test_hidden_footer_profile_does_not_include_the_platform_notice(): void
+    {
+        CompanyProfile::factory()->published()->hiddenFooter()->create([
+            'subdomain' => 'vip',
+            'html' => '<html><body>White label site</body></html>',
+        ]);
+
+        $this->get('http://vip.jadidaring.test/')
+            ->assertOk()
+            ->assertSee('White label site', false)
+            ->assertDontSee('data-jadidaring-legal-notice', false)
+            ->assertDontSee('Syarat &amp; Ketentuan', false);
+    }
+
     public function test_terms_page_explains_that_jadidaring_is_only_a_provider(): void
     {
         CompanyProfile::factory()->published()->create([

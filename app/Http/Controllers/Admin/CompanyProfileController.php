@@ -98,6 +98,7 @@ class CompanyProfileController extends Controller
                 'html' => $request->validated('html'),
                 'status' => $request->published() ? ProfileStatus::Published : ProfileStatus::Draft,
                 'expires_at' => $request->validated('expires_at'),
+                'hide_footer' => $request->boolean('hide_footer'),
             ]);
         });
 
@@ -144,6 +145,10 @@ class CompanyProfileController extends Controller
 
             if ($request->user()?->can('updateExpiration', $companyProfile)) {
                 $payload['expires_at'] = $request->validated('expires_at');
+            }
+
+            if ($request->user()?->can('updateFooterVisibility', $companyProfile)) {
+                $payload['hide_footer'] = $request->boolean('hide_footer');
             }
 
             $companyProfile->update($payload);

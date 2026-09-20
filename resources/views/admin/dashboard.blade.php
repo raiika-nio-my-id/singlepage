@@ -28,7 +28,11 @@
                             {{ $profile->user?->name }}
                             <div class="muted">{{ $profile->user?->email }}</div>
                         </td>
-                        <td>{{ $profile->subdomain }}.{{ config('singlepage.base_domain') }}</td>
+                        <td>
+                            <a href="{{ $profile->publicUrl() }}" target="_blank" rel="noopener noreferrer">
+                                {{ $profile->subdomain }}.{{ config('singlepage.base_domain') }}
+                            </a>
+                        </td>
                         <td>{{ $profile->status->value }}</td>
                         <td>
                             {{ $profile->expires_at?->format('d M Y') ?? '—' }}
@@ -36,7 +40,11 @@
                                 <div class="muted">expired</div>
                             @endif
                         </td>
-                        <td><a href="{{ route('admin.clients.edit', $profile) }}">Edit</a></td>
+                        <td>
+                            <a href="{{ route('admin.clients.edit', $profile) }}">Edit</a>
+                            ·
+                            <a href="{{ $profile->publicUrl() }}" target="_blank" rel="noopener noreferrer">Visit website</a>
+                        </td>
                     </tr>
                 @empty
                     <tr>

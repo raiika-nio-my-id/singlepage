@@ -27,6 +27,8 @@ class CompanyProfileAuthorizationTest extends TestCase
             ->assertSee('owned.jadidaring.test')
             ->assertSee('Expired')
             ->assertDontSee('name="expires_at"', false)
+            ->assertDontSee('name="hide_footer"', false)
+            ->assertDontSee('Hide platform footer')
             ->assertDontSee('/clients/'.$profile->id);
 
         $this->actingAs($client)
@@ -89,6 +91,35 @@ class CompanyProfileAuthorizationTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_hide_the_platform_footer(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $profile = CompanyProfile::factory()->create([
+            'subdomain' => 'premium',
+            'hide_footer' => false,
+        ]);
+
+        $this->actingAs($admin)
+            ->get('http://admin.jadidaring.test/clients/'.$profile->id.'/edit')
+            ->assertOk()
+            ->assertSee('name="hide_footer"', false)
+            ->assertSee('Hide platform footer');
+
+        $this->actingAs($admin)
+            ->from('http://admin.jadidaring.test/clients/'.$profile->id.'/edit')
+            ->put('http://admin.jadidaring.test/clients/'.$profile->id, [
+                'subdomain' => 'premium',
+                'name' => $profile->user->name,
+                'email' => $profile->user->email,
+                'html' => '<html><body>White label</body></html>',
+                'expires_at' => now()->addYear()->toDateString(),
+                'hide_footer' => '1',
+            ])
+            ->assertRedirect();
+
+        $this->assertTrue($profile->fresh()->hide_footer);
+    }
+
     public function test_admin_can_update_client_credentials(): void
     {
         $admin = User::factory()->admin()->create();
@@ -138,6 +169,7 @@ class CompanyProfileAuthorizationTest extends TestCase
                 'html' => '<html><body>Updated by owner</body></html>',
                 'status' => 'published',
                 'expires_at' => now()->addYears(5)->toDateString(),
+                'hide_footer' => '1',
             ])
             ->assertRedirect();
 
@@ -149,6 +181,7 @@ class CompanyProfileAuthorizationTest extends TestCase
         $this->assertSame('owner@example.com', $client->email);
         $this->assertSame('<html><body>Updated by owner</body></html>', $profile->html);
         $this->assertSame($originalExpiry, $profile->expires_at?->toDateString());
+        $this->assertFalse($profile->hide_footer);
     }
 
     public function test_admin_can_change_expiration(): void

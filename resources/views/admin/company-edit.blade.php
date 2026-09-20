@@ -74,18 +74,34 @@
 
             <label for="html">HTML</label>
             <textarea id="html" class="html-editor" name="html" data-live-preview-source spellcheck="false" required>{{ old('html', $companyProfile->html) }}</textarea>
-            <p class="muted">A discreet Terms link is attached automatically on the public website.</p>
+            @can('updateFooterVisibility', $companyProfile)
+                <p class="muted">A discreet Terms and Jadidaring link is attached on the public site unless you hide it below.</p>
+            @else
+                @unless ($companyProfile->hide_footer)
+                    <p class="muted">A discreet Terms link is attached automatically on the public website.</p>
+                @endunless
+            @endcan
 
             <label>
                 <input type="checkbox" name="status" value="published" @checked(old('status', $companyProfile->status->value) === 'published')>
                 Published
             </label>
 
+            @can('updateFooterVisibility', $companyProfile)
+                <label>
+                    <input type="checkbox" name="hide_footer" value="1" @checked((bool) old('hide_footer', $companyProfile->hide_footer))>
+                    Hide platform footer
+                </label>
+                <p class="muted">Paid extra. Removes the Jadidaring credit and Terms link from the public website.</p>
+            @endcan
+
             <p><button type="submit">Save</button></p>
         </form>
 
         <section class="card editor-pane preview-panel" aria-label="Live preview">
-            <h2>Live preview</h2>
+            @include('admin.partials.preview-header', [
+                'siteSubdomain' => old('subdomain', $companyProfile->subdomain),
+            ])
             <div data-live-preview-mount>
                 <iframe class="preview" sandbox="allow-scripts" title="Sandboxed company preview" srcdoc="{{ old('html', $companyProfile->html) }}"></iframe>
             </div>

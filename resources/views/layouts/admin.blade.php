@@ -53,7 +53,15 @@
         .editor-pane { min-width: 0; }
         .editor-pane textarea.html-editor { min-height: calc(100vh - 22rem); }
         .preview-panel { position: sticky; top: 1rem; }
-        .preview-panel h2 { margin: 0 0 .6rem; font-size: 1.15rem; }
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: .75rem;
+            margin-bottom: .6rem;
+        }
+        .preview-header h2 { margin: 0; font-size: 1.15rem; }
+        .preview-header a[aria-disabled="true"] { opacity: .55; pointer-events: none; }
         iframe.preview { width: 100%; height: calc(100vh - 10rem); min-height: 28rem; border: 1px solid var(--line); background: #fff; margin: 0; }
         .readonly-field {
             font-family: ui-sans-serif, system-ui, sans-serif;

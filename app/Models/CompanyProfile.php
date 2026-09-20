@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
-#[Fillable(['user_id', 'subdomain', 'html', 'status', 'expires_at'])]
+#[Fillable(['user_id', 'subdomain', 'html', 'status', 'expires_at', 'hide_footer'])]
 class CompanyProfile extends Model
 {
     /** @use HasFactory<CompanyProfileFactory> */
@@ -25,6 +25,7 @@ class CompanyProfile extends Model
         return [
             'status' => ProfileStatus::class,
             'expires_at' => 'date',
+            'hide_footer' => 'boolean',
         ];
     }
 
@@ -47,6 +48,18 @@ class CompanyProfile extends Model
     public function isLive(): bool
     {
         return $this->isPublished() && ! $this->isExpired();
+    }
+
+    public static function publicUrlFor(string $subdomain): string
+    {
+        $scheme = parse_url((string) config('app.url'), PHP_URL_SCHEME) ?: 'http';
+
+        return sprintf('%s://%s.%s', $scheme, $subdomain, config('singlepage.base_domain'));
+    }
+
+    public function publicUrl(): string
+    {
+        return static::publicUrlFor($this->subdomain);
     }
 
     /**
