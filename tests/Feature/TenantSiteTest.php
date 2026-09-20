@@ -24,7 +24,7 @@ class TenantSiteTest extends TestCase
         $this->get('http://hidden.jadidaring.test/')->assertNotFound();
     }
 
-    public function test_published_profile_returns_raw_html(): void
+    public function test_published_profile_returns_html_with_platform_terms_footer(): void
     {
         CompanyProfile::factory()->published()->create([
             'subdomain' => 'acme',
@@ -34,7 +34,38 @@ class TenantSiteTest extends TestCase
         $this->get('http://acme.jadidaring.test/')
             ->assertOk()
             ->assertSee('Acme public site', false)
+            ->assertSee('data-jadidaring-legal-notice', false)
+            ->assertSee('bukan tanggung jawab Jadidaring', false)
+            ->assertSee('http://acme.jadidaring.test/syarat-ketentuan', false)
             ->assertHeader('X-Content-Type-Options', 'nosniff');
+    }
+
+    public function test_terms_page_explains_that_jadidaring_is_only_a_provider(): void
+    {
+        CompanyProfile::factory()->published()->create([
+            'subdomain' => 'acme',
+            'html' => '<html><body>Acme public site</body></html>',
+        ]);
+
+        $this->get('http://acme.jadidaring.test/syarat-ketentuan')
+            ->assertOk()
+            ->assertSee('Syarat &amp; Ketentuan', false)
+            ->assertSee('hanya menyediakan sarana teknis', false)
+            ->assertSee('tidak bertanggung jawab', false)
+            ->assertSee('penipuan', false)
+            ->assertSee('acme.jadidaring.test');
+
+        $this->get('http://acme.jadidaring.test/terms')
+            ->assertRedirect('http://acme.jadidaring.test/syarat-ketentuan');
+    }
+
+    public function test_draft_profile_terms_page_is_not_public(): void
+    {
+        CompanyProfile::factory()->create([
+            'subdomain' => 'hidden',
+        ]);
+
+        $this->get('http://hidden.jadidaring.test/syarat-ketentuan')->assertNotFound();
     }
 
     public function test_expired_published_profile_is_not_public(): void

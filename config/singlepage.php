@@ -28,6 +28,20 @@ return [
 
     'subscription_years' => (int) env('SUBSCRIPTION_YEARS', 1),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Platform legal notice
+    |--------------------------------------------------------------------------
+    |
+    | Injected on every live tenant site. Users can change their HTML, but
+    | they cannot remove this provider disclaimer from the public response.
+    |
+    */
+
+    'platform_name' => env('PLATFORM_NAME', 'Jadidaring'),
+
+    'terms_updated_on' => '2026-09-20',
+
     'reserved_subdomains' => [
         'admin',
         'www',

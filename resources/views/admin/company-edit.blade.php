@@ -74,6 +74,7 @@
 
             <label for="html">HTML</label>
             <textarea id="html" class="html-editor" name="html" data-live-preview-source spellcheck="false" required>{{ old('html', $companyProfile->html) }}</textarea>
+            <p class="muted">A Jadidaring terms footer is attached automatically on the public website. It cannot be removed from this editor.</p>
 
             <label>
                 <input type="checkbox" name="status" value="published" @checked(old('status', $companyProfile->status->value) === 'published')>
