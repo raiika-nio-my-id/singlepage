@@ -11,10 +11,14 @@
 @section('main_class', 'wide')
 
 @section('content')
-    <h1>{{ $workspace ? 'Your site' : 'Edit company profile' }}</h1>
-    @unless ($workspace)
-        <p class="muted">Client HTML is previewed in a sandboxed iframe. It is never rendered in this admin document.</p>
-    @endunless
+    <div class="page-heading">
+        <div>
+            <h1>{{ $workspace ? 'Your site' : 'Edit company profile' }}</h1>
+            @unless ($workspace)
+                <p class="muted lede">Client HTML is previewed in a sandboxed iframe. It is never rendered in this admin document.</p>
+            @endunless
+        </div>
+    </div>
 
     @if ($companyProfile->isExpired())
         <div class="errors" role="status">This site has expired and is not publicly visible.</div>
@@ -29,13 +33,13 @@
     @endif
 
     <div class="editor-split">
-        <form class="card editor-pane" method="POST" action="{{ $updateUrl }}">
+        <form class="card editor-pane" method="POST" action="{{ $updateUrl }}" data-editor-form>
             @csrf
             @method('PUT')
 
             <label for="subdomain">{{ $workspace ? 'Your web address' : 'Subdomain' }}</label>
             @can('updateSubdomain', $companyProfile)
-                <input id="subdomain" name="subdomain" value="{{ old('subdomain', $companyProfile->subdomain) }}" maxlength="63" required>
+                <input id="subdomain" type="text" name="subdomain" value="{{ old('subdomain', $companyProfile->subdomain) }}" maxlength="63" autocapitalize="off" spellcheck="false" required>
             @else
                 <p class="readonly-field" id="subdomain">{{ $companyProfile->subdomain }}.{{ config('singlepage.base_domain') }}</p>
             @endcan
@@ -61,7 +65,7 @@
                 <fieldset>
                     <legend>Client account</legend>
                     <label for="name">Name</label>
-                    <input id="name" name="name" value="{{ old('name', $companyProfile->user?->name) }}" required>
+                    <input id="name" type="text" name="name" value="{{ old('name', $companyProfile->user?->name) }}" autocomplete="name" required>
 
                     <label for="email">Email</label>
                     <input id="email" type="email" name="email" value="{{ old('email', $companyProfile->user?->email) }}" required autocomplete="username">
@@ -72,7 +76,7 @@
                 </fieldset>
             @endcan
 
-            <label for="html">HTML</label>
+            <label for="html">HTML <span class="unsaved-flag" data-unsaved-flag hidden role="status">Unsaved</span></label>
             <textarea id="html" class="html-editor" name="html" data-live-preview-source spellcheck="false" required>{{ old('html', $companyProfile->html) }}</textarea>
             @can('updateFooterVisibility', $companyProfile)
                 <p class="muted">A discreet Terms and Jadidaring link is attached on the public site unless you hide it below.</p>
@@ -95,16 +99,14 @@
                 <p class="muted">Paid extra. Removes the Jadidaring credit and Terms link from the public website.</p>
             @endcan
 
-            <p><button type="submit">Save</button></p>
+            <p class="editor-save-row">
+                <button type="submit">Save</button>
+                <span class="unsaved-flag" data-unsaved-flag hidden role="status">Unsaved changes · Ctrl+S</span>
+            </p>
         </form>
 
-        <section class="card editor-pane preview-panel" aria-label="Live preview">
-            @include('admin.partials.preview-header', [
-                'siteSubdomain' => old('subdomain', $companyProfile->subdomain),
-            ])
-            <div data-live-preview-mount>
-                <iframe class="preview" sandbox="allow-scripts" title="Sandboxed company preview" srcdoc="{{ old('html', $companyProfile->html) }}"></iframe>
-            </div>
-        </section>
+        <x-live-preview :site-subdomain="old('subdomain', $companyProfile->subdomain)">
+            <iframe class="preview" sandbox="allow-scripts" title="Sandboxed company preview" srcdoc="{{ old('html', $companyProfile->html) }}"></iframe>
+        </x-live-preview>
     </div>
 @endsection

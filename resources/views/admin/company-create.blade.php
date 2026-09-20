@@ -4,8 +4,12 @@
 @section('main_class', 'wide')
 
 @section('content')
-    <h1>New client</h1>
-    <p class="muted">Creates one client account and their unique company subdomain. Client HTML is never rendered in this admin page.</p>
+    <div class="page-heading">
+        <div>
+            <h1>New client</h1>
+            <p class="muted lede">Creates one client account and their unique company subdomain. Client HTML is never rendered in this admin page.</p>
+        </div>
+    </div>
 
     @if ($errors->any())
         <ul class="errors">
@@ -16,10 +20,10 @@
     @endif
 
     <div class="editor-split">
-        <form class="card editor-pane" method="POST" action="{{ route('admin.clients.store') }}">
+        <form class="card editor-pane" method="POST" action="{{ route('admin.clients.store') }}" data-editor-form>
             @csrf
             <label for="name">Client name</label>
-            <input id="name" name="name" value="{{ old('name') }}" required>
+            <input id="name" type="text" name="name" value="{{ old('name') }}" autocomplete="name" required>
 
             <label for="email">Email</label>
             <input id="email" type="email" name="email" value="{{ old('email') }}" required>
@@ -28,13 +32,13 @@
             <input id="password" type="password" name="password" required autocomplete="new-password">
 
             <label for="subdomain">Subdomain</label>
-            <input id="subdomain" name="subdomain" value="{{ old('subdomain') }}" maxlength="63" required>
+            <input id="subdomain" type="text" name="subdomain" value="{{ old('subdomain') }}" maxlength="63" autocapitalize="off" spellcheck="false" required>
 
             <label for="expires_at">Expired</label>
             <input id="expires_at" type="date" name="expires_at" value="{{ old('expires_at', $defaultExpiresAt) }}" required>
             <p class="muted">Paket 1 tahun (Rp 50.000). Ubah tanggal jika perlu.</p>
 
-            <label for="html">Published HTML</label>
+            <label for="html">Published HTML <span class="unsaved-flag" data-unsaved-flag hidden role="status">Unsaved</span></label>
             <textarea id="html" class="html-editor" name="html" data-live-preview-source spellcheck="false" required>{{ old('html', '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Company</title></head><body><h1>Company</h1></body></html>') }}</textarea>
             <p class="muted">A discreet Terms and Jadidaring link is attached on the public site unless you hide it below.</p>
 
@@ -49,16 +53,14 @@
             </label>
             <p class="muted">Paid extra. Removes the Jadidaring credit and Terms link from the public website.</p>
 
-            <p><button type="submit">Create client</button></p>
+            <p class="editor-save-row">
+                <button type="submit">Create client</button>
+                <span class="unsaved-flag" data-unsaved-flag hidden role="status">Unsaved changes · Ctrl+S</span>
+            </p>
         </form>
 
-        <section class="card editor-pane preview-panel" aria-label="Live preview">
-            @include('admin.partials.preview-header', [
-                'siteSubdomain' => old('subdomain'),
-            ])
-            <div data-live-preview-mount>
-                <iframe class="preview" sandbox="allow-scripts" title="Sandboxed company preview" srcdoc="{{ old('html', '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Company</title></head><body><h1>Company</h1></body></html>') }}"></iframe>
-            </div>
-        </section>
+        <x-live-preview :site-subdomain="old('subdomain')">
+            <iframe class="preview" sandbox="allow-scripts" title="Sandboxed company preview" srcdoc="{{ old('html', '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Company</title></head><body><h1>Company</h1></body></html>') }}"></iframe>
+        </x-live-preview>
     </div>
 @endsection

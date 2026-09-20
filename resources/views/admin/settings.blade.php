@@ -3,8 +3,12 @@
 @section('title', 'Settings')
 
 @section('content')
-    <h1>Settings</h1>
-    <p class="muted">One reserved subdomain per line. These labels cannot be assigned to a client. Built-in reserved names always include <code>admin</code>.</p>
+    <div class="page-heading">
+        <div>
+            <h1>Settings</h1>
+            <p class="muted lede">One reserved subdomain per line. These labels cannot be assigned to a client. Built-in reserved names always include <code>admin</code>.</p>
+        </div>
+    </div>
 
     @if ($errors->any())
         <ul class="errors">

@@ -5,77 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Syarat &amp; Ketentuan — {{ $platformName }}</title>
     <meta name="robots" content="noindex,follow">
-    <style>
-        :root {
-            --ink: #1c1917;
-            --muted: #57534e;
-            --line: #e7e5e4;
-            --paper: #fafaf9;
-            --card: #ffffff;
-        }
-        * { box-sizing: border-box; }
-        body {
-            margin: 0;
-            color: var(--ink);
-            background: var(--paper);
-            font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-            line-height: 1.65;
-        }
-        header, main, footer {
-            width: min(46rem, calc(100% - 2rem));
-            margin-left: auto;
-            margin-right: auto;
-        }
-        header { padding: 2.5rem 0 1rem; }
-        header p {
-            margin: .35rem 0 0;
-            color: var(--muted);
-            font-size: .95rem;
-        }
-        a { color: #0f3d3e; }
-        h1 {
-            margin: 0;
-            font-size: 1.75rem;
-            line-height: 1.25;
-        }
-        main {
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: 12px;
-            padding: 1.5rem 1.4rem 1.75rem;
-        }
-        h2 {
-            margin: 1.6rem 0 .45rem;
-            font-size: 1.05rem;
-        }
-        p, li { font-size: .98rem; }
-        p { margin: 0 0 .85rem; }
-        ol {
-            margin: 0;
-            padding-left: 1.2rem;
-        }
-        li { margin: 0 0 .45rem; }
-        .note {
-            background: #f5f5f4;
-            border: 1px solid var(--line);
-            border-radius: 8px;
-            padding: .9rem 1rem;
-            margin: 0 0 1.25rem;
-        }
-        footer {
-            padding: 1.5rem 0 2.5rem;
-            color: var(--muted);
-            font-size: .9rem;
-        }
-    </style>
+    @include('partials.theme-boot')
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 </head>
-<body>
+<body class="legal-wrap">
     <header>
-        <h1>Syarat &amp; Ketentuan dan Kebijakan Konten</h1>
-        <p>{{ $platformName }} sebagai penyedia platform &middot; Diperbarui {{ $updatedOn }}</p>
-        <p>Berlaku untuk situs <strong>{{ $siteHost }}</strong></p>
+        <div>
+            <h1>Syarat &amp; Ketentuan dan Kebijakan Konten</h1>
+            <p>{{ $platformName }} sebagai penyedia platform &middot; Diperbarui {{ $updatedOn }}</p>
+            <p>Berlaku untuk situs <strong>{{ $siteHost }}</strong></p>
+        </div>
+        @include('partials.theme-toggle')
     </header>
-    <main>
+    <main class="card">
         <p class="note">
             {{ $platformName }} hanya menyediakan sarana teknis untuk menayangkan website.
             Seluruh konten pada situs ini dibuat, diisi, dan dapat diubah sewaktu-waktu oleh pengguna/pemilik situs yang bersangkutan.
@@ -158,5 +100,6 @@
         <p><a href="{{ $homeUrl }}">Kembali ke website</a></p>
         <p>&copy; {{ date('Y') }} {{ $platformName }}. Penyedia platform, bukan pemilik konten situs ini.</p>
     </footer>
+    <script src="{{ asset('js/theme.js') }}" defer></script>
 </body>
 </html>

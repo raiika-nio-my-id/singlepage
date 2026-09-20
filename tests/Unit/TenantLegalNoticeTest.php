@@ -83,5 +83,7 @@ class TenantLegalNoticeTest extends TestCase
         $this->assertStringContainsString('penipuan', $html);
         $this->assertStringContainsString('acme.jadidaring.test', $html);
         $this->assertStringContainsString('Kembali ke website', $html);
+        $this->assertStringContainsString('data-theme-toggle', $html);
+        $this->assertStringContainsString('js/theme.js', $html);
     }
 }
