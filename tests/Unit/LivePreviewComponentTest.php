@@ -56,6 +56,9 @@ class LivePreviewComponentTest extends TestCase
         $this->assertStringNotContainsString('requestAnimationFrame(glide)', $script);
         $this->assertStringContainsString("setAttribute('sandbox', 'allow-scripts')", $script);
         $this->assertStringNotContainsString('allow-same-origin', $script);
+        $this->assertStringContainsString("type: 'restore-scroll'", $script);
+        $this->assertStringContainsString("type: 'scroll'", $script);
+        $this->assertStringContainsString('postMessage', $script);
         $this->assertStringContainsString('[data-preview-mode="mobile"] iframe.preview', $css);
         $this->assertStringContainsString('scrollbar-width: none', $css);
         $this->assertStringContainsString('.preview-modes {', $css);

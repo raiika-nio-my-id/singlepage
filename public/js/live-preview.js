@@ -32,9 +32,52 @@
         return html.slice(0, match.index) + extra + html.slice(match.index);
     };
 
+    const injectPreviewUi = (html, style, script) => {
+        let decorated = html;
+
+        if (style) {
+            if (/<\/head>/i.test(decorated)) {
+                decorated = insertBeforeTag(decorated, 'head', style) || decorated;
+            } else if (/<\/html>/i.test(decorated)) {
+                decorated = insertBeforeTag(decorated, 'html', style) || (style + decorated);
+            } else {
+                decorated = style + decorated;
+            }
+        }
+
+        if (/<\/body>/i.test(decorated)) {
+            return insertBeforeTag(decorated, 'body', script) || (decorated + script);
+        }
+
+        if (/<\/html>/i.test(decorated)) {
+            return insertBeforeTag(decorated, 'html', script) || (decorated + script);
+        }
+
+        return decorated + script;
+    };
+
+    const scrollBridgeScript = `
+    function reportScroll() {
+        parent.postMessage({ source: 'cms-preview', type: 'scroll', x: window.scrollX || 0, y: window.scrollY || 0 }, '*');
+    }
+
+    window.addEventListener('scroll', reportScroll, { passive: true });
+    window.addEventListener('message', function (event) {
+        var data = event.data;
+        if (!data || data.source !== 'cms-preview' || data.type !== 'restore-scroll') {
+            return;
+        }
+        window.scrollTo({ left: data.x || 0, top: data.y || 0, behavior: 'instant' });
+    });
+`;
+
     const decoratePreviewHtml = (html, mode) => {
         if (mode !== 'mobile') {
-            return html;
+            return injectPreviewUi(html, '', `<script data-cms-preview-ui>
+(function () {
+${scrollBridgeScript}
+})();
+</script>`);
         }
 
         const style = `<style data-cms-preview-ui>
@@ -47,6 +90,7 @@ html.cms-preview-dragging, html.cms-preview-dragging * { cursor: grabbing !impor
 </style>`;
         const script = `<script data-cms-preview-ui>
 (function () {
+${scrollBridgeScript}
     var active = false;
     var dragging = false;
     var startX = 0;
@@ -157,6 +201,7 @@ html.cms-preview-dragging, html.cms-preview-dragging * { cursor: grabbing !impor
         }
 
         applyScroll(scroller, originX - dx, originY - dy);
+        reportScroll();
         event.preventDefault();
     }, { passive: false });
 
@@ -184,25 +229,7 @@ html.cms-preview-dragging, html.cms-preview-dragging * { cursor: grabbing !impor
 })();
 </script>`;
 
-        let decorated = html;
-
-        if (/<\/head>/i.test(decorated)) {
-            decorated = insertBeforeTag(decorated, 'head', style) || decorated;
-        } else if (/<\/html>/i.test(decorated)) {
-            decorated = insertBeforeTag(decorated, 'html', style) || (style + decorated);
-        } else {
-            decorated = style + decorated;
-        }
-
-        if (/<\/body>/i.test(decorated)) {
-            return insertBeforeTag(decorated, 'body', script) || (decorated + script);
-        }
-
-        if (/<\/html>/i.test(decorated)) {
-            return insertBeforeTag(decorated, 'html', script) || (decorated + script);
-        }
-
-        return decorated + script;
+        return injectPreviewUi(html, style, script);
     };
 
     const fit = () => {
@@ -234,6 +261,21 @@ html.cms-preview-dragging, html.cms-preview-dragging * { cursor: grabbing !impor
         mount.style.height = `${Math.round(viewportHeight * scale)}px`;
     };
 
+    let previewScroll = { x: 0, y: 0 };
+
+    const restorePreviewScroll = (iframe) => {
+        try {
+            iframe.contentWindow.postMessage({
+                source: 'cms-preview',
+                type: 'restore-scroll',
+                x: previewScroll.x,
+                y: previewScroll.y,
+            }, '*');
+        } catch {
+            // Ignore frames that are not ready yet.
+        }
+    };
+
     const render = () => {
         const iframe = document.createElement('iframe');
         iframe.className = 'preview';
@@ -247,6 +289,11 @@ html.cms-preview-dragging, html.cms-preview-dragging * { cursor: grabbing !impor
         objectUrl = URL.createObjectURL(new Blob([decoratePreviewHtml(source.value, currentMode())], {
             type: 'text/html;charset=utf-8',
         }));
+        iframe.addEventListener('load', () => {
+            restorePreviewScroll(iframe);
+            window.requestAnimationFrame(() => restorePreviewScroll(iframe));
+            fit();
+        });
         iframe.src = objectUrl;
         mount.replaceChildren(iframe);
         fit();
@@ -267,6 +314,7 @@ html.cms-preview-dragging, html.cms-preview-dragging * { cursor: grabbing !impor
         }
 
         if (refresh && changed) {
+            previewScroll = { x: 0, y: 0 };
             render();
 
             return;
@@ -286,6 +334,18 @@ html.cms-preview-dragging, html.cms-preview-dragging * { cursor: grabbing !impor
         button.addEventListener('click', () => apply(button.dataset.previewModeButton));
     });
     window.addEventListener('resize', fit);
+    window.addEventListener('message', (event) => {
+        const data = event.data;
+
+        if (!data || data.source !== 'cms-preview' || data.type !== 'scroll') {
+            return;
+        }
+
+        previewScroll = {
+            x: Number(data.x) || 0,
+            y: Number(data.y) || 0,
+        };
+    });
 
     if (typeof ResizeObserver === 'function') {
         new ResizeObserver(fit).observe(stage);
