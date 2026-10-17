@@ -5,6 +5,7 @@
 services:
   singlepage:
     build: .
+    image: singlepage
     container_name: singlepage-app
     restart: unless-stopped
     volumes:
@@ -29,8 +30,8 @@ services:
       - shared-services
 
   reverb:
-    image: comprof-cms-singlepage
-    pull_policy: never
+    build: .
+    image: singlepage
     container_name: singlepage-reverb
     restart: unless-stopped
     entrypoint: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080"]
@@ -60,6 +61,7 @@ services:
 
   scheduler:
     build: .
+    image: singlepage
     container_name: singlepage-scheduler
     restart: unless-stopped
     user: root
