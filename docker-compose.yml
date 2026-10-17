@@ -1,6 +1,7 @@
 # Relies on ~/project/infrastructure (mysql-db on shared-services,
 # global-proxy / Nginx Proxy Manager on host network → 127.0.0.1:${APP_PORT}).
 # Create the network once: docker network create shared-services
+# Reverb is internal. Browsers reach it through nginx on /app (Upgrade must pass the proxy).
 services:
   singlepage:
     build: .
@@ -16,6 +17,42 @@ services:
       - PHP_MAX_EXECUTION_TIME=${PHP_MAX_EXECUTION_TIME:-300}
       - PHP_MAX_INPUT_TIME=${PHP_MAX_INPUT_TIME:-300}
       - PHP_DISPLAY_ERRORS=${PHP_DISPLAY_ERRORS:-On}
+      - BROADCAST_CONNECTION=reverb
+      - REVERB_HOST=reverb
+      - REVERB_PORT=8080
+      - REVERB_SCHEME=http
+      - REVERB_SERVER_HOST=0.0.0.0
+      - REVERB_SERVER_PORT=8080
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - shared-services
+
+  reverb:
+    image: comprof-cms-singlepage
+    pull_policy: never
+    container_name: singlepage-reverb
+    restart: unless-stopped
+    entrypoint: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080"]
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+      - ./docker-config/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
+    environment:
+      - PHP_UPLOAD_MAX_FILESIZE=${PHP_UPLOAD_MAX_FILESIZE:-50M}
+      - PHP_POST_MAX_SIZE=${PHP_POST_MAX_SIZE:-50M}
+      - PHP_MEMORY_LIMIT=${PHP_MEMORY_LIMIT:-256M}
+      - PHP_MAX_EXECUTION_TIME=${PHP_MAX_EXECUTION_TIME:-300}
+      - PHP_MAX_INPUT_TIME=${PHP_MAX_INPUT_TIME:-300}
+      - PHP_DISPLAY_ERRORS=${PHP_DISPLAY_ERRORS:-On}
+      - BROADCAST_CONNECTION=reverb
+      - REVERB_HOST=reverb
+      - REVERB_PORT=8080
+      - REVERB_SCHEME=http
+      - REVERB_SERVER_HOST=0.0.0.0
+      - REVERB_SERVER_PORT=8080
+    depends_on:
+      - singlepage
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
@@ -57,6 +94,7 @@ services:
       - ./docker-config/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - singlepage
+      - reverb
     networks:
       - shared-services
 

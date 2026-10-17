@@ -4,9 +4,9 @@ $USERNAME = 'adminjadidaring';
 $PASSWORD = 'yangbolehtaucumaK4MU';
 
 if (
-    !isset($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) ||
-    !hash_equals($USERNAME, $_SERVER['PHP_AUTH_USER']) ||
-    !hash_equals($PASSWORD, $_SERVER['PHP_AUTH_PW'])
+    ! isset($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) ||
+    ! hash_equals($USERNAME, $_SERVER['PHP_AUTH_USER']) ||
+    ! hash_equals($PASSWORD, $_SERVER['PHP_AUTH_PW'])
 ) {
     header('WWW-Authenticate: Basic realm="Protected File"');
     http_response_code(401);
@@ -174,6 +174,8 @@ IMPORTANT:
 `index.html`
 
 and opening it in a browser.
+
+A normal page must work with no server. A multiplayer game must also work as one HTML file: practice mode runs in the browser, and online play uses only the platform API in the MULTIPLAYER GAMES section when the page is served on its own subdomain.
 
 8. No build process or installation must be required.
 
@@ -385,6 +387,104 @@ The JSON configuration is part of the single HTML file and MUST NOT be placed in
 
 ---
 
+# MULTIPLAYER GAMES — SHARED WEBSOCKET AND DATABASE
+
+Use this section only when the page is a game people play together. Mahjong (`mahjong`) and Exploding Kittens (`explodingkitten`) are the current examples. Every new game follows the same rule.
+
+Contact forms, RSVP, booking, and inquiry forms are NOT games. Those still use WhatsApp, as defined in the next section.
+
+## One server for every game
+
+Online play uses the Jadidaring Laravel app:
+
+* **Websocket:** one Laravel Reverb server for every game. Do not start a second websocket, Socket.IO server, or Node realtime server.
+* **Database:** one MySQL database (the Singlepage application database) for every game. Do not create a database per game. Do not use Neon, Supabase, a private Postgres URL, or a `DATABASE_URL` in the HTML.
+
+The private subdomain chooses the data and the channel. The server rejects rooms that belong to another subdomain.
+
+| Published host | Websocket lobby channel | Room channel | Database scope |
+| --- | --- | --- | --- |
+| `mahjong.jadidaring.com` | `game.mahjong` | `game.mahjong.{code}` | rows for subdomain `mahjong` only |
+| `explodingkitten.jadidaring.com` | `game.explodingkitten` | `game.explodingkitten.{code}` | rows for subdomain `explodingkitten` only |
+| `{subdomain}.jadidaring.com` | `game.{subdomain}` | `game.{subdomain}.{code}` | rows for that subdomain only |
+
+Local hosts use `jadidaring.test` instead of `jadidaring.com`. The channel prefix does not include the base domain.
+
+Read the subdomain from `location.hostname` (the label before the base domain). Never hardcode another game's host, channel, or room list.
+
+## Credentials stay on the server
+
+The HTML must NOT contain:
+
+* a database host, name, user, or password
+* `DATABASE_URL`
+* a Postgres or Neon connection string
+* the Reverb app secret
+* a player token written into the source (tokens are issued at runtime)
+
+`GET /api/game/config` on the same origin is the source of truth. Call it when online play starts. Use `websocket.url`, `websocket.channelPrefix`, `websocket.lobbyChannel`, `websocket.roomChannel`, and `websocket.event` from that JSON. If `websocket.enabled` is false, keep practice mode and show that online play is unavailable.
+
+The config object also says `database.shared` is true and `database.isolatedBy` is `subdomain`. That is the only database information the page needs.
+
+## Offline / practice
+
+The single HTML file must still open from disk or work as a local practice table with no server.
+
+Online buttons run only when `location.protocol` is `http:` or `https:` and `location.hostname` ends with `jadidaring.com` or `jadidaring.test`. Otherwise stay in practice mode.
+
+## HTTP API (same origin)
+
+Send `Content-Type: application/json`. Send the player token as `Authorization: Bearer PLAYER_TOKEN` after a seat is issued. Store the token in `sessionStorage`, not in the HTML.
+
+* `GET /api/game/config` — connection for this subdomain.
+* `GET /api/game/rooms` — public tables for this subdomain only. No secrets.
+* `POST /api/game/rooms` — body `{ "displayName", "visibility": "public"|"private", "maxPlayers": 2-16, "state": {}, "private": {} }`. Default visibility is `private`.
+* `POST /api/game/rooms/join` — body `{ "code", "displayName", "private": {} }`. Only `waiting` rooms with a free seat.
+* `POST /api/game/rooms/match` — body `{ "displayName", "maxPlayers", "state", "private" }`. Joins the oldest public waiting room for this subdomain, or creates one.
+* `POST /api/game/rooms/{code}/watch` — body `{ "displayName" }`. Spectator. Does not take a seat.
+* `GET /api/game/rooms/{code}?since={version}` — member state. `since` equal to the current version returns `{ "unchanged": true, "code", "version" }` and nothing else.
+* `POST /api/game/rooms/{code}/actions` — body `{ "type", "payload": {}, "state": {}, "private": {}, "status": "waiting"|"playing"|"closed", "expectedVersion" }`. `state` and `private` are optional. Omit a key to leave it unchanged.
+* `POST /api/game/rooms/{code}/leave` — leave the seat.
+
+Create, join, match, and watch return `playerToken` once. Later responses do not repeat it.
+
+`state` is visible to every member of the room. `private` is returned only to the player token that owns it. A 409 means the version changed or the room is full, closed, or not joinable. Refetch, then retry the action once with the new `expectedVersion`.
+
+`state` is the authority. `events` can be truncated. Do not treat a missing event as permission to invent game data.
+
+## Websocket (vanilla JavaScript, no library)
+
+Connect to `websocket.url` from config. Subscribe to the lobby channel while showing open tables, and to `channelPrefix + "." + code` while sitting at a table.
+
+The only game event is `room.updated`, with data `{ "code", "version" }`. It is a wake-up. Refetch `GET /api/game/rooms/{code}` with the player token. Never put a hand, a deck order, or any other secret on the socket, in `state`, or in an action `payload`. Secrets belong in `private`.
+
+Reply to `pusher:ping` or the connection will drop. If the socket closes, poll `GET /api/game/rooms/{code}?since={version}` about once a second until it reconnects.
+
+```javascript
+const cfg = await (await fetch("/api/game/config")).json();
+const ws = new WebSocket(cfg.websocket.url);
+ws.onopen = () => {
+  ws.send(JSON.stringify({ event: "pusher:subscribe", data: { channel: cfg.websocket.lobbyChannel } }));
+};
+ws.onmessage = (message) => {
+  const frame = JSON.parse(message.data);
+  if (frame.event === "pusher:ping") {
+    ws.send(JSON.stringify({ event: "pusher:pong", data: {} }));
+    return;
+  }
+  if (frame.event === "room.updated") {
+    const data = JSON.parse(frame.data);
+    // Refetch with the player token. Do not trust this frame for hidden cards.
+  }
+};
+```
+
+At a table, subscribe the same way to `cfg.websocket.channelPrefix + "." + roomCode`.
+
+Do not load Pusher, Laravel Echo, Socket.IO, or any other realtime library. The page is still one HTML file.
+
+---
+
 # WHATSAPP / FORM RULES — ABSOLUTE
 
 The website must NOT contain forms that require a backend.
@@ -400,6 +500,8 @@ Do NOT create:
 * database storage
 * authentication
 * backend endpoints
+
+The only exception is a multiplayer game using the platform routes in MULTIPLAYER GAMES. Do not invent any other endpoint, and do not point a game at a different websocket or database.
 
 If the website requires an inquiry, reservation, RSVP, registration, booking, quotation request, or contact interaction:
 
@@ -914,7 +1016,8 @@ Before producing the final answer, internally verify:
 
 * all JavaScript is inside `<script>`
 * vanilla JavaScript only
-* no backend dependency
+* no backend dependency, except a multiplayer game calling the platform API in MULTIPLAYER GAMES
+* no database credentials, Neon URLs, or private websocket servers
 * no unnecessary libraries
 
 ### Content
@@ -938,6 +1041,7 @@ Before producing the final answer, internally verify:
 * no backend forms
 * no fake submit behavior
 * contact/RSVP forms use WhatsApp when applicable
+* multiplayer games, when that is the page, use `/api/game` on their own subdomain and the websocket from `/api/game/config`
 
 ### JSON
 

@@ -11,6 +11,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
+        channels: __DIR__.'/../routes/channels.php',
         health: '/up',
         then: function (): void {
             Route::middleware('web')
@@ -20,6 +21,12 @@ return Application::configure(basePath: dirname(__DIR__))
             Route::middleware(['web', ResolveTenantSubdomain::class])
                 ->domain('{tenant}.'.config('singlepage.base_domain'))
                 ->group(base_path('routes/tenant.php'));
+
+            Route::middleware([ResolveTenantSubdomain::class, 'throttle:120,1'])
+                ->domain('{tenant}.'.config('singlepage.base_domain'))
+                ->prefix('api/game')
+                ->name('game.')
+                ->group(base_path('routes/game.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
