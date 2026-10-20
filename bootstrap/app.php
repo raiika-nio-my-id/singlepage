@@ -22,7 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->domain('{tenant}.'.config('singlepage.base_domain'))
                 ->group(base_path('routes/tenant.php'));
 
-            Route::middleware([ResolveTenantSubdomain::class, 'throttle:120,1'])
+            Route::middleware([ResolveTenantSubdomain::class])
                 ->domain('{tenant}.'.config('singlepage.base_domain'))
                 ->prefix('api/game')
                 ->name('game.')
