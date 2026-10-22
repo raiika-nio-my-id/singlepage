@@ -48,16 +48,17 @@ cat ~/.ssh/jadidaring_deploy.pub | ssh jadidaring@<SERVER_IP> \
 The `jadidaring` user must be able to run `docker` and `docker compose`
 commands without `sudo` (i.e., a member of the `docker` group).
 
-### 3  Collect the server's host-key fingerprint
+### 3  Collect the server's SSH host-key fingerprint
 
-Run this **locally** to get the value for the `DEPLOY_KNOWN_HOSTS` secret:
+Run this **on the server** (as any user with read access to `/etc/ssh`):
 
 ```bash
-ssh-keyscan -H <SERVER_IP_OR_HOSTNAME>
+ssh-keygen -l -f /etc/ssh/ssh_host_ed25519_key.pub | awk '{print $2}'
 ```
 
-Copy the full output (one or more lines starting with `|1|…`) – this is the
-value of the `DEPLOY_KNOWN_HOSTS` secret.
+The output is a single line like `SHA256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`.
+That full string (including the `SHA256:` prefix) is the value of the
+`DEPLOY_HOST_FINGERPRINT` secret.
 
 ### 4  Add GitHub repository secrets
 
@@ -68,7 +69,7 @@ In GitHub → **Settings → Secrets and variables → Actions**, add:
 | `DEPLOY_HOST` | ✅ | IP or hostname of the server |
 | `DEPLOY_USER` | ✅ | SSH username (`jadidaring`) |
 | `DEPLOY_SSH_KEY` | ✅ | Full content of `~/.ssh/jadidaring_deploy` (the **private** key) |
-| `DEPLOY_KNOWN_HOSTS` | ✅ | Output of `ssh-keyscan -H <SERVER_IP>` |
+| `DEPLOY_HOST_FINGERPRINT` | ✅ | Output of `ssh-keygen -l -f /etc/ssh/ssh_host_ed25519_key.pub \| awk '{print $2}'` on the server |
 | `DEPLOY_PORT` | optional | SSH port if not 22 |
 | `DEPLOY_PATH` | optional | App directory if not `/var/www/singlepage` |
 

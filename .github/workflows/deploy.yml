@@ -54,14 +54,22 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           # DEPLOY_PORT is optional; leave unset to use the default (22).
           port: ${{ secrets.DEPLOY_PORT || 22 }}
-          # DEPLOY_KNOWN_HOSTS must contain the server's host-key fingerprint(s).
-          # Obtain with:  ssh-keyscan -H <DEPLOY_HOST>
-          known_hosts: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          # SHA256 host-key fingerprint of the server.
+          # Obtain on the server with:
+          #   ssh-keygen -l -f /etc/ssh/ssh_host_ed25519_key.pub | awk '{print $2}'
+          # Output looks like: SHA256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+          fingerprint: ${{ secrets.DEPLOY_HOST_FINGERPRINT }}
           envs: DEPLOY_REF,DEPLOY_PATH
-          # The remote shell inherits DEPLOY_REF and DEPLOY_PATH via envs above.
+          # Bootstrap fix: fetch first so scripts/deploy.sh is available even on
+          # the very first run (chicken-and-egg: the commit that adds the script
+          # may not yet be present locally on the server).
+          # We always pipe the script from the fetched ref, which guarantees the
+          # server runs the same version of deploy.sh that is in origin/$DEPLOY_REF.
           script: |
             set -euo pipefail
             APP_DIR="${DEPLOY_PATH:-/var/www/singlepage}"
             cd "$APP_DIR"
-            echo "==> Starting deploy of ref: $DEPLOY_REF from $APP_DIR"
-            bash scripts/deploy.sh "$DEPLOY_REF"
+            echo "==> Fetching latest refs from origin..."
+            git fetch --prune --tags origin
+            echo "==> Running scripts/deploy.sh @ origin/${DEPLOY_REF}"
+            git show "origin/${DEPLOY_REF}:scripts/deploy.sh" | bash -s -- "$DEPLOY_REF"
