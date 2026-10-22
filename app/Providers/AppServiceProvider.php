@@ -34,5 +34,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('manage-settings', function (User $user): bool {
             return $user->can('manageSettings', CompanyProfile::class);
         });
+
+        Gate::define('manage-deploy', function (User $user): bool {
+            return $user->isAdmin();
+        });
     }
 }

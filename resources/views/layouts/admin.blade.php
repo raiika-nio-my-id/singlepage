@@ -30,6 +30,9 @@
                 @can('manage-settings')
                     <a href="{{ route('admin.settings') }}" @if(request()->routeIs('admin.settings')) aria-current="page" @endif>Settings</a>
                 @endcan
+                @can('manage-deploy')
+                    <a href="{{ route('admin.deploy') }}" @if(request()->routeIs('admin.deploy')) aria-current="page" @endif>Deploy</a>
+                @endcan
             @endif
             <span class="user-chip">{{ auth()->user()->name }}</span>
             @include('partials.theme-toggle')
@@ -48,5 +51,6 @@
     <script src="{{ asset('js/theme.js') }}" defer></script>
     <script src="{{ asset('js/editor-draft.js') }}" defer></script>
     <script src="{{ asset('js/live-preview.js') }}" defer></script>
+    @stack('scripts')
 </body>
 </html>
