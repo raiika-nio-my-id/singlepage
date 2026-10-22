@@ -1,0 +1,67 @@
+name: Deploy to Production
+
+# ── Trigger: manual only ───────────────────────────────────────────────────────
+# Press "Run workflow" in the GitHub Actions UI (or use the GitHub CLI).
+# Auto-deploy on push is intentionally NOT enabled here.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch or tag to deploy (defaults to main)'
+        required: false
+        default: 'main'
+        type: string
+      deployer_name:
+        description: 'Name of the admin who triggered the deploy (set automatically by the in-app button)'
+        required: false
+        default: ''
+        type: string
+
+# ── Safety: only one deploy at a time ─────────────────────────────────────────
+# A second run queues (cancel-in-progress: false) rather than clobbering the
+# first. Change to true if you'd prefer to cancel the running deploy instead.
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: >-
+      Deploy ${{ inputs.ref || 'main' }}
+      ${{ inputs.deployer_name != '' && format('(by {0})', inputs.deployer_name) || '' }}
+    runs-on: ubuntu-latest
+
+    # Optional: pin an environment for approval gates / environment secrets.
+    # environment: production
+
+    steps:
+      - name: Validate ref input
+        run: |
+          REF="${{ inputs.ref || 'main' }}"
+          if [[ ! "$REF" =~ ^[a-zA-Z0-9_./-]+$ ]]; then
+            echo "::error::Invalid ref: '$REF'. Only alphanumeric characters, dots, slashes, underscores, and dashes are allowed."
+            exit 1
+          fi
+
+      - name: SSH deploy
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          DEPLOY_REF: ${{ inputs.ref || 'main' }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          # DEPLOY_PORT is optional; leave unset to use the default (22).
+          port: ${{ secrets.DEPLOY_PORT || 22 }}
+          # DEPLOY_KNOWN_HOSTS must contain the server's host-key fingerprint(s).
+          # Obtain with:  ssh-keyscan -H <DEPLOY_HOST>
+          known_hosts: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          envs: DEPLOY_REF,DEPLOY_PATH
+          # The remote shell inherits DEPLOY_REF and DEPLOY_PATH via envs above.
+          script: |
+            set -euo pipefail
+            APP_DIR="${DEPLOY_PATH:-/var/www/singlepage}"
+            cd "$APP_DIR"
+            echo "==> Starting deploy of ref: $DEPLOY_REF from $APP_DIR"
+            bash scripts/deploy.sh "$DEPLOY_REF"

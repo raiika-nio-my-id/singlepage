@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\CompanyProfileController;
+use App\Http\Controllers\Admin\DeployController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Http\Response;
@@ -36,5 +37,13 @@ Route::middleware('auth')->group(function (): void {
     Route::middleware('can:manage-settings')->group(function (): void {
         Route::get('/settings', [SettingsController::class, 'edit'])->name('admin.settings');
         Route::put('/settings', [SettingsController::class, 'update'])->name('admin.settings.update');
+    });
+
+    Route::middleware('can:manage-deploy')->group(function (): void {
+        Route::get('/deploy', [DeployController::class, 'index'])->name('admin.deploy');
+        Route::post('/deploy', [DeployController::class, 'dispatch'])
+            ->name('admin.deploy.dispatch')
+            ->middleware('throttle:5,1');
+        Route::get('/deploy/runs', [DeployController::class, 'runs'])->name('admin.deploy.runs');
     });
 });
