@@ -26,6 +26,7 @@ class StoreCompanyProfileRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['nullable', 'string', Password::defaults()],
             'subdomain' => ['required', 'string', 'max:63', new Subdomain],
+            'admin_alias' => ['nullable', 'string', 'max:120'],
             'html' => ['required', 'string'],
             'status' => ['nullable', Rule::enum(ProfileStatus::class)],
             'expires_at' => ['required', 'date'],

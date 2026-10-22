@@ -22,6 +22,10 @@
     <div class="editor-split">
         <form class="card editor-pane" method="POST" action="{{ route('admin.clients.store') }}" data-editor-form>
             @csrf
+            <label for="admin_alias">Internal alias <span class="badge badge-draft">admin only</span></label>
+            <input id="admin_alias" type="text" name="admin_alias" value="{{ old('admin_alias') }}" maxlength="120" placeholder="e.g. Pak Budi – Ulartangga">
+            <p class="muted">Private label shown only in this admin panel. Never appears on the public site.</p>
+
             <label for="name">Client name</label>
             <input id="name" type="text" name="name" value="{{ old('name') }}" autocomplete="name" required>
 

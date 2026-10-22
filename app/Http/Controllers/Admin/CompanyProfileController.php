@@ -105,6 +105,7 @@ class CompanyProfileController extends Controller
                 'status' => $request->published() ? ProfileStatus::Published : ProfileStatus::Draft,
                 'expires_at' => $request->validated('expires_at'),
                 'hide_footer' => $request->boolean('hide_footer'),
+                'admin_alias' => $request->validated('admin_alias') ?: null,
             ]);
         });
 
@@ -141,6 +142,11 @@ class CompanyProfileController extends Controller
                 'html' => $request->validated('html'),
                 'status' => $request->published() ? ProfileStatus::Published : ProfileStatus::Draft,
             ];
+
+            // admin_alias is admin-only — clients editing their own workspace cannot set it.
+            if ($request->user()?->isAdmin()) {
+                $payload['admin_alias'] = $request->validated('admin_alias') ?: null;
+            }
 
             if ($request->user()?->can('updateSubdomain', $companyProfile)) {
                 $payload['subdomain'] = $subdomains->validateAvailable(

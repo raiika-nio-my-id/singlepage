@@ -37,6 +37,12 @@
             @csrf
             @method('PUT')
 
+            @unless ($workspace)
+                <label for="admin_alias">Internal alias <span class="badge badge-draft">admin only</span></label>
+                <input id="admin_alias" type="text" name="admin_alias" value="{{ old('admin_alias', $companyProfile->admin_alias) }}" maxlength="120" placeholder="e.g. Pak Budi – Ulartangga">
+                <p class="muted">Private label shown only in this admin panel. Never appears on the public site.</p>
+            @endunless
+
             <label for="subdomain">{{ $workspace ? 'Your web address' : 'Subdomain' }}</label>
             @can('updateSubdomain', $companyProfile)
                 <input id="subdomain" type="text" name="subdomain" value="{{ old('subdomain', $companyProfile->subdomain) }}" maxlength="63" autocapitalize="off" spellcheck="false" required>

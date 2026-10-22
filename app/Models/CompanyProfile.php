@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
-#[Fillable(['user_id', 'subdomain', 'html', 'status', 'expires_at', 'hide_footer', 'sort_order'])]
+#[Fillable(['user_id', 'subdomain', 'html', 'status', 'expires_at', 'hide_footer', 'sort_order', 'admin_alias'])]
 class CompanyProfile extends Model
 {
     /** @use HasFactory<CompanyProfileFactory> */

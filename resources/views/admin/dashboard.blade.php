@@ -33,7 +33,12 @@
                         <tr data-id="{{ $profile->id }}" draggable="true">
                             <td class="drag-handle" aria-hidden="true">⠿</td>
                             <td>
-                                {{ $profile->user?->name }}
+                                @if ($profile->admin_alias)
+                                    <strong>{{ $profile->admin_alias }}</strong>
+                                    <div class="muted">{{ $profile->user?->name }}</div>
+                                @else
+                                    {{ $profile->user?->name }}
+                                @endif
                                 <div class="muted">{{ $profile->user?->email }}</div>
                             </td>
                             <td>
