@@ -129,7 +129,13 @@ fi
 
 # ─── STEP 7 – Composer install ───────────────────────────────────────────────
 step "7/10  composer install"
-docker exec "$APP_CONTAINER" composer install \
+# COMPOSER_HOME is redirected to /tmp inside the container so that Composer's
+# cache/config files (.cache/, .config/, .local/) are never written into
+# /var/www (the bind-mounted app dir). Without this, those dirs end up tracked
+# by git and fail the dirty-tree check on every subsequent deploy.
+docker exec \
+    -e COMPOSER_HOME=/tmp/composer-home \
+    "$APP_CONTAINER" composer install \
     --no-dev \
     --optimize-autoloader \
     --no-interaction \
