@@ -8,6 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Guard: idempotent in case of a partial prior run on a non-transactional engine.
+        if (Schema::hasTable('company_profile_aliases')) {
+            return;
+        }
+
         Schema::create('company_profile_aliases', function (Blueprint $table) {
             $table->id();
             $table->foreignId('company_profile_id')->constrained()->cascadeOnDelete();
