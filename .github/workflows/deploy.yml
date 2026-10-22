@@ -1,9 +1,14 @@
 name: Deploy to Production
 
-# ── Trigger: manual only ───────────────────────────────────────────────────────
-# Press "Run workflow" in the GitHub Actions UI (or use the GitHub CLI).
-# Auto-deploy on push is intentionally NOT enabled here.
+# ── Triggers ──────────────────────────────────────────────────────────────────
+# 1. Automatic: every push to main (skips docs-only changes).
+# 2. Manual:    "Run workflow" button in the GitHub Actions UI, or via the
+#               in-app Deploy button at admin.jadidaring.com/deploy.
 on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
   workflow_dispatch:
     inputs:
       ref:
@@ -26,18 +31,22 @@ concurrency:
 
 jobs:
   deploy:
+    # On push: "Deploy main (by octocat)"
+    # On workflow_dispatch with deployer_name: "Deploy main (by Alice)"
+    # On workflow_dispatch without deployer_name: "Deploy feature/x (by octocat)"
     name: >-
-      Deploy ${{ inputs.ref || 'main' }}
-      ${{ inputs.deployer_name != '' && format('(by {0})', inputs.deployer_name) || '' }}
+      Deploy ${{ inputs.ref || github.ref_name }}
+      (by ${{ inputs.deployer_name || github.actor }})
     runs-on: ubuntu-latest
 
     # Optional: pin an environment for approval gates / environment secrets.
     # environment: production
 
     steps:
-      - name: Validate ref input
+      - name: Validate ref
         run: |
-          REF="${{ inputs.ref || 'main' }}"
+          # On push triggers inputs.ref is empty; fall back to the pushed branch name.
+          REF="${{ inputs.ref || github.ref_name }}"
           if [[ ! "$REF" =~ ^[a-zA-Z0-9_./-]+$ ]]; then
             echo "::error::Invalid ref: '$REF'. Only alphanumeric characters, dots, slashes, underscores, and dashes are allowed."
             exit 1
@@ -46,7 +55,8 @@ jobs:
       - name: SSH deploy
         uses: appleboy/ssh-action@v1.2.0
         env:
-          DEPLOY_REF: ${{ inputs.ref || 'main' }}
+          # inputs.ref is empty on push triggers; github.ref_name is the pushed branch.
+          DEPLOY_REF: ${{ inputs.ref || github.ref_name }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         with:
           host: ${{ secrets.DEPLOY_HOST }}
@@ -60,11 +70,10 @@ jobs:
           # Output looks like: SHA256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
           fingerprint: ${{ secrets.DEPLOY_HOST_FINGERPRINT }}
           envs: DEPLOY_REF,DEPLOY_PATH
-          # Bootstrap fix: fetch first so scripts/deploy.sh is available even on
-          # the very first run (chicken-and-egg: the commit that adds the script
-          # may not yet be present locally on the server).
-          # We always pipe the script from the fetched ref, which guarantees the
-          # server runs the same version of deploy.sh that is in origin/$DEPLOY_REF.
+          # Bootstrap: fetch first so scripts/deploy.sh is available even on the
+          # first run (the server checkout may not yet contain the script).
+          # Piping from origin/$DEPLOY_REF guarantees the server always runs the
+          # same version of deploy.sh that is in the target ref.
           script: |
             set -euo pipefail
             APP_DIR="${DEPLOY_PATH:-/var/www/singlepage}"
