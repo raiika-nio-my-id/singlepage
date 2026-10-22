@@ -1,6 +1,11 @@
 *.log
 .DS_Store
 .env
+# Runtime dirs written by Composer/PsySH/XDG tools when HOME=APP_DIR in the container.
+# Never commit these; they dirty the working tree and bloat the repo.
+/.cache/
+/.config/
+/.local/
 .env.backup
 .env.production
 .phpactor.json
