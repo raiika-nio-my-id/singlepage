@@ -3,7 +3,13 @@
 use App\Http\Controllers\Admin\CompanyProfileController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/robots.txt', function (): Response {
+    return response("User-agent: *\nDisallow: /\n")
+        ->header('Content-Type', 'text/plain; charset=utf-8');
+});
 
 Route::redirect('/admin/login', '/login');
 
