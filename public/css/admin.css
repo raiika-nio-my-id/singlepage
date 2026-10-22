@@ -785,3 +785,32 @@ tbody tr:hover td { background: var(--accent-soft); }
 @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; }
 }
+
+/* ── Drag-and-drop sortable rows ── */
+.drag-col { width: 2rem; padding-inline: 0; }
+.drag-handle {
+    cursor: grab;
+    text-align: center;
+    color: var(--muted);
+    user-select: none;
+    font-size: 1.1rem;
+    touch-action: none;
+}
+.drag-handle:active { cursor: grabbing; }
+tr.dragging { opacity: .4; }
+tr.drag-over > td { background: var(--accent-soft); }
+
+/* ── View stats column ── */
+.views-col { white-space: nowrap; font-variant-numeric: tabular-nums; font-size: .875rem; }
+thead .views-col { cursor: help; }
+
+/* ── Subdomain aliases ── */
+.alias-panel { margin-top: 1.5rem; }
+.alias-panel h2 { font-size: 1rem; margin: 0 0 .4rem; }
+.alias-list { list-style: none; margin: .6rem 0; padding: 0; display: flex; flex-direction: column; gap: .4rem; }
+.alias-item { display: flex; align-items: center; gap: .75rem; }
+.alias-item span { flex: 1; font-family: ui-monospace, monospace; font-size: .875rem; }
+.alias-add-form { display: flex; align-items: center; gap: .4rem; margin-top: .75rem; flex-wrap: wrap; }
+.alias-add-form input[type="text"] { flex: 1; min-width: 10rem; }
+.alias-domain-hint { color: var(--muted); font-size: .875rem; white-space: nowrap; }
+.alias-hint { font-size: .8rem; font-family: ui-monospace, monospace; }

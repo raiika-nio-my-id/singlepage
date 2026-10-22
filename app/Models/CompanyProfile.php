@@ -9,9 +9,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
-#[Fillable(['user_id', 'subdomain', 'html', 'status', 'expires_at', 'hide_footer'])]
+#[Fillable(['user_id', 'subdomain', 'html', 'status', 'expires_at', 'hide_footer', 'sort_order'])]
 class CompanyProfile extends Model
 {
     /** @use HasFactory<CompanyProfileFactory> */
@@ -32,6 +33,11 @@ class CompanyProfile extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function aliases(): HasMany
+    {
+        return $this->hasMany(CompanyProfileAlias::class);
     }
 
     public function isPublished(): bool

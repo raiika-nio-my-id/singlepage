@@ -8,11 +8,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreCompanyProfileRequest;
 use App\Http\Requests\Admin\UpdateCompanyProfileRequest;
 use App\Models\CompanyProfile;
+use App\Models\CompanyProfileAlias;
 use App\Models\User;
+use App\Rules\Subdomain;
 use App\Services\SubdomainService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class CompanyProfileController extends Controller
@@ -33,12 +37,14 @@ class CompanyProfileController extends Controller
         $this->authorize('viewAny', CompanyProfile::class);
 
         $profiles = CompanyProfile::query()
-            ->with('user')
-            ->latest()
-            ->simplePaginate(20)
-            ->withQueryString();
+            ->with(['user', 'aliases'])
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
 
-        return view('admin.dashboard', compact('profiles'));
+        $viewStats = $this->viewStats($profiles->pluck('id')->all());
+
+        return view('admin.dashboard', compact('profiles', 'viewStats'));
     }
 
     public function workspace(Request $request): View
@@ -89,7 +95,9 @@ class CompanyProfileController extends Controller
             $user = User::query()->create([
                 'name' => $request->validated('name'),
                 'email' => $request->validated('email'),
-                'password' => $request->validated('password'),
+                'password' => $request->filled('password')
+                    ? $request->validated('password')
+                    : Str::password(24),
                 'role' => UserRole::Client,
             ]);
 
@@ -115,7 +123,7 @@ class CompanyProfileController extends Controller
             return redirect()->route('home');
         }
 
-        $companyProfile->loadMissing('user');
+        $companyProfile->loadMissing(['user', 'aliases']);
 
         return view('admin.company-edit', [
             'companyProfile' => $companyProfile,
@@ -168,5 +176,84 @@ class CompanyProfileController extends Controller
         });
 
         return back()->with('success', 'Company profile saved.');
+    }
+
+    public function reorder(Request $request): JsonResponse
+    {
+        abort_unless($request->user()?->isAdmin(), 403);
+        $this->authorize('viewAny', CompanyProfile::class);
+
+        $ids = $request->validate([
+            'ids' => ['required', 'array'],
+            'ids.*' => ['required', 'integer'],
+        ])['ids'];
+
+        foreach ($ids as $position => $id) {
+            CompanyProfile::where('id', (int) $id)->update(['sort_order' => $position]);
+        }
+
+        return response()->json(['ok' => true]);
+    }
+
+    public function storeAlias(
+        Request $request,
+        CompanyProfile $companyProfile,
+        SubdomainService $subdomains,
+    ): RedirectResponse {
+        abort_unless($request->user()?->isAdmin(), 403);
+        $this->authorize('update', $companyProfile);
+
+        $raw = $request->validate(['alias' => ['required', 'string', 'max:63', new Subdomain]])['alias'];
+        $subdomain = $subdomains->validateAvailableAlias($raw, $companyProfile);
+
+        $companyProfile->aliases()->create(['subdomain' => $subdomain]);
+
+        return back()->with('success', "Alias \"{$subdomain}\" added.");
+    }
+
+    public function destroyAlias(
+        Request $request,
+        CompanyProfile $companyProfile,
+        CompanyProfileAlias $companyProfileAlias,
+    ): RedirectResponse {
+        abort_unless($request->user()?->isAdmin(), 403);
+        $this->authorize('update', $companyProfile);
+        abort_unless($companyProfileAlias->company_profile_id === $companyProfile->id, 403);
+
+        $subdomain = $companyProfileAlias->subdomain;
+        $companyProfileAlias->delete();
+
+        return back()->with('success', "Alias \"{$subdomain}\" removed.");
+    }
+
+    /**
+     * @param  int[]  $profileIds
+     * @return array<int, object>  keyed by company_profile_id
+     */
+    private function viewStats(array $profileIds): array
+    {
+        if (empty($profileIds)) {
+            return [];
+        }
+
+        $today = now()->toDateString();
+        $weekAgo = now()->subDays(6)->toDateString();
+        $monthAgo = now()->subDays(29)->toDateString();
+
+        $rows = DB::table('page_view_records')
+            ->selectRaw(
+                'company_profile_id,'
+                .' SUM(CASE WHEN viewed_on = ? THEN 1 ELSE 0 END) AS today,'
+                .' SUM(CASE WHEN viewed_on >= ? THEN 1 ELSE 0 END) AS last7,'
+                .' COUNT(*) AS last30',
+                [$today, $weekAgo],
+            )
+            ->whereIn('company_profile_id', $profileIds)
+            ->where('viewed_on', '>=', $monthAgo)
+            ->groupBy('company_profile_id')
+            ->get()
+            ->keyBy('company_profile_id');
+
+        return $rows->all();
     }
 }

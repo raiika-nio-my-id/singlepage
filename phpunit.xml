@@ -19,6 +19,7 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
+        <env name="APP_KEY" value="base64:0KoUUd9SAEv25W3wZIq6TuTNogVpHKPseQXPOQWzr20="/>
         <env name="APP_NAME" value="Singlepage"/>
         <env name="APP_URL" value="http://admin.jadidaring.test"/>
         <env name="APP_BASE_DOMAIN" value="jadidaring.test"/>

@@ -29,7 +29,8 @@
             <input id="email" type="email" name="email" value="{{ old('email') }}" required>
 
             <label for="password">Password</label>
-            <input id="password" type="password" name="password" required autocomplete="new-password">
+            <input id="password" type="password" name="password" autocomplete="new-password">
+            <p class="muted">Leave blank to set a random password. The client can use "Forgot password" or you can set one later via the edit form.</p>
 
             <label for="subdomain">Subdomain</label>
             <input id="subdomain" type="text" name="subdomain" value="{{ old('subdomain') }}" maxlength="63" autocapitalize="off" spellcheck="false" required>

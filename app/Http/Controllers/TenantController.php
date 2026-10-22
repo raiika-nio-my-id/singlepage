@@ -4,19 +4,35 @@ namespace App\Http\Controllers;
 
 use App\Models\CompanyProfile;
 use App\Services\LegalNoticeInjector;
+use App\Services\SeoInjector;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class TenantController extends Controller
 {
-    public function show(Request $request, LegalNoticeInjector $injector): Response
+    /** User-agent fragments that indicate known bots / automated tools. */
+    private const BOT_UA_PATTERNS = [
+        'bot', 'crawler', 'spider', 'scraper', 'slurp', 'facebookexternalhit',
+        'wget', 'curl/', 'python-requests', 'go-http-client', 'libwww', 'okhttp',
+        'headlesschrome', 'phantomjs', 'selenium',
+    ];
+
+    public function show(Request $request, LegalNoticeInjector $legalInjector, SeoInjector $seoInjector): Response
     {
         $profile = $this->profile($request);
         $html = $profile->hide_footer
             ? $profile->html
-            : $injector->inject($profile->html, $this->termsUrl($request));
+            : $legalInjector->inject($profile->html, $this->termsUrl($request));
+
+        $canonicalUrl = $request->getSchemeAndHttpHost().'/';
+        $html = $seoInjector->inject($html, $canonicalUrl, $this->ogImageUrl($request));
+
+        // trackVisit() runs only for the main page response; /robots.txt and
+        // /sitemap.xml are handled by separate route closures and never reach here.
+        $this->trackVisit($profile, $request);
 
         return response($html, 200, [
             'Content-Type' => 'text/html; charset=UTF-8',
@@ -52,5 +68,59 @@ class TenantController extends Controller
     private function termsUrl(Request $request): string
     {
         return $request->getSchemeAndHttpHost().'/syarat-ketentuan';
+    }
+
+    private function ogImageUrl(Request $request): ?string
+    {
+        $baseDomain = (string) config('singlepage.base_domain');
+        $host = $request->getHost();
+
+        if (! str_ends_with($host, '.'.$baseDomain)) {
+            return null;
+        }
+
+        $subdomain = substr($host, 0, -strlen('.'.$baseDomain));
+
+        return match ($subdomain) {
+            'gamehub' => $request->getScheme().'://gamehub.'.$baseDomain.'/og-gamehub.jpg',
+            default => null,
+        };
+    }
+
+    private function trackVisit(CompanyProfile $profile, Request $request): void
+    {
+        $ua = strtolower($request->userAgent() ?? '');
+
+        foreach (self::BOT_UA_PATTERNS as $pattern) {
+            if (str_contains($ua, $pattern)) {
+                return;
+            }
+        }
+
+        $hash = hash('sha256', implode('|', [
+            $request->ip() ?? '',
+            $request->userAgent() ?? '',
+            now()->toDateString(),
+            (string) config('app.key'),
+        ]));
+
+        $profileId = $profile->id;
+        $today = now()->toDateString();
+
+        // Defer the DB write until after the response is sent so it never
+        // adds latency to page serving. Swallow all exceptions so that a
+        // tracking failure can never break the tenant page.
+        defer(function () use ($profileId, $today, $hash): void {
+            try {
+                DB::table('page_view_records')->insertOrIgnore([
+                    'company_profile_id' => $profileId,
+                    'viewed_on' => $today,
+                    'visitor_hash' => $hash,
+                    'created_at' => now(),
+                ]);
+            } catch (\Throwable) {
+                // Intentionally silent — tracking must never break page delivery.
+            }
+        });
     }
 }

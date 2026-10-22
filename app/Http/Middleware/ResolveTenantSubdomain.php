@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\CompanyProfile;
+use App\Models\CompanyProfileAlias;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,13 +26,35 @@ class ResolveTenantSubdomain
             abort(404);
         }
 
+        // Primary subdomain match — proceed normally.
         $profile = CompanyProfile::query()
             ->live()
             ->where('subdomain', $subdomain)
-            ->firstOrFail();
+            ->first();
 
-        $request->attributes->set('tenantProfile', $profile);
+        if ($profile) {
+            $request->attributes->set('tenantProfile', $profile);
 
-        return $next($request);
+            return $next($request);
+        }
+
+        // Alias subdomain match — 301 permanent redirect to the primary host,
+        // preserving the full path and query string for SEO canonicalisation.
+        // Alias visits are intentionally NOT counted as page views; the
+        // subsequent request to the primary host will be tracked instead.
+        $alias = CompanyProfileAlias::query()
+            ->with('companyProfile')
+            ->where('subdomain', $subdomain)
+            ->whereHas('companyProfile', fn ($q) => $q->live())
+            ->first();
+
+        if ($alias) {
+            $primaryHost = $alias->companyProfile->subdomain.'.'.$baseDomain;
+            $target = $request->getScheme().'://'.$primaryHost.$request->getRequestUri();
+
+            return redirect()->away($target, 301);
+        }
+
+        abort(404);
     }
 }

@@ -3,7 +3,13 @@
 use App\Http\Controllers\Admin\CompanyProfileController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/robots.txt', function (): Response {
+    return response("User-agent: *\nDisallow: /\n")
+        ->header('Content-Type', 'text/plain; charset=utf-8');
+});
 
 Route::redirect('/admin/login', '/login');
 
@@ -22,8 +28,11 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/clients', [CompanyProfileController::class, 'index'])->name('admin.dashboard');
     Route::get('/clients/create', [CompanyProfileController::class, 'create'])->name('admin.clients.create');
     Route::post('/clients', [CompanyProfileController::class, 'store'])->name('admin.clients.store');
+    Route::post('/clients/reorder', [CompanyProfileController::class, 'reorder'])->name('admin.clients.reorder');
     Route::get('/clients/{companyProfile}/edit', [CompanyProfileController::class, 'edit'])->name('admin.clients.edit');
     Route::put('/clients/{companyProfile}', [CompanyProfileController::class, 'update'])->name('admin.clients.update');
+    Route::post('/clients/{companyProfile}/aliases', [CompanyProfileController::class, 'storeAlias'])->name('admin.clients.aliases.store');
+    Route::delete('/clients/{companyProfile}/aliases/{companyProfileAlias}', [CompanyProfileController::class, 'destroyAlias'])->name('admin.clients.aliases.destroy');
     Route::middleware('can:manage-settings')->group(function (): void {
         Route::get('/settings', [SettingsController::class, 'edit'])->name('admin.settings');
         Route::put('/settings', [SettingsController::class, 'update'])->name('admin.settings.update');
