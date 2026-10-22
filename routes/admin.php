@@ -31,6 +31,8 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/clients/reorder', [CompanyProfileController::class, 'reorder'])->name('admin.clients.reorder');
     Route::get('/clients/{companyProfile}/edit', [CompanyProfileController::class, 'edit'])->name('admin.clients.edit');
     Route::put('/clients/{companyProfile}', [CompanyProfileController::class, 'update'])->name('admin.clients.update');
+    Route::post('/clients/{companyProfile}/aliases', [CompanyProfileController::class, 'storeAlias'])->name('admin.clients.aliases.store');
+    Route::delete('/clients/{companyProfile}/aliases/{companyProfileAlias}', [CompanyProfileController::class, 'destroyAlias'])->name('admin.clients.aliases.destroy');
     Route::middleware('can:manage-settings')->group(function (): void {
         Route::get('/settings', [SettingsController::class, 'edit'])->name('admin.settings');
         Route::put('/settings', [SettingsController::class, 'update'])->name('admin.settings.update');

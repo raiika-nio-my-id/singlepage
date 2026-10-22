@@ -8,7 +8,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreCompanyProfileRequest;
 use App\Http\Requests\Admin\UpdateCompanyProfileRequest;
 use App\Models\CompanyProfile;
+use App\Models\CompanyProfileAlias;
 use App\Models\User;
+use App\Rules\Subdomain;
 use App\Services\SubdomainService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -35,7 +37,7 @@ class CompanyProfileController extends Controller
         $this->authorize('viewAny', CompanyProfile::class);
 
         $profiles = CompanyProfile::query()
-            ->with('user')
+            ->with(['user', 'aliases'])
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get();
@@ -105,7 +107,6 @@ class CompanyProfileController extends Controller
                 'status' => $request->published() ? ProfileStatus::Published : ProfileStatus::Draft,
                 'expires_at' => $request->validated('expires_at'),
                 'hide_footer' => $request->boolean('hide_footer'),
-                'admin_alias' => $request->validated('admin_alias') ?: null,
             ]);
         });
 
@@ -122,7 +123,7 @@ class CompanyProfileController extends Controller
             return redirect()->route('home');
         }
 
-        $companyProfile->loadMissing('user');
+        $companyProfile->loadMissing(['user', 'aliases']);
 
         return view('admin.company-edit', [
             'companyProfile' => $companyProfile,
@@ -142,11 +143,6 @@ class CompanyProfileController extends Controller
                 'html' => $request->validated('html'),
                 'status' => $request->published() ? ProfileStatus::Published : ProfileStatus::Draft,
             ];
-
-            // admin_alias is admin-only — clients editing their own workspace cannot set it.
-            if ($request->user()?->isAdmin()) {
-                $payload['admin_alias'] = $request->validated('admin_alias') ?: null;
-            }
 
             if ($request->user()?->can('updateSubdomain', $companyProfile)) {
                 $payload['subdomain'] = $subdomains->validateAvailable(
@@ -197,6 +193,37 @@ class CompanyProfileController extends Controller
         }
 
         return response()->json(['ok' => true]);
+    }
+
+    public function storeAlias(
+        Request $request,
+        CompanyProfile $companyProfile,
+        SubdomainService $subdomains,
+    ): RedirectResponse {
+        abort_unless($request->user()?->isAdmin(), 403);
+        $this->authorize('update', $companyProfile);
+
+        $raw = $request->validate(['alias' => ['required', 'string', 'max:63', new Subdomain]])['alias'];
+        $subdomain = $subdomains->validateAvailableAlias($raw, $companyProfile);
+
+        $companyProfile->aliases()->create(['subdomain' => $subdomain]);
+
+        return back()->with('success', "Alias \"{$subdomain}\" added.");
+    }
+
+    public function destroyAlias(
+        Request $request,
+        CompanyProfile $companyProfile,
+        CompanyProfileAlias $companyProfileAlias,
+    ): RedirectResponse {
+        abort_unless($request->user()?->isAdmin(), 403);
+        $this->authorize('update', $companyProfile);
+        abort_unless($companyProfileAlias->company_profile_id === $companyProfile->id, 403);
+
+        $subdomain = $companyProfileAlias->subdomain;
+        $companyProfileAlias->delete();
+
+        return back()->with('success', "Alias \"{$subdomain}\" removed.");
     }
 
     /**

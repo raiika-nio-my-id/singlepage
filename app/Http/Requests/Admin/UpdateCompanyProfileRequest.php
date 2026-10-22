@@ -30,7 +30,6 @@ class UpdateCompanyProfileRequest extends FormRequest
         $rules = [
             'html' => ['required', 'string'],
             'status' => ['nullable', Rule::enum(ProfileStatus::class)],
-            'admin_alias' => ['nullable', 'string', 'max:120'],
         ];
 
         if ($profile && $this->user()?->can('updateSubdomain', $profile)) {

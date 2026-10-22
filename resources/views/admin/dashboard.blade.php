@@ -33,18 +33,16 @@
                         <tr data-id="{{ $profile->id }}" draggable="true">
                             <td class="drag-handle" aria-hidden="true">⠿</td>
                             <td>
-                                @if ($profile->admin_alias)
-                                    <strong>{{ $profile->admin_alias }}</strong>
-                                    <div class="muted">{{ $profile->user?->name }}</div>
-                                @else
-                                    {{ $profile->user?->name }}
-                                @endif
+                                {{ $profile->user?->name }}
                                 <div class="muted">{{ $profile->user?->email }}</div>
                             </td>
                             <td>
                                 <a href="{{ $profile->publicUrl() }}" target="_blank" rel="noopener noreferrer">
                                     {{ $profile->subdomain }}.{{ config('singlepage.base_domain') }}
                                 </a>
+                                @foreach ($profile->aliases as $alias)
+                                    <div class="muted alias-hint">↳ {{ $alias->subdomain }}.{{ config('singlepage.base_domain') }}</div>
+                                @endforeach
                             </td>
                             <td>
                                 <span class="badge badge-{{ $profile->status->value }}">{{ $profile->status->value }}</span>

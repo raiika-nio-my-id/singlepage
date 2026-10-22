@@ -47,3 +47,9 @@ Route::get('/sitemap.xml', function (Request $request): Response {
 
     return response($xml)->header('Content-Type', 'application/xml; charset=utf-8');
 });
+
+// Catch-all: ensures ResolveTenantSubdomain middleware fires for any web path on tenant
+// domains so alias subdomains can be redirected. Named routes above take precedence;
+// this only fires for unrecognised paths. The api/ prefix is excluded so game API
+// routes (registered separately with prefix('api/game')) keep their own middleware.
+Route::any('/{path?}', fn () => abort(404))->where('path', '(?!api\/).*');
