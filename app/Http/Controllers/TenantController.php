@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CompanyProfile;
 use App\Services\LegalNoticeInjector;
+use App\Services\SeoInjector;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -19,13 +20,18 @@ class TenantController extends Controller
         'headlesschrome', 'phantomjs', 'selenium',
     ];
 
-    public function show(Request $request, LegalNoticeInjector $injector): Response
+    public function show(Request $request, LegalNoticeInjector $legalInjector, SeoInjector $seoInjector): Response
     {
         $profile = $this->profile($request);
         $html = $profile->hide_footer
             ? $profile->html
-            : $injector->inject($profile->html, $this->termsUrl($request));
+            : $legalInjector->inject($profile->html, $this->termsUrl($request));
 
+        $canonicalUrl = $request->getSchemeAndHttpHost().'/';
+        $html = $seoInjector->inject($html, $canonicalUrl, $this->ogImageUrl($request));
+
+        // trackVisit() runs only for the main page response; /robots.txt and
+        // /sitemap.xml are handled by separate route closures and never reach here.
         $this->trackVisit($profile, $request);
 
         return response($html, 200, [
@@ -62,6 +68,23 @@ class TenantController extends Controller
     private function termsUrl(Request $request): string
     {
         return $request->getSchemeAndHttpHost().'/syarat-ketentuan';
+    }
+
+    private function ogImageUrl(Request $request): ?string
+    {
+        $baseDomain = (string) config('singlepage.base_domain');
+        $host = $request->getHost();
+
+        if (! str_ends_with($host, '.'.$baseDomain)) {
+            return null;
+        }
+
+        $subdomain = substr($host, 0, -strlen('.'.$baseDomain));
+
+        return match ($subdomain) {
+            'gamehub' => $request->getScheme().'://gamehub.'.$baseDomain.'/og-gamehub.jpg',
+            default => null,
+        };
     }
 
     private function trackVisit(CompanyProfile $profile, Request $request): void
