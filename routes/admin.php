@@ -22,6 +22,7 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/clients', [CompanyProfileController::class, 'index'])->name('admin.dashboard');
     Route::get('/clients/create', [CompanyProfileController::class, 'create'])->name('admin.clients.create');
     Route::post('/clients', [CompanyProfileController::class, 'store'])->name('admin.clients.store');
+    Route::post('/clients/reorder', [CompanyProfileController::class, 'reorder'])->name('admin.clients.reorder');
     Route::get('/clients/{companyProfile}/edit', [CompanyProfileController::class, 'edit'])->name('admin.clients.edit');
     Route::put('/clients/{companyProfile}', [CompanyProfileController::class, 'update'])->name('admin.clients.update');
     Route::middleware('can:manage-settings')->group(function (): void {

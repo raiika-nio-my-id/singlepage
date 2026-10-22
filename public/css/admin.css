@@ -785,3 +785,21 @@ tbody tr:hover td { background: var(--accent-soft); }
 @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; }
 }
+
+/* ── Drag-and-drop sortable rows ── */
+.drag-col { width: 2rem; padding-inline: 0; }
+.drag-handle {
+    cursor: grab;
+    text-align: center;
+    color: var(--muted);
+    user-select: none;
+    font-size: 1.1rem;
+    touch-action: none;
+}
+.drag-handle:active { cursor: grabbing; }
+tr.dragging { opacity: .4; }
+tr.drag-over > td { background: var(--accent-soft); }
+
+/* ── View stats column ── */
+.views-col { white-space: nowrap; font-variant-numeric: tabular-nums; font-size: .875rem; }
+thead .views-col { cursor: help; }
