@@ -147,6 +147,7 @@ class AnalyticsPageTest extends TestCase
             ->get('http://admin.jadidaring.test/clients')
             ->assertOk()
             ->assertSee('/analytics', false) // analytics URL present in an href
-            ->assertSee('btn-icon', false);  // icon button CSS class present
+            ->assertSee('btn-icon', false)   // icon button CSS class present
+            ->assertSee('views-link', false); // views numbers also link to analytics
     }
 }

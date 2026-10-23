@@ -167,6 +167,26 @@ class DashboardSortPinTest extends TestCase
         }
     }
 
+    public function test_pin_button_has_pressed_state_and_tooltip(): void
+    {
+        $admin   = User::factory()->admin()->create();
+        $pinned  = CompanyProfile::factory()->create(['is_pinned' => true]);
+        $regular = CompanyProfile::factory()->create(['is_pinned' => false]);
+
+        $body = $this->actingAs($admin)
+            ->get('http://admin.jadidaring.test/clients')
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringContainsString('aria-pressed="true"', $body);
+        $this->assertStringContainsString('aria-pressed="false"', $body);
+        $this->assertStringContainsString('title="Unpin"', $body);
+        $this->assertStringContainsString('title="Pin"', $body);
+        $this->assertStringContainsString('row-pinned', $body);
+        $this->assertStringContainsString('data-id="'.$pinned->id.'"', $body);
+        $this->assertStringContainsString('data-id="'.$regular->id.'"', $body);
+    }
+
     public function test_admin_can_pin_a_profile(): void
     {
         $admin   = User::factory()->admin()->create();

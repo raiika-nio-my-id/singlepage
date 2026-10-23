@@ -844,6 +844,13 @@ tr.row-pinned:hover > td { background: color-mix(in srgb, var(--warn) 10%, trans
     font-size: .875rem;
 }
 thead .views-col { cursor: help; }
+.views-link {
+    color: inherit;
+    text-decoration: none;
+    border-radius: .4rem;
+    padding: .1rem .15rem;
+}
+.views-link:hover { color: var(--accent); }
 
 /* ── Analytics icon button (in row-actions) ── */
 .btn-icon {
