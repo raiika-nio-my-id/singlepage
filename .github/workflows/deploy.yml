@@ -2,8 +2,7 @@ name: Deploy to Production
 
 # ── Triggers ──────────────────────────────────────────────────────────────────
 # 1. Automatic: every push to main (skips docs-only changes).
-# 2. Manual:    "Run workflow" button in the GitHub Actions UI, or via the
-#               in-app Deploy button at admin.jadidaring.com/deploy.
+# 2. Manual:    "Run workflow" button in the GitHub Actions UI.
 on:
   push:
     branches: [main]
@@ -17,7 +16,7 @@ on:
         default: 'main'
         type: string
       deployer_name:
-        description: 'Name of the admin who triggered the deploy (set automatically by the in-app button)'
+        description: 'Name of the person who triggered the deploy'
         required: false
         default: ''
         type: string

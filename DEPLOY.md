@@ -103,51 +103,7 @@ nvm install --lts
 node -v && npm -v
 ```
 
-### 7  Enable the in-app Deploy button (optional but recommended)
-
-The **Deploy** page at `admin.jadidaring.com/deploy` lets any admin trigger a
-deploy without SSH access. It calls the GitHub Actions API from the server,
-so no secrets are ever exposed to the browser.
-
-#### 7a  Create a fine-grained GitHub PAT
-
-1. Go to **GitHub → Settings → Developer settings → Personal access tokens →
-   Fine-grained tokens → Generate new token**.
-2. Set **Token name** to something like `singlepage-deploy-button`.
-3. Set **Expiration** (365 days or a date you'll remember to rotate).
-4. Under **Repository access**, select **Only select repositories** and pick
-   this repo (`raiika-nio-my-id/singlepage`).
-5. Under **Permissions → Repository permissions**, find **Actions** and set
-   it to **Read and write**. No other permissions are needed.
-6. Click **Generate token** and copy the value (shown once).
-
-#### 7b  Add the token to the server's `.env`
-
-SSH into the server and edit `/var/www/singlepage/.env`:
-
-```ini
-GITHUB_DEPLOY_TOKEN=github_pat_XXXXXXXXXXXXXXXXXXXX
-GITHUB_DEPLOY_REPO=raiika-nio-my-id/singlepage
-```
-
-Then restart the app container so Laravel picks up the new env:
-
-```bash
-cd /var/www/singlepage
-docker compose restart singlepage
-# or run a full deploy: bash scripts/deploy.sh
-```
-
-#### 7c  Verify
-
-Navigate to `https://admin.jadidaring.com/deploy` as an admin. You should
-see the **Deploy** button and a list of recent workflow runs. If you still see
-"GitHub integration not configured", re-check the `.env` values and that
-`config:cache` has been run (or cleared) after the edit.
-
----
-
-### 8  (Optional) Enable pre-migration database backups
+### 7  (Optional) Enable pre-migration database backups
 
 The script will create a gzip'd mysqldump of `singlepage_db` before each
 migration if `mysqldump` is available on the server:
@@ -162,15 +118,15 @@ nothing is hard-coded in the script.
 
 ---
 
-## Deploying – press the button
+## Deploying
 
-1. Push your changes to `main` (or your branch) on GitHub.
-2. In GitHub, go to **Actions** → **Deploy to Production**.
-3. Click **Run workflow**.
-4. (Optional) Change the **ref** field to a branch name, tag, or commit SHA.
-5. Click the green **Run workflow** button.
+**Automatic:** every push (or merged PR) to `main` triggers the workflow
+automatically — no button to press. Docs-only commits (`*.md`) are skipped.
 
-The workflow will:
+**Manual override:** go to GitHub → **Actions** → **Deploy to Production** →
+**Run workflow**, optionally specify a different branch or tag.
+
+In both cases the workflow will:
 
 1. SSH into the server.
 2. Run `scripts/deploy.sh` which will:
