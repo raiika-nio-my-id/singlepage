@@ -51,7 +51,7 @@ class DashboardSortPinTest extends TestCase
         $mia    = CompanyProfile::factory()->for(User::factory()->state(['name' => 'Mia_User'])) ->create(['subdomain' => 'm-site']);
 
         $body = $this->actingAs($admin)
-            ->get('http://admin.jadidaring.test/clients?sort=name')
+            ->get('http://admin.jadidaring.test/clients?sort=name_asc')
             ->assertOk()
             ->getContent();
 
@@ -59,14 +59,14 @@ class DashboardSortPinTest extends TestCase
         $this->assertLessThan($this->rowPos($body, $zara), $this->rowPos($body, $mia));
     }
 
-    public function test_name_sort_direction_toggle(): void
+    public function test_name_sort_direction_desc(): void
     {
         $admin = User::factory()->admin()->create();
         $zara  = CompanyProfile::factory()->for(User::factory()->state(['name' => 'Zara_User']))->create(['subdomain' => 'z-site']);
         $adam  = CompanyProfile::factory()->for(User::factory()->state(['name' => 'Adam_User']))->create(['subdomain' => 'a-site']);
 
         $body = $this->actingAs($admin)
-            ->get('http://admin.jadidaring.test/clients?sort=name&dir=desc')
+            ->get('http://admin.jadidaring.test/clients?sort=name_desc')
             ->assertOk()
             ->getContent();
 
@@ -153,7 +153,7 @@ class DashboardSortPinTest extends TestCase
         $regular = CompanyProfile::factory()->for(User::factory()->state(['name' => 'Aaa_User']))
                        ->create(['subdomain' => 'xunpinned', 'is_pinned' => false, 'sort_order' => 0]);
 
-        foreach (['custom', 'name', 'newest'] as $sort) {
+        foreach (['custom', 'name_asc', 'newest'] as $sort) {
             $body = $this->actingAs($admin)
                 ->get('http://admin.jadidaring.test/clients?sort='.$sort)
                 ->assertOk()
@@ -176,6 +176,19 @@ class DashboardSortPinTest extends TestCase
             ->from('http://admin.jadidaring.test/clients')
             ->post('http://admin.jadidaring.test/clients/'.$profile->id.'/pin')
             ->assertRedirect();
+
+        $this->assertTrue($profile->fresh()->is_pinned);
+    }
+
+    public function test_pin_toggle_returns_json_when_requested(): void
+    {
+        $admin   = User::factory()->admin()->create();
+        $profile = CompanyProfile::factory()->create(['is_pinned' => false]);
+
+        $this->actingAs($admin)
+            ->postJson('http://admin.jadidaring.test/clients/'.$profile->id.'/pin')
+            ->assertOk()
+            ->assertJson(['is_pinned' => true]);
 
         $this->assertTrue($profile->fresh()->is_pinned);
     }
@@ -263,12 +276,12 @@ class DashboardSortPinTest extends TestCase
         // Set sort via query string…
         $this->actingAs($admin)->get('http://admin.jadidaring.test/clients?sort=newest')->assertOk();
 
-        // …then visit without query string — should remember 'newest'.
+        // …then visit without query string — 'newest' option should be selected in the dropdown.
         $body = $this->actingAs($admin)
             ->get('http://admin.jadidaring.test/clients')
             ->assertOk()
             ->getContent();
 
-        $this->assertStringContainsString('sort-link-active', $body);
+        $this->assertMatchesRegularExpression('/value="newest"\s+selected/', $body);
     }
 }

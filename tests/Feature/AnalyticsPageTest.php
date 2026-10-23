@@ -135,17 +135,18 @@ class AnalyticsPageTest extends TestCase
         $this->actingAs($admin)
             ->get('http://admin.jadidaring.test/clients/'.$profile->id.'/edit')
             ->assertOk()
-            ->assertSee('Analytics');
+            ->assertSee('View analytics');
     }
 
-    public function test_analytics_dashboard_has_chart_icon_link(): void
+    public function test_analytics_dashboard_has_chart_icon_button(): void
     {
         $admin   = User::factory()->admin()->create();
-        CompanyProfile::factory()->create(['subdomain' => 'chartme']);
+        $profile = CompanyProfile::factory()->create(['subdomain' => 'chartme']);
 
         $this->actingAs($admin)
             ->get('http://admin.jadidaring.test/clients')
             ->assertOk()
-            ->assertSee('/analytics', false); // analytics URL present in row actions
+            ->assertSee('/analytics', false) // analytics URL present in an href
+            ->assertSee('btn-icon', false);  // icon button CSS class present
     }
 }

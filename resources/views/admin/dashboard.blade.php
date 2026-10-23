@@ -13,49 +13,37 @@
         @endcan
     </div>
 
-    {{-- Sort selector --}}
-    <div class="sort-bar">
-        <span class="muted sort-label">Sort:</span>
-        @php
-            $sorts = [
-                'custom'  => 'Custom',
-                'name'    => 'Name',
-                'views'   => 'Views',
-                'expired' => 'Expiry',
-                'newest'  => 'Newest',
-            ];
-        @endphp
-        @foreach ($sorts as $key => $label)
-            @php
-                $isActive = $sort === $key;
-                $href = '?' . http_build_query(array_filter([
-                    'sort' => $key,
-                    'dir'  => ($key === 'name' && $isActive) ? ($dir === 'asc' ? 'desc' : 'asc') : null,
-                ]));
-            @endphp
-            <a href="{{ $href }}" class="sort-link {{ $isActive ? 'sort-link-active' : '' }}">
-                {{ $label }}
-                @if ($key === 'name' && $isActive)
-                    {{ $dir === 'asc' ? '↑' : '↓' }}
-                @endif
-            </a>
-        @endforeach
+    {{-- Sort control --}}
+    <form method="GET" action="{{ route('admin.dashboard') }}" class="sort-form" id="sort-form">
+        <label for="sort-select" class="sort-form-label">Sort:</label>
+        <select id="sort-select" name="sort" class="sort-select"
+                onchange="this.form.submit()">
+            <option value="custom"    @selected($sort === 'custom')>Custom order</option>
+            <option value="name_asc"  @selected($sort === 'name_asc')>Name A–Z</option>
+            <option value="name_desc" @selected($sort === 'name_desc')>Name Z–A</option>
+            <option value="views"     @selected($sort === 'views')>Most views (30d)</option>
+            <option value="expired"   @selected($sort === 'expired')>Expiring soon</option>
+            <option value="newest"    @selected($sort === 'newest')>Newest</option>
+        </select>
+        <noscript>
+            <button type="submit" class="button button-quiet button-small sort-submit-fallback">Apply</button>
+        </noscript>
         @if ($sort !== 'custom')
-            <span class="sort-drag-hint muted">Drag available in Custom mode</span>
+            <span class="sort-drag-hint">Drag available in Custom order</span>
         @endif
-    </div>
+    </form>
 
     <div class="card">
         <div class="table-wrap">
             <table id="profiles-table">
                 <thead>
                     <tr>
-                        <th class="controls-col" aria-label="Pin and drag"></th>
+                        <th class="controls-col"></th>
                         <th>Company / owner</th>
                         <th>Subdomain</th>
                         <th>Status</th>
                         <th>Expiry</th>
-                        <th class="views-col" title="Unique visitors today / last 7 days / last 30 days · click chart icon for detail">Views</th>
+                        <th class="views-col" title="Unique visitors today / last 7 days / last 30 days">Views</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -66,18 +54,29 @@
                 >
                     @forelse ($profiles as $profile)
                         @php $stats = $viewStats[$profile->id] ?? null; @endphp
-                        <tr data-id="{{ $profile->id }}" draggable="{{ $sort === 'custom' ? 'true' : 'false' }}">
+                        <tr data-id="{{ $profile->id }}"
+                            draggable="{{ $sort === 'custom' ? 'true' : 'false' }}"
+                            class="{{ $profile->is_pinned ? 'row-pinned' : '' }}">
                             <td class="controls-col">
-                                @if ($sort === 'custom')
-                                    <span class="drag-handle" aria-hidden="true" title="Drag to reorder">⠿</span>
-                                @endif
-                                <form method="POST" action="{{ route('admin.clients.pin', $profile) }}" class="inline">
+                                {{-- Pin star – JS fetch, form fallback --}}
+                                <form method="POST"
+                                      action="{{ route('admin.clients.pin', $profile) }}"
+                                      class="inline pin-form">
                                     @csrf
                                     <button type="submit"
                                             class="pin-btn {{ $profile->is_pinned ? 'pinned' : '' }}"
+                                            data-pin="{{ route('admin.clients.pin', $profile) }}"
+                                            data-csrf="{{ csrf_token() }}"
                                             title="{{ $profile->is_pinned ? 'Unpin' : 'Pin to top' }}"
-                                            aria-pressed="{{ $profile->is_pinned ? 'true' : 'false' }}">★</button>
+                                            aria-pressed="{{ $profile->is_pinned ? 'true' : 'false' }}">
+                                        <svg viewBox="0 0 20 20" aria-hidden="true">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                        </svg>
+                                    </button>
                                 </form>
+                                @if ($sort === 'custom')
+                                    <span class="drag-handle" aria-hidden="true" title="Drag to reorder">⠿</span>
+                                @endif
                             </td>
                             <td>
                                 {{ $profile->user?->name }}
@@ -110,14 +109,21 @@
                                 @else
                                     <span class="muted">0 / 0 / 0</span>
                                 @endif
-                                <a href="{{ route('admin.clients.analytics', $profile) }}"
-                                   class="analytics-link"
-                                   title="View analytics">📊</a>
                             </td>
                             <td>
                                 <div class="row-actions">
-                                    <a class="button button-quiet button-small" href="{{ route('admin.clients.edit', $profile) }}">Edit</a>
-                                    <a class="button button-quiet button-small" href="{{ $profile->publicUrl() }}" target="_blank" rel="noopener noreferrer">Visit website</a>
+                                    <a class="button button-quiet button-small"
+                                       href="{{ route('admin.clients.edit', $profile) }}">Edit</a>
+                                    <a class="button button-quiet button-small"
+                                       href="{{ $profile->publicUrl() }}"
+                                       target="_blank" rel="noopener noreferrer">Visit website</a>
+                                    <a class="btn-icon"
+                                       href="{{ route('admin.clients.analytics', $profile) }}"
+                                       title="Analytics">
+                                        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                            <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                                        </svg>
+                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -142,7 +148,7 @@
                 @else
                     <a class="page-btn" href="{{ $profiles->previousPageUrl() }}">‹ Prev</a>
                 @endif
-                <span class="muted page-info">
+                <span class="page-info">
                     Page {{ $profiles->currentPage() }} of {{ $profiles->lastPage() }}
                     · {{ $profiles->total() }} total
                 </span>
@@ -157,6 +163,33 @@
 
     <script>
         (() => {
+            /* ── Pin toggle via fetch (form POST fallback) ── */
+            document.querySelectorAll('.pin-btn[data-pin]').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    const row = btn.closest('tr');
+                    try {
+                        const res = await fetch(btn.dataset.pin, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': btn.dataset.csrf,
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json',
+                            },
+                        });
+                        if (!res.ok) throw new Error();
+                        const { is_pinned } = await res.json();
+                        btn.classList.toggle('pinned', is_pinned);
+                        btn.setAttribute('aria-pressed', String(is_pinned));
+                        btn.setAttribute('title', is_pinned ? 'Unpin' : 'Pin to top');
+                        row?.classList.toggle('row-pinned', is_pinned);
+                    } catch {
+                        btn.closest('form')?.submit();
+                    }
+                });
+            });
+
+            /* ── Drag-and-drop (Custom sort only) ── */
             const tbody = document.getElementById('profiles-sortable');
             const reorderUrl = @json(route('admin.clients.reorder'));
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
@@ -166,16 +199,13 @@
             const sortMode = tbody.dataset.sort;
             const offset   = parseInt(tbody.dataset.offset || '0', 10);
 
-            // Drag-and-drop only available in Custom sort mode.
             if (sortMode !== 'custom') return;
 
             let dragging    = null;
             let touchDragEl = null;
             let touchClone  = null;
-            let touchOffsetY = 0;
-            let touchOffsetX = 0;
-
-            /* ── Mouse / HTML5 drag ── */
+            let touchOffY   = 0;
+            let touchOffX   = 0;
 
             tbody.addEventListener('dragstart', (e) => {
                 dragging = e.target.closest('tr');
@@ -211,8 +241,6 @@
                 persistOrder();
             });
 
-            /* ── Touch drag ── */
-
             tbody.addEventListener('touchstart', (e) => {
                 const handle = e.target.closest('.drag-handle');
                 if (!handle) return;
@@ -220,9 +248,8 @@
                 if (!touchDragEl) return;
                 const touch = e.touches[0];
                 const rect  = touchDragEl.getBoundingClientRect();
-                touchOffsetY = touch.clientY - rect.top;
-                touchOffsetX = touch.clientX - rect.left;
-
+                touchOffY = touch.clientY - rect.top;
+                touchOffX = touch.clientX - rect.left;
                 touchClone = touchDragEl.cloneNode(true);
                 touchClone.style.cssText = `position:fixed;z-index:9999;opacity:0.85;pointer-events:none;width:${rect.width}px;box-shadow:var(--shadow);background:var(--surface);`;
                 touchClone.style.top  = `${rect.top}px`;
@@ -235,9 +262,8 @@
                 if (!touchDragEl || !touchClone) return;
                 e.preventDefault();
                 const touch = e.touches[0];
-                touchClone.style.top  = `${touch.clientY - touchOffsetY}px`;
-                touchClone.style.left = `${touch.clientX - touchOffsetX}px`;
-
+                touchClone.style.top  = `${touch.clientY - touchOffY}px`;
+                touchClone.style.left = `${touch.clientX - touchOffX}px`;
                 const elBelow  = document.elementFromPoint(touch.clientX, touch.clientY);
                 const rowBelow = elBelow?.closest('tr');
                 if (rowBelow && rowBelow !== touchDragEl && rowBelow.parentElement === tbody) {
@@ -259,8 +285,6 @@
                 persistOrder();
             });
 
-            /* ── Persist ── */
-
             function persistOrder() {
                 const ids = [...tbody.querySelectorAll('tr[data-id]')].map(r => r.dataset.id);
                 fetch(reorderUrl, {
@@ -271,7 +295,7 @@
                         'Accept': 'application/json',
                     },
                     body: JSON.stringify({ ids, offset }),
-                }).catch(() => { /* silent – order reverts on next reload */ });
+                }).catch(() => {});
             }
         })();
     </script>

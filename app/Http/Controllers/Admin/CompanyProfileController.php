@@ -37,7 +37,8 @@ class CompanyProfileController extends Controller
         $this->authorize('viewAny', CompanyProfile::class);
 
         // Resolve sort: query-string overrides session; session persists last choice.
-        $validSorts = ['custom', 'name', 'views', 'expired', 'newest'];
+        // name_asc / name_desc combine direction into a single value for clean select option.
+        $validSorts = ['custom', 'name_asc', 'name_desc', 'views', 'expired', 'newest'];
         if ($request->has('sort')) {
             $sort = in_array($request->input('sort'), $validSorts, true)
                 ? $request->input('sort') : 'custom';
@@ -45,9 +46,6 @@ class CompanyProfileController extends Controller
         } else {
             $sort = $request->session()->get('admin_sort', 'custom');
         }
-
-        // Name sort direction (toggled via ?dir=)
-        $dir = $request->input('dir', 'asc') === 'desc' ? 'desc' : 'asc';
 
         $monthAgo = now()->subDays(29)->toDateString();
 
@@ -57,8 +55,9 @@ class CompanyProfileController extends Controller
             ->orderByDesc('is_pinned'); // pinned always first within any sort
 
         match ($sort) {
-            'name' => $query->orderByRaw(
-                "(SELECT name FROM users WHERE id = company_profiles.user_id) {$dir}"
+            'name_asc', 'name_desc' => $query->orderByRaw(
+                '(SELECT name FROM users WHERE id = company_profiles.user_id) '
+                .($sort === 'name_asc' ? 'ASC' : 'DESC')
             ),
             // LEFT JOIN to an aggregate subquery: avoids correlated scalar in ORDER BY
             // (which can be unreliable with paginate()'s count-query clone on SQLite).
@@ -81,7 +80,7 @@ class CompanyProfileController extends Controller
         $profiles  = $query->paginate(25)->withQueryString();
         $viewStats = $this->viewStats($profiles->pluck('id')->all());
 
-        return view('admin.dashboard', compact('profiles', 'viewStats', 'sort', 'dir'));
+        return view('admin.dashboard', compact('profiles', 'viewStats', 'sort'));
     }
 
     public function workspace(Request $request): View
@@ -238,12 +237,16 @@ class CompanyProfileController extends Controller
         return response()->json(['ok' => true]);
     }
 
-    public function togglePin(Request $request, CompanyProfile $companyProfile): RedirectResponse
+    public function togglePin(Request $request, CompanyProfile $companyProfile): RedirectResponse|JsonResponse
     {
         abort_unless($request->user()?->isAdmin(), 403);
         $this->authorize('update', $companyProfile);
 
         $companyProfile->update(['is_pinned' => ! $companyProfile->is_pinned]);
+
+        if ($request->expectsJson()) {
+            return response()->json(['is_pinned' => (bool) $companyProfile->is_pinned]);
+        }
 
         return back();
     }
