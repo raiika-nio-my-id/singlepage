@@ -36,15 +36,52 @@ class CompanyProfileController extends Controller
 
         $this->authorize('viewAny', CompanyProfile::class);
 
-        $profiles = CompanyProfile::query()
-            ->with(['user', 'aliases'])
-            ->orderBy('sort_order')
-            ->orderBy('id')
-            ->get();
+        // Resolve sort: query-string overrides session; session persists last choice.
+        $validSorts = ['custom', 'name', 'views', 'expired', 'newest'];
+        if ($request->has('sort')) {
+            $sort = in_array($request->input('sort'), $validSorts, true)
+                ? $request->input('sort') : 'custom';
+            $request->session()->put('admin_sort', $sort);
+        } else {
+            $sort = $request->session()->get('admin_sort', 'custom');
+        }
 
+        // Name sort direction (toggled via ?dir=)
+        $dir = $request->input('dir', 'asc') === 'desc' ? 'desc' : 'asc';
+
+        $monthAgo = now()->subDays(29)->toDateString();
+
+        $query = CompanyProfile::query()
+            ->select('company_profiles.*')
+            ->with(['user', 'aliases'])
+            ->orderByDesc('is_pinned'); // pinned always first within any sort
+
+        match ($sort) {
+            'name' => $query->orderByRaw(
+                "(SELECT name FROM users WHERE id = company_profiles.user_id) {$dir}"
+            ),
+            // LEFT JOIN to an aggregate subquery: avoids correlated scalar in ORDER BY
+            // (which can be unreliable with paginate()'s count-query clone on SQLite).
+            // 1:1 or 1:0 join keeps row-count identical, so paginate COUNT is correct.
+            'views' => $query->leftJoinSub(
+                DB::table('page_view_records')
+                    ->selectRaw('company_profile_id, COUNT(*) AS views_count')
+                    ->where('viewed_on', '>=', $monthAgo)
+                    ->groupBy('company_profile_id'),
+                'pvr_agg',
+                'pvr_agg.company_profile_id', '=', 'company_profiles.id'
+            )->orderByDesc(DB::raw('COALESCE(pvr_agg.views_count, 0)')),
+            'expired' => $query
+                ->orderByRaw('CASE WHEN expires_at IS NULL THEN 1 ELSE 0 END')
+                ->orderBy('expires_at'),
+            'newest' => $query->orderByDesc('company_profiles.created_at'),
+            default  => $query->orderBy('sort_order')->orderBy('company_profiles.id'),
+        };
+
+        $profiles  = $query->paginate(25)->withQueryString();
         $viewStats = $this->viewStats($profiles->pluck('id')->all());
 
-        return view('admin.dashboard', compact('profiles', 'viewStats'));
+        return view('admin.dashboard', compact('profiles', 'viewStats', 'sort', 'dir'));
     }
 
     public function workspace(Request $request): View
@@ -183,16 +220,32 @@ class CompanyProfileController extends Controller
         abort_unless($request->user()?->isAdmin(), 403);
         $this->authorize('viewAny', CompanyProfile::class);
 
-        $ids = $request->validate([
-            'ids' => ['required', 'array'],
-            'ids.*' => ['required', 'integer'],
-        ])['ids'];
+        $validated = $request->validate([
+            'ids'    => ['required', 'array'],
+            'ids.*'  => ['required', 'integer'],
+            'offset' => ['sometimes', 'integer', 'min:0'],
+        ]);
 
-        foreach ($ids as $position => $id) {
-            CompanyProfile::where('id', (int) $id)->update(['sort_order' => $position]);
+        // Offset allows page-aware reordering: items on page 2 (offset=25)
+        // get sort_order values 25, 26, 27, … instead of 0, 1, 2, …
+        $offset = (int) ($validated['offset'] ?? 0);
+
+        foreach ($validated['ids'] as $position => $id) {
+            CompanyProfile::where('id', (int) $id)
+                ->update(['sort_order' => $offset + $position]);
         }
 
         return response()->json(['ok' => true]);
+    }
+
+    public function togglePin(Request $request, CompanyProfile $companyProfile): RedirectResponse
+    {
+        abort_unless($request->user()?->isAdmin(), 403);
+        $this->authorize('update', $companyProfile);
+
+        $companyProfile->update(['is_pinned' => ! $companyProfile->is_pinned]);
+
+        return back();
     }
 
     public function storeAlias(

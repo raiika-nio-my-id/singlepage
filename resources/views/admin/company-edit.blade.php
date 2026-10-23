@@ -18,6 +18,11 @@
                 <p class="muted lede">Client HTML is previewed in a sandboxed iframe. It is never rendered in this admin document.</p>
             @endunless
         </div>
+        @unless ($workspace)
+            @if (auth()->user()->isAdmin())
+                <a class="button button-quiet button-small" href="{{ route('admin.clients.analytics', $companyProfile) }}">📊 Analytics</a>
+            @endif
+        @endunless
     </div>
 
     @if ($companyProfile->isExpired())

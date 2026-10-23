@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\CompanyProfileController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -33,6 +34,8 @@ Route::middleware('auth')->group(function (): void {
     Route::put('/clients/{companyProfile}', [CompanyProfileController::class, 'update'])->name('admin.clients.update');
     Route::post('/clients/{companyProfile}/aliases', [CompanyProfileController::class, 'storeAlias'])->name('admin.clients.aliases.store');
     Route::delete('/clients/{companyProfile}/aliases/{companyProfileAlias}', [CompanyProfileController::class, 'destroyAlias'])->name('admin.clients.aliases.destroy');
+    Route::post('/clients/{companyProfile}/pin', [CompanyProfileController::class, 'togglePin'])->name('admin.clients.pin');
+    Route::get('/clients/{companyProfile}/analytics', [AnalyticsController::class, 'show'])->name('admin.clients.analytics');
     Route::middleware('can:manage-settings')->group(function (): void {
         Route::get('/settings', [SettingsController::class, 'edit'])->name('admin.settings');
         Route::put('/settings', [SettingsController::class, 'update'])->name('admin.settings.update');

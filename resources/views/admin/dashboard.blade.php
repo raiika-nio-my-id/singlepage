@@ -6,11 +6,43 @@
     <div class="toolbar">
         <div>
             <h1>Company profiles</h1>
-            <p class="muted lede">Manage client sites, publish status, and expiry in one place. Drag rows to reorder.</p>
+            <p class="muted lede">Manage client sites, publish status, and expiry in one place.</p>
         </div>
         @can('create', App\Models\CompanyProfile::class)
             <a class="button" href="{{ route('admin.clients.create') }}">New client</a>
         @endcan
+    </div>
+
+    {{-- Sort selector --}}
+    <div class="sort-bar">
+        <span class="muted sort-label">Sort:</span>
+        @php
+            $sorts = [
+                'custom'  => 'Custom',
+                'name'    => 'Name',
+                'views'   => 'Views',
+                'expired' => 'Expiry',
+                'newest'  => 'Newest',
+            ];
+        @endphp
+        @foreach ($sorts as $key => $label)
+            @php
+                $isActive = $sort === $key;
+                $href = '?' . http_build_query(array_filter([
+                    'sort' => $key,
+                    'dir'  => ($key === 'name' && $isActive) ? ($dir === 'asc' ? 'desc' : 'asc') : null,
+                ]));
+            @endphp
+            <a href="{{ $href }}" class="sort-link {{ $isActive ? 'sort-link-active' : '' }}">
+                {{ $label }}
+                @if ($key === 'name' && $isActive)
+                    {{ $dir === 'asc' ? '↑' : '↓' }}
+                @endif
+            </a>
+        @endforeach
+        @if ($sort !== 'custom')
+            <span class="sort-drag-hint muted">Drag available in Custom mode</span>
+        @endif
     </div>
 
     <div class="card">
@@ -18,20 +50,35 @@
             <table id="profiles-table">
                 <thead>
                     <tr>
-                        <th class="drag-col" aria-label="Drag to reorder"></th>
+                        <th class="controls-col" aria-label="Pin and drag"></th>
                         <th>Company / owner</th>
                         <th>Subdomain</th>
                         <th>Status</th>
-                        <th>Expired</th>
-                        <th class="views-col" title="Unique visitors today / last 7 days / last 30 days">Views</th>
+                        <th>Expiry</th>
+                        <th class="views-col" title="Unique visitors today / last 7 days / last 30 days · click chart icon for detail">Views</th>
                         <th></th>
                     </tr>
                 </thead>
-                <tbody id="profiles-sortable">
+                <tbody
+                    id="profiles-sortable"
+                    data-sort="{{ $sort }}"
+                    data-offset="{{ ($profiles->currentPage() - 1) * $profiles->perPage() }}"
+                >
                     @forelse ($profiles as $profile)
                         @php $stats = $viewStats[$profile->id] ?? null; @endphp
-                        <tr data-id="{{ $profile->id }}" draggable="true">
-                            <td class="drag-handle" aria-hidden="true">⠿</td>
+                        <tr data-id="{{ $profile->id }}" draggable="{{ $sort === 'custom' ? 'true' : 'false' }}">
+                            <td class="controls-col">
+                                @if ($sort === 'custom')
+                                    <span class="drag-handle" aria-hidden="true" title="Drag to reorder">⠿</span>
+                                @endif
+                                <form method="POST" action="{{ route('admin.clients.pin', $profile) }}" class="inline">
+                                    @csrf
+                                    <button type="submit"
+                                            class="pin-btn {{ $profile->is_pinned ? 'pinned' : '' }}"
+                                            title="{{ $profile->is_pinned ? 'Unpin' : 'Pin to top' }}"
+                                            aria-pressed="{{ $profile->is_pinned ? 'true' : 'false' }}">★</button>
+                                </form>
+                            </td>
                             <td>
                                 {{ $profile->user?->name }}
                                 <div class="muted">{{ $profile->user?->email }}</div>
@@ -63,6 +110,9 @@
                                 @else
                                     <span class="muted">0 / 0 / 0</span>
                                 @endif
+                                <a href="{{ route('admin.clients.analytics', $profile) }}"
+                                   class="analytics-link"
+                                   title="View analytics">📊</a>
                             </td>
                             <td>
                                 <div class="row-actions">
@@ -84,6 +134,25 @@
                 </tbody>
             </table>
         </div>
+
+        @if ($profiles->hasPages())
+            <div class="pagination-bar">
+                @if ($profiles->onFirstPage())
+                    <span class="page-btn disabled">‹ Prev</span>
+                @else
+                    <a class="page-btn" href="{{ $profiles->previousPageUrl() }}">‹ Prev</a>
+                @endif
+                <span class="muted page-info">
+                    Page {{ $profiles->currentPage() }} of {{ $profiles->lastPage() }}
+                    · {{ $profiles->total() }} total
+                </span>
+                @if ($profiles->hasMorePages())
+                    <a class="page-btn" href="{{ $profiles->nextPageUrl() }}">Next ›</a>
+                @else
+                    <span class="page-btn disabled">Next ›</span>
+                @endif
+            </div>
+        @endif
     </div>
 
     <script>
@@ -94,9 +163,15 @@
 
             if (!tbody) return;
 
-            let dragging = null;
+            const sortMode = tbody.dataset.sort;
+            const offset   = parseInt(tbody.dataset.offset || '0', 10);
+
+            // Drag-and-drop only available in Custom sort mode.
+            if (sortMode !== 'custom') return;
+
+            let dragging    = null;
             let touchDragEl = null;
-            let touchClone = null;
+            let touchClone  = null;
             let touchOffsetY = 0;
             let touchOffsetX = 0;
 
@@ -123,8 +198,7 @@
                 tbody.querySelectorAll('tr').forEach(r => r.classList.remove('drag-over'));
                 target.classList.add('drag-over');
                 const rect = target.getBoundingClientRect();
-                const mid = rect.top + rect.height / 2;
-                if (e.clientY < mid) {
+                if (e.clientY < rect.top + rect.height / 2) {
                     tbody.insertBefore(dragging, target);
                 } else {
                     tbody.insertBefore(dragging, target.nextSibling);
@@ -145,13 +219,13 @@
                 touchDragEl = handle.closest('tr');
                 if (!touchDragEl) return;
                 const touch = e.touches[0];
-                const rect = touchDragEl.getBoundingClientRect();
+                const rect  = touchDragEl.getBoundingClientRect();
                 touchOffsetY = touch.clientY - rect.top;
                 touchOffsetX = touch.clientX - rect.left;
 
                 touchClone = touchDragEl.cloneNode(true);
                 touchClone.style.cssText = `position:fixed;z-index:9999;opacity:0.85;pointer-events:none;width:${rect.width}px;box-shadow:var(--shadow);background:var(--surface);`;
-                touchClone.style.top = `${rect.top}px`;
+                touchClone.style.top  = `${rect.top}px`;
                 touchClone.style.left = `${rect.left}px`;
                 document.body.appendChild(touchClone);
                 touchDragEl.classList.add('dragging');
@@ -161,15 +235,14 @@
                 if (!touchDragEl || !touchClone) return;
                 e.preventDefault();
                 const touch = e.touches[0];
-                touchClone.style.top = `${touch.clientY - touchOffsetY}px`;
+                touchClone.style.top  = `${touch.clientY - touchOffsetY}px`;
                 touchClone.style.left = `${touch.clientX - touchOffsetX}px`;
 
-                const elBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+                const elBelow  = document.elementFromPoint(touch.clientX, touch.clientY);
                 const rowBelow = elBelow?.closest('tr');
                 if (rowBelow && rowBelow !== touchDragEl && rowBelow.parentElement === tbody) {
                     const rect = rowBelow.getBoundingClientRect();
-                    const mid = rect.top + rect.height / 2;
-                    if (touch.clientY < mid) {
+                    if (touch.clientY < rect.top + rect.height / 2) {
                         tbody.insertBefore(touchDragEl, rowBelow);
                     } else {
                         tbody.insertBefore(touchDragEl, rowBelow.nextSibling);
@@ -182,7 +255,7 @@
                 touchDragEl.classList.remove('dragging');
                 touchClone?.remove();
                 touchDragEl = null;
-                touchClone = null;
+                touchClone  = null;
                 persistOrder();
             });
 
@@ -197,8 +270,8 @@
                         'X-CSRF-TOKEN': csrfToken,
                         'Accept': 'application/json',
                     },
-                    body: JSON.stringify({ ids }),
-                }).catch(() => { /* silent – order will revert on next reload */ });
+                    body: JSON.stringify({ ids, offset }),
+                }).catch(() => { /* silent – order reverts on next reload */ });
             }
         })();
     </script>
