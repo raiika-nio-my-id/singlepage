@@ -445,6 +445,8 @@ Send `Content-Type: application/json`. Send the player token as `Authorization: 
 * `GET /api/game/rooms/{code}?since={version}` — member state. `since` equal to the current version returns `{ "unchanged": true, "code", "version" }` and nothing else.
 * `POST /api/game/rooms/{code}/actions` — body `{ "type", "payload": {}, "state": {}, "private": {}, "status": "waiting"|"playing"|"closed", "expectedVersion" }`. `state` and `private` are optional. Omit a key to leave it unchanged.
 * `POST /api/game/rooms/{code}/leave` — leave the seat.
+* `GET /api/game/scores?limit=20` — top scores for this subdomain only. Default `limit` is 20, maximum 50. Each entry is `{ "id", "name", "score", "created_at" }`, ordered by score descending, then newest first.
+* `POST /api/game/scores` — body `{ "name", "score" }`. `name` is 1–16 characters after trim (letters, numbers, spaces, `._'-`). `score` is an integer from 0 to 1000000000. Returns the saved entry. Do not store highscores in an eternal room.
 
 Create, join, match, and watch return `playerToken` once. Later responses do not repeat it.
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Game\GameRoomController;
+use App\Http\Controllers\Game\GameScoreController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('config', [GameRoomController::class, 'config'])->name('config');
@@ -12,3 +13,5 @@ Route::get('rooms/{code}', [GameRoomController::class, 'show'])->name('rooms.sho
 Route::post('rooms/{code}/watch', [GameRoomController::class, 'watch'])->name('rooms.watch');
 Route::post('rooms/{code}/actions', [GameRoomController::class, 'act'])->name('rooms.act');
 Route::post('rooms/{code}/leave', [GameRoomController::class, 'leave'])->name('rooms.leave');
+Route::get('scores', [GameScoreController::class, 'index'])->name('scores.index');
+Route::post('scores', [GameScoreController::class, 'store'])->middleware('throttle:30,1')->name('scores.store');
