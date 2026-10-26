@@ -39,7 +39,8 @@ class TenantSiteTest extends TestCase
             ->assertSee('https://jadidaring.com/', false)
             ->assertDontSee('bukan tanggung jawab', false)
             ->assertSee('http://acme.jadidaring.test/syarat-ketentuan', false)
-            ->assertHeader('X-Content-Type-Options', 'nosniff');
+            ->assertHeader('X-Content-Type-Options', 'nosniff')
+            ->assertHeader('Permissions-Policy', 'camera=(), microphone=(self), geolocation=()');
     }
 
     public function test_hidden_footer_profile_does_not_include_the_platform_notice(): void

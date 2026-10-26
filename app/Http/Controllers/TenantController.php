@@ -38,7 +38,7 @@ class TenantController extends Controller
             'Content-Type' => 'text/html; charset=UTF-8',
             'X-Content-Type-Options' => 'nosniff',
             'Referrer-Policy' => 'strict-origin-when-cross-origin',
-            'Permissions-Policy' => 'camera=(), microphone=(), geolocation=()',
+            'Permissions-Policy' => 'camera=(), microphone=(self), geolocation=()',
         ]);
     }
 
