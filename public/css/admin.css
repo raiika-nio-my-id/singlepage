@@ -870,10 +870,10 @@ thead .views-col { cursor: help; }
 .btn-icon svg { width: .95rem; height: .95rem; flex-shrink: 0; }
 .btn-icon:hover { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
 
-/* ── Subdomain aliases ── */
-.alias-panel { margin-top: 1.5rem; }
+/* ── Subdomain aliases (full-width above snippet | preview) ── */
+.alias-panel { margin-bottom: 1.25rem; }
 .alias-panel h2 { font-size: 1rem; margin: 0 0 .4rem; }
-.alias-list { list-style: none; margin: .6rem 0; padding: 0; display: flex; flex-direction: column; gap: .4rem; }
+.alias-list { list-style: none; margin: .6rem 0; padding: 0; display: flex; flex-wrap: wrap; gap: .4rem 1.25rem; }
 .alias-item { display: flex; align-items: center; gap: .75rem; }
 .alias-item span { flex: 1; font-family: ui-monospace, monospace; font-size: .875rem; }
 .alias-add-form { display: flex; align-items: center; gap: .4rem; margin-top: .75rem; flex-wrap: wrap; }

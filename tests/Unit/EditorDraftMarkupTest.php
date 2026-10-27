@@ -25,4 +25,19 @@ class EditorDraftMarkupTest extends TestCase
         $this->assertStringContainsString('js/theme.js', $layout);
         $this->assertStringContainsString('partials.theme-toggle', $layout);
     }
+
+    public function test_edit_form_keeps_aliases_above_snippet_and_preview(): void
+    {
+        $edit = File::get(resource_path('views/admin/company-edit.blade.php'));
+
+        $aliasPos = strpos($edit, 'class="card alias-panel"');
+        $splitPos = strpos($edit, 'class="editor-split"');
+        $previewPos = strpos($edit, '<x-live-preview');
+
+        $this->assertNotFalse($aliasPos);
+        $this->assertNotFalse($splitPos);
+        $this->assertNotFalse($previewPos);
+        $this->assertLessThan($splitPos, $aliasPos, 'Alias panel should sit above the snippet | preview row.');
+        $this->assertGreaterThan($splitPos, $previewPos, 'Live preview must remain inside editor-split with the snippet.');
+    }
 }

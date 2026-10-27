@@ -42,6 +42,47 @@
         </ul>
     @endif
 
+    @unless ($workspace)
+        @if (auth()->user()->isAdmin())
+            <div class="card alias-panel">
+                <h2>Alias subdomains <span class="badge badge-draft">admin only</span></h2>
+                <p class="muted">Each alias redirects (301) to the primary subdomain, keeping one canonical URL.</p>
+
+                @if ($errors->hasBag('aliases') || $errors->has('alias'))
+                    <ul class="errors">
+                        @foreach ($errors->get('alias') as $msg)
+                            <li>{{ $msg }}</li>
+                        @endforeach
+                    </ul>
+                @endif
+
+                @if ($companyProfile->aliases->isEmpty())
+                    <p class="muted">No aliases yet.</p>
+                @else
+                    <ul class="alias-list">
+                        @foreach ($companyProfile->aliases as $alias)
+                            <li class="alias-item">
+                                <span>{{ $alias->subdomain }}.{{ config('singlepage.base_domain') }}</span>
+                                <form method="POST" action="{{ route('admin.clients.aliases.destroy', [$companyProfile, $alias]) }}" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="button button-quiet button-small">Remove</button>
+                                </form>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+
+                <form method="POST" action="{{ route('admin.clients.aliases.store', $companyProfile) }}" class="alias-add-form">
+                    @csrf
+                    <input type="text" name="alias" placeholder="alias-subdomain" maxlength="63" autocapitalize="off" spellcheck="false" aria-label="New alias subdomain">
+                    <span class="alias-domain-hint">.{{ config('singlepage.base_domain') }}</span>
+                    <button type="submit" class="button button-small">Add alias</button>
+                </form>
+            </div>
+        @endif
+    @endunless
+
     <div class="editor-split">
         <form class="card editor-pane" method="POST" action="{{ $updateUrl }}" data-editor-form>
             @csrf
@@ -114,47 +155,6 @@
                 <span class="unsaved-flag" data-unsaved-flag hidden role="status">Unsaved changes · Ctrl+S</span>
             </p>
         </form>
-
-        @unless ($workspace)
-            @if (auth()->user()->isAdmin())
-                <div class="card alias-panel">
-                    <h2>Alias subdomains <span class="badge badge-draft">admin only</span></h2>
-                    <p class="muted">Each alias redirects (301) to the primary subdomain, keeping one canonical URL.</p>
-
-                    @if ($errors->hasBag('aliases') || $errors->has('alias'))
-                        <ul class="errors">
-                            @foreach ($errors->get('alias') as $msg)
-                                <li>{{ $msg }}</li>
-                            @endforeach
-                        </ul>
-                    @endif
-
-                    @if ($companyProfile->aliases->isEmpty())
-                        <p class="muted">No aliases yet.</p>
-                    @else
-                        <ul class="alias-list">
-                            @foreach ($companyProfile->aliases as $alias)
-                                <li class="alias-item">
-                                    <span>{{ $alias->subdomain }}.{{ config('singlepage.base_domain') }}</span>
-                                    <form method="POST" action="{{ route('admin.clients.aliases.destroy', [$companyProfile, $alias]) }}" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="button button-quiet button-small">Remove</button>
-                                    </form>
-                                </li>
-                            @endforeach
-                        </ul>
-                    @endif
-
-                    <form method="POST" action="{{ route('admin.clients.aliases.store', $companyProfile) }}" class="alias-add-form">
-                        @csrf
-                        <input type="text" name="alias" placeholder="alias-subdomain" maxlength="63" autocapitalize="off" spellcheck="false" aria-label="New alias subdomain">
-                        <span class="alias-domain-hint">.{{ config('singlepage.base_domain') }}</span>
-                        <button type="submit" class="button button-small">Add alias</button>
-                    </form>
-                </div>
-            @endif
-        @endunless
 
         <x-live-preview :site-subdomain="old('subdomain', $companyProfile->subdomain)">
             <iframe class="preview" sandbox="allow-scripts" title="Sandboxed company preview" srcdoc="{{ old('html', $companyProfile->html) }}"></iframe>
