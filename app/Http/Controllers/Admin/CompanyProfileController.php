@@ -180,10 +180,12 @@ class CompanyProfileController extends Controller
                 'status' => $request->published() ? ProfileStatus::Published : ProfileStatus::Draft,
             ];
 
+            $formerSubdomain = $companyProfile->subdomain;
+
             if ($request->user()?->can('updateSubdomain', $companyProfile)) {
-                $payload['subdomain'] = $subdomains->validateAvailable(
+                $payload['subdomain'] = $subdomains->preparePrimaryChange(
+                    $companyProfile,
                     $request->validated('subdomain'),
-                    $companyProfile->id,
                 );
             }
 
@@ -196,6 +198,10 @@ class CompanyProfileController extends Controller
             }
 
             $companyProfile->update($payload);
+
+            if (array_key_exists('subdomain', $payload)) {
+                $subdomains->rememberFormerPrimary($companyProfile, $formerSubdomain);
+            }
 
             if ($request->user()?->can('updateCredentials', $companyProfile) && $companyProfile->user) {
                 $credentials = [

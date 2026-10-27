@@ -30,14 +30,18 @@ class EditorDraftMarkupTest extends TestCase
     {
         $edit = File::get(resource_path('views/admin/company-edit.blade.php'));
 
-        $aliasPos = strpos($edit, 'class="card alias-panel"');
+        $aliasPos = strpos($edit, 'class="alias-bar"');
         $splitPos = strpos($edit, 'class="editor-split"');
         $previewPos = strpos($edit, '<x-live-preview');
 
         $this->assertNotFalse($aliasPos);
         $this->assertNotFalse($splitPos);
         $this->assertNotFalse($previewPos);
-        $this->assertLessThan($splitPos, $aliasPos, 'Alias panel should sit above the snippet | preview row.');
+        $this->assertLessThan($splitPos, $aliasPos, 'Alias bar should sit above the snippet | preview row.');
         $this->assertGreaterThan($splitPos, $previewPos, 'Live preview must remain inside editor-split with the snippet.');
+        $this->assertStringContainsString('class="alias-chip"', $edit);
+        $this->assertStringContainsString('class="alias-tags"', $edit);
+        $this->assertStringContainsString('class="alias-chip-remove"', $edit);
+        $this->assertStringNotContainsString('class="card alias-panel"', $edit);
     }
 }

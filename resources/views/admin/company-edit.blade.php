@@ -44,9 +44,11 @@
 
     @unless ($workspace)
         @if (auth()->user()->isAdmin())
-            <div class="card alias-panel">
-                <h2>Alias subdomains <span class="badge badge-draft">admin only</span></h2>
-                <p class="muted">Each alias redirects (301) to the primary subdomain, keeping one canonical URL.</p>
+            <div class="alias-bar">
+                <div class="alias-bar-head">
+                    <label class="alias-bar-label" for="alias">Aliases</label>
+                    <span class="badge badge-draft">admin only</span>
+                </div>
 
                 @if ($errors->hasBag('aliases') || $errors->has('alias'))
                     <ul class="errors">
@@ -56,29 +58,36 @@
                     </ul>
                 @endif
 
-                @if ($companyProfile->aliases->isEmpty())
-                    <p class="muted">No aliases yet.</p>
-                @else
-                    <ul class="alias-list">
-                        @foreach ($companyProfile->aliases as $alias)
-                            <li class="alias-item">
-                                <span>{{ $alias->subdomain }}.{{ config('singlepage.base_domain') }}</span>
-                                <form method="POST" action="{{ route('admin.clients.aliases.destroy', [$companyProfile, $alias]) }}" class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="button button-quiet button-small">Remove</button>
-                                </form>
-                            </li>
-                        @endforeach
-                    </ul>
-                @endif
+                <div class="alias-tags">
+                    @foreach ($companyProfile->aliases as $alias)
+                        <span class="alias-chip">
+                            <span>{{ $alias->subdomain }}</span>
+                            <form method="POST" action="{{ route('admin.clients.aliases.destroy', [$companyProfile, $alias]) }}" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="alias-chip-remove" aria-label="Remove alias {{ $alias->subdomain }}">&times;</button>
+                            </form>
+                        </span>
+                    @endforeach
 
-                <form method="POST" action="{{ route('admin.clients.aliases.store', $companyProfile) }}" class="alias-add-form">
-                    @csrf
-                    <input type="text" name="alias" placeholder="alias-subdomain" maxlength="63" autocapitalize="off" spellcheck="false" aria-label="New alias subdomain">
-                    <span class="alias-domain-hint">.{{ config('singlepage.base_domain') }}</span>
-                    <button type="submit" class="button button-small">Add alias</button>
-                </form>
+                    @unless ($companyProfile->aliases->contains('subdomain', $companyProfile->subdomain))
+                        <form method="POST" action="{{ route('admin.clients.aliases.store', $companyProfile) }}" class="inline">
+                            @csrf
+                            <input type="hidden" name="alias" value="{{ $companyProfile->subdomain }}">
+                            <button type="submit" class="alias-chip alias-chip-suggest" title="Add the current primary as an alias">
+                                + {{ $companyProfile->subdomain }}
+                            </button>
+                        </form>
+                    @endunless
+
+                    <form method="POST" action="{{ route('admin.clients.aliases.store', $companyProfile) }}" class="alias-add-form">
+                        @csrf
+                        <input id="alias" type="text" name="alias" placeholder="Add alias" maxlength="63" autocapitalize="off" spellcheck="false" autocomplete="off" aria-label="New alias subdomain">
+                        <span class="alias-domain-hint">.{{ config('singlepage.base_domain') }}</span>
+                        <button type="submit" class="button button-quiet button-small">Add</button>
+                    </form>
+                </div>
+                <p class="muted alias-bar-hint">Each alias 301s to the primary. Saving a new primary keeps the old name as an alias, so you can swap names in one save.</p>
             </div>
         @endif
     @endunless

@@ -870,15 +870,102 @@ thead .views-col { cursor: help; }
 .btn-icon svg { width: .95rem; height: .95rem; flex-shrink: 0; }
 .btn-icon:hover { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
 
-/* ── Subdomain aliases (full-width above snippet | preview) ── */
-.alias-panel { margin-bottom: 1.25rem; }
-.alias-panel h2 { font-size: 1rem; margin: 0 0 .4rem; }
-.alias-list { list-style: none; margin: .6rem 0; padding: 0; display: flex; flex-wrap: wrap; gap: .4rem 1.25rem; }
-.alias-item { display: flex; align-items: center; gap: .75rem; }
-.alias-item span { flex: 1; font-family: ui-monospace, monospace; font-size: .875rem; }
-.alias-add-form { display: flex; align-items: center; gap: .4rem; margin-top: .75rem; flex-wrap: wrap; }
-.alias-add-form input[type="text"] { flex: 1; min-width: 10rem; }
-.alias-domain-hint { color: var(--muted); font-size: .875rem; white-space: nowrap; }
+/* ── Subdomain aliases (compact tags, full-width above snippet | preview) ── */
+.alias-bar {
+    margin: 0 0 2rem;
+    padding-bottom: .35rem;
+}
+.alias-bar-head {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    margin-bottom: .4rem;
+}
+.alias-bar-label {
+    margin: 0;
+    font-size: .82rem;
+    font-weight: 600;
+}
+.alias-bar-hint {
+    margin: .45rem 0 0;
+    font-size: .78rem;
+}
+.alias-tags {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .35rem;
+    padding: .35rem .45rem;
+    min-height: 2.35rem;
+    border: 1px solid var(--line);
+    border-radius: .8rem;
+    background: var(--surface-solid);
+}
+.alias-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .15rem;
+    padding: .12rem .15rem .12rem .5rem;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--ink);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: .78rem;
+    line-height: 1.2;
+    border: 1px solid transparent;
+}
+.alias-chip-suggest {
+    padding: .18rem .55rem;
+    background: transparent;
+    color: var(--muted);
+    border: 1px dashed var(--line);
+    font: inherit;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: .78rem;
+    font-weight: 500;
+}
+.alias-chip-suggest:hover {
+    background: var(--accent-soft);
+    color: var(--ink);
+    border-color: transparent;
+}
+button.alias-chip-remove {
+    background: transparent;
+    color: var(--muted);
+    border: 0;
+    padding: .05rem .32rem;
+    border-radius: 999px;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1;
+    min-width: 1.15rem;
+}
+button.alias-chip-remove:hover {
+    background: var(--danger-soft);
+    color: var(--danger);
+}
+.alias-add-form {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    flex: 1 1 8rem;
+    margin: 0;
+    min-width: 10rem;
+}
+.alias-add-form input[type="text"] {
+    width: auto;
+    flex: 1;
+    min-width: 6rem;
+    padding: .2rem .35rem;
+    border: 0;
+    background: transparent;
+    border-radius: .4rem;
+}
+.alias-add-form .button {
+    padding: .22rem .55rem;
+    font-size: .75rem;
+}
+.alias-domain-hint { color: var(--muted); font-size: .78rem; white-space: nowrap; }
 .alias-hint { font-size: .8rem; font-family: ui-monospace, monospace; }
 
 /* ── Sort control (toolbar select) ── */

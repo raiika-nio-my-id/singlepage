@@ -91,6 +91,110 @@ class SubdomainAliasTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_add_current_primary_as_alias(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $profile = CompanyProfile::factory()->create(['subdomain' => 'keepme']);
+
+        $this->actingAs($admin)
+            ->from('http://admin.jadidaring.test/clients/'.$profile->id.'/edit')
+            ->post('http://admin.jadidaring.test/clients/'.$profile->id.'/aliases', [
+                'alias' => 'keepme',
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('company_profiles', [
+            'id' => $profile->id,
+            'subdomain' => 'keepme',
+        ]);
+        $this->assertDatabaseHas('company_profile_aliases', [
+            'company_profile_id' => $profile->id,
+            'subdomain' => 'keepme',
+        ]);
+    }
+
+    public function test_changing_primary_keeps_former_name_as_alias(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $profile = CompanyProfile::factory()->create(['subdomain' => 'oldname']);
+
+        $this->actingAs($admin)
+            ->from('http://admin.jadidaring.test/clients/'.$profile->id.'/edit')
+            ->put('http://admin.jadidaring.test/clients/'.$profile->id, [
+                'subdomain' => 'newname',
+                'name' => $profile->user->name,
+                'email' => $profile->user->email,
+                'html' => '<html><body>Hi</body></html>',
+                'expires_at' => now()->addYear()->toDateString(),
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('company_profiles', [
+            'id' => $profile->id,
+            'subdomain' => 'newname',
+        ]);
+        $this->assertDatabaseHas('company_profile_aliases', [
+            'company_profile_id' => $profile->id,
+            'subdomain' => 'oldname',
+        ]);
+    }
+
+    public function test_changing_primary_to_own_alias_swaps_names(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $profile = CompanyProfile::factory()->published()->create(['subdomain' => 'alpha']);
+        CompanyProfileAlias::factory()->for($profile)->create(['subdomain' => 'beta']);
+
+        $this->actingAs($admin)
+            ->from('http://admin.jadidaring.test/clients/'.$profile->id.'/edit')
+            ->put('http://admin.jadidaring.test/clients/'.$profile->id, [
+                'subdomain' => 'beta',
+                'name' => $profile->user->name,
+                'email' => $profile->user->email,
+                'html' => '<html><body>Hi</body></html>',
+                'expires_at' => now()->addYear()->toDateString(),
+                'status' => 'published',
+            ])
+            ->assertRedirect()
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('company_profiles', [
+            'id' => $profile->id,
+            'subdomain' => 'beta',
+        ]);
+        $this->assertDatabaseHas('company_profile_aliases', [
+            'company_profile_id' => $profile->id,
+            'subdomain' => 'alpha',
+        ]);
+        $this->assertDatabaseMissing('company_profile_aliases', [
+            'company_profile_id' => $profile->id,
+            'subdomain' => 'beta',
+        ]);
+
+        $this->get('http://alpha.jadidaring.test/')
+            ->assertRedirect('http://beta.jadidaring.test/')
+            ->assertStatus(301);
+    }
+
+    public function test_edit_form_renders_compact_alias_tags(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $profile = CompanyProfile::factory()->create(['subdomain' => 'tagged']);
+        CompanyProfileAlias::factory()->for($profile)->create(['subdomain' => 'tagged-alt']);
+
+        $this->actingAs($admin)
+            ->get('http://admin.jadidaring.test/clients/'.$profile->id.'/edit')
+            ->assertOk()
+            ->assertSee('alias-bar', false)
+            ->assertSee('alias-chip', false)
+            ->assertSee('alias-chip-remove', false)
+            ->assertSee('tagged-alt')
+            ->assertSee('+ tagged', false)
+            ->assertDontSee('Alias subdomains', false);
+    }
+
     public function test_admin_can_remove_alias(): void
     {
         $admin = User::factory()->admin()->create();
