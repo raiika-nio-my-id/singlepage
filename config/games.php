@@ -21,4 +21,17 @@ return [
 
     'spectator_limit' => 20,
 
+    /*
+    |--------------------------------------------------------------------------
+    | Gamemaster room list
+    |--------------------------------------------------------------------------
+    |
+    | GET /api/game/rooms lists public waiting/playing rooms. Sending this
+    | secret as ?gm= or the X-Game-Master header also includes private rooms
+    | for the same tenant. Live clients already use gamemasterjd.
+    |
+    */
+
+    'gamemaster_secret' => (string) env('GAME_GAMEMASTER_SECRET', 'gamemasterjd'),
+
 ];

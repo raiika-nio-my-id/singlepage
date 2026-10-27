@@ -20,7 +20,10 @@ class GameRoomController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        return $this->respond(fn (): array => $this->rooms->list($this->profile($request)));
+        return $this->respond(fn (): array => $this->rooms->list(
+            $this->profile($request),
+            $this->rooms->isGameMaster($request),
+        ));
     }
 
     public function store(Request $request): JsonResponse

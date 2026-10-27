@@ -56,11 +56,11 @@ class GameRoomService
     /**
      * @return array<string, mixed>
      */
-    public function list(CompanyProfile $profile): array
+    public function list(CompanyProfile $profile, bool $includePrivate = false): array
     {
         $rooms = GameRoom::query()
             ->where('company_profile_id', $profile->id)
-            ->where('visibility', 'public')
+            ->when(! $includePrivate, fn ($query) => $query->where('visibility', 'public'))
             ->whereIn('status', ['waiting', 'playing'])
             ->withCount([
                 'players as seated_count' => fn ($query) => $query->whereNull('left_at')->where('is_spectator', false),
@@ -289,6 +289,23 @@ class GameRoomService
         }
 
         return $token;
+    }
+
+    public function isGameMaster(Request $request): bool
+    {
+        $secret = (string) config('games.gamemaster_secret');
+
+        if ($secret === '') {
+            return false;
+        }
+
+        foreach ([$request->query('gm'), $request->header('X-Game-Master')] as $candidate) {
+            if (is_string($candidate) && $candidate !== '' && hash_equals($secret, $candidate)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
