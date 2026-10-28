@@ -54,4 +54,20 @@ return [
         'assets',
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Machine-to-machine admin API
+    |--------------------------------------------------------------------------
+    |
+    | POST/PATCH /api/admin/clients on the admin host. Callers must send
+    | ADMIN_API_SECRET as the X-Admin-Api-Key header. An empty secret
+    | rejects every request (fail closed).
+    |
+    */
+
+    'admin_api' => [
+        'secret' => env('ADMIN_API_SECRET'),
+        'header' => 'X-Admin-Api-Key',
+    ],
+
 ];

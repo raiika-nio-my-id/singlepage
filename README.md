@@ -35,3 +35,7 @@ Seeded logins (password: `password`):
 
 - `admin@jadidaring.test` — administrator
 - `client@jadidaring.test` — demo client (`http://demo.jadidaring.test`)
+
+## Admin client API
+
+Machine-to-machine create/update of company clients lives on the admin host. See [docs/admin-api.md](docs/admin-api.md).

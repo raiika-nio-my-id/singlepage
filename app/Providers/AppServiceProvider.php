@@ -5,8 +5,11 @@ namespace App\Providers;
 use App\Models\CompanyProfile;
 use App\Models\User;
 use App\Policies\CompanyProfilePolicy;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -33,6 +36,10 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('manage-settings', function (User $user): bool {
             return $user->can('manageSettings', CompanyProfile::class);
+        });
+
+        RateLimiter::for('admin-api', function (Request $request) {
+            return Limit::perMinute(60)->by($request->ip());
         });
     }
 }
