@@ -15,6 +15,19 @@ class Setting extends Model
     }
 
     /**
+     * Shared GM key for listing private lobbies. A non-empty admin-saved
+     * value wins; otherwise the env/config fallback is used.
+     */
+    public static function gamemasterSecret(): string
+    {
+        $fromSettings = trim((string) (static::getValue('gamemaster_secret') ?? ''));
+
+        return $fromSettings !== ''
+            ? $fromSettings
+            : (string) config('games.gamemaster_secret');
+    }
+
+    /**
      * @return list<string>
      */
     public static function reservedSubdomains(): array

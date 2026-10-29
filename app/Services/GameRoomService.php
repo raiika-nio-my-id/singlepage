@@ -7,6 +7,7 @@ use App\Exceptions\GameRoomException;
 use App\Models\CompanyProfile;
 use App\Models\GamePlayer;
 use App\Models\GameRoom;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -293,7 +294,7 @@ class GameRoomService
 
     public function isGameMaster(Request $request): bool
     {
-        $secret = (string) config('games.gamemaster_secret');
+        $secret = Setting::gamemasterSecret();
 
         if ($secret === '') {
             return false;

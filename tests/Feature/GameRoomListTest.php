@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Events\GameRoomUpdated;
 use App\Models\CompanyProfile;
+use App\Models\Setting;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
@@ -147,6 +148,71 @@ class GameRoomListTest extends TestCase
 
         $this->getJson('http://hidden.jadidaring.test/api/game/rooms?gm=gamemasterjd')->assertNotFound();
         $this->getJson('http://admin.jadidaring.test/api/game/rooms?gm=gamemasterjd')->assertNotFound();
+    }
+
+    public function test_empty_gamemaster_setting_falls_back_to_the_env_default(): void
+    {
+        $this->publish('coratcoret');
+        $public = $this->openRoom('coratcoret', 'Ada', 'public');
+        $private = $this->openRoom('coratcoret', 'Bayu', 'private');
+
+        Setting::query()->updateOrCreate(
+            ['key' => 'gamemaster_secret'],
+            ['value' => ''],
+        );
+
+        $this->assertSame('gamemasterjd', Setting::gamemasterSecret());
+
+        $this->getJson('http://coratcoret.jadidaring.test/api/game/rooms?gm=gamemasterjd')
+            ->assertOk()
+            ->assertJsonCount(2, 'rooms');
+
+        $this->getJson('http://coratcoret.jadidaring.test/api/game/rooms', [
+            'X-Game-Master' => 'gamemasterjd',
+        ])->assertOk()
+            ->assertJsonCount(2, 'rooms');
+
+        $this->assertDatabaseHas('game_rooms', [
+            'code' => $public['code'],
+            'visibility' => 'public',
+        ]);
+        $this->assertDatabaseHas('game_rooms', [
+            'code' => $private['code'],
+            'visibility' => 'private',
+        ]);
+    }
+
+    public function test_admin_saved_gamemaster_secret_overrides_the_env_default(): void
+    {
+        $this->publish('coratcoret');
+        $public = $this->openRoom('coratcoret', 'Ada', 'public');
+        $private = $this->openRoom('coratcoret', 'Bayu', 'private');
+
+        Setting::query()->updateOrCreate(
+            ['key' => 'gamemaster_secret'],
+            ['value' => 'new-gm-key'],
+        );
+
+        $this->assertSame('new-gm-key', Setting::gamemasterSecret());
+
+        $this->getJson('http://coratcoret.jadidaring.test/api/game/rooms?gm=gamemasterjd')
+            ->assertOk()
+            ->assertJsonCount(1, 'rooms')
+            ->assertJsonPath('rooms.0.code', $public['code']);
+
+        $rooms = $this->getJson('http://coratcoret.jadidaring.test/api/game/rooms?gm=new-gm-key')
+            ->assertOk()
+            ->assertJsonCount(2, 'rooms')
+            ->json('rooms');
+
+        $codes = collect($rooms)->pluck('code');
+        $this->assertTrue($codes->contains($public['code']));
+        $this->assertTrue($codes->contains($private['code']));
+
+        $this->getJson('http://coratcoret.jadidaring.test/api/game/rooms', [
+            'X-Game-Master' => 'new-gm-key',
+        ])->assertOk()
+            ->assertJsonCount(2, 'rooms');
     }
 
     /**

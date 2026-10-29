@@ -30,6 +30,9 @@ return [
     | secret as ?gm= or the X-Game-Master header also includes private rooms
     | for the same tenant. Live clients already use gamemasterjd.
     |
+    | Admin Settings can store a non-empty override in the settings table.
+    | This env value is the fallback when that override is empty or unset.
+    |
     */
 
     'gamemaster_secret' => (string) env('GAME_GAMEMASTER_SECRET', 'gamemasterjd'),

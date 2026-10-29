@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\CompanyProfile;
 use App\Rules\Subdomain;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -12,7 +13,7 @@ class UpdateSettingsRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can('manageSettings', \App\Models\CompanyProfile::class) ?? false;
+        return $this->user()?->can('manageSettings', CompanyProfile::class) ?? false;
     }
 
     /**
@@ -22,6 +23,7 @@ class UpdateSettingsRequest extends FormRequest
     {
         return [
             'reserved_subdomains' => ['nullable', 'string'],
+            'gamemaster_secret' => ['nullable', 'string', 'max:128'],
         ];
     }
 
@@ -34,7 +36,17 @@ class UpdateSettingsRequest extends FormRequest
                     $validator->errors()->add('reserved_subdomains', "Invalid reserved subdomain: {$line}. {$message}");
                 });
             }
+
+            $secret = (string) $this->input('gamemaster_secret', '');
+            if ($secret !== '' && trim($secret) === '') {
+                $validator->errors()->add('gamemaster_secret', 'The gamemaster secret cannot be only whitespace.');
+            }
         });
+    }
+
+    public function gamemasterSecret(): string
+    {
+        return trim((string) $this->input('gamemaster_secret', ''));
     }
 
     /**

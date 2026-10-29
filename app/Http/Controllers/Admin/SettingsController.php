@@ -17,6 +17,7 @@ class SettingsController extends Controller
 
         return view('admin.settings', [
             'reservedSubdomains' => Setting::getValue('reserved_subdomains', ''),
+            'gamemasterSecret' => Setting::getValue('gamemaster_secret', ''),
         ]);
     }
 
@@ -25,6 +26,11 @@ class SettingsController extends Controller
         Setting::query()->updateOrCreate(
             ['key' => 'reserved_subdomains'],
             ['value' => implode(PHP_EOL, $request->reservedLines())],
+        );
+
+        Setting::query()->updateOrCreate(
+            ['key' => 'gamemaster_secret'],
+            ['value' => $request->gamemasterSecret()],
         );
 
         return back()->with('success', 'Settings saved.');
