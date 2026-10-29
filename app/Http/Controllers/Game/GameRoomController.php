@@ -77,6 +77,16 @@ class GameRoomController extends Controller
         ));
     }
 
+    public function gamemaster(Request $request, string $tenant, string $code): JsonResponse
+    {
+        return $this->respond(fn (): array => $this->rooms->claimGameMaster(
+            $this->profile($request, $tenant),
+            $code,
+            $this->rooms->token($request),
+            $request->all(),
+        ));
+    }
+
     private function profile(Request $request, ?string $tenant = null): CompanyProfile
     {
         $profile = $request->attributes->get('tenantProfile');

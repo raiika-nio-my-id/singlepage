@@ -437,14 +437,15 @@ Online buttons run only when `location.protocol` is `http:` or `https:` and `loc
 Send `Content-Type: application/json`. Send the player token as `Authorization: Bearer PLAYER_TOKEN` after a seat is issued. Store the token in `sessionStorage`, not in the HTML.
 
 * `GET /api/game/config` — connection for this subdomain.
-* `GET /api/game/rooms` — public tables for this subdomain only. No secrets.
+* `GET /api/game/rooms` — public tables for this subdomain only. No secrets. `?gm=` / `X-Game-Master` still lists private rooms (transitional/deprecated). Never put the GM secret in a URL hash or in `/api/game/config`.
 * `POST /api/game/rooms` — body `{ "displayName", "visibility": "public"|"private", "maxPlayers": 2-16, "state": {}, "private": {} }`. Default visibility is `private`.
 * `POST /api/game/rooms/join` — body `{ "code", "displayName", "private": {} }`. Only `waiting` rooms with a free seat.
 * `POST /api/game/rooms/match` — body `{ "displayName", "maxPlayers", "state", "private" }`. Joins the oldest public waiting room for this subdomain, or creates one.
 * `POST /api/game/rooms/{code}/watch` — body `{ "displayName" }`. Spectator. Does not take a seat.
 * `GET /api/game/rooms/{code}?since={version}` — member state. `since` equal to the current version returns `{ "unchanged": true, "code", "version" }` and nothing else.
 * `POST /api/game/rooms/{code}/actions` — body `{ "type", "payload": {}, "state": {}, "private": {}, "status": "waiting"|"playing"|"closed", "expectedVersion" }`. `state` and `private` are optional. Omit a key to leave it unchanged.
-* `POST /api/game/rooms/{code}/leave` — leave the seat.
+* `POST /api/game/rooms/{code}/leave` — leave the seat. Clears host and GM flags for that player.
+* `POST /api/game/rooms/{code}/gamemaster` — body `{ "code": "typed-gm-code" }`. Requires a seated player token. On success the room present payload marks that player `gamemaster: true` (one GM per room). Wrong code returns 403 `{ "error": "Invalid game master code." }` and does not say whether the secret almost matched.
 * `GET /api/game/scores?limit=20` — top scores for this subdomain only. Default `limit` is 20, maximum 50. Each entry is `{ "id", "name", "score", "created_at" }`, ordered by score descending, then newest first.
 * `POST /api/game/scores` — body `{ "name", "score" }`. `name` is 1–16 characters after trim (letters, numbers, spaces, `._'-`). `score` is an integer from 0 to 1000000000. Returns the saved entry. Do not store highscores in an eternal room.
 

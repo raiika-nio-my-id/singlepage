@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['game_room_id', 'display_name', 'seat', 'token_hash', 'is_host', 'is_spectator', 'private_state', 'left_at'])]
+#[Fillable(['game_room_id', 'display_name', 'seat', 'token_hash', 'is_host', 'is_spectator', 'is_gamemaster', 'private_state', 'left_at'])]
 #[Hidden(['token_hash', 'private_state'])]
 class GamePlayer extends Model
 {
@@ -20,6 +20,7 @@ class GamePlayer extends Model
             'seat' => 'integer',
             'is_host' => 'boolean',
             'is_spectator' => 'boolean',
+            'is_gamemaster' => 'boolean',
             'private_state' => 'array',
             'left_at' => 'datetime',
         ];

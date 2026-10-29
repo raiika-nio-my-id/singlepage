@@ -27,7 +27,7 @@
 
         <label for="gamemaster_secret">Gamemaster secret</label>
         <input type="text" id="gamemaster_secret" name="gamemaster_secret" value="{{ old('gamemaster_secret', $gamemasterSecret) }}" maxlength="128" autocomplete="off" spellcheck="false" placeholder="{{ config('games.gamemaster_secret') }}">
-        <p class="muted">Shared GM key for listing private lobbies via <code>?gm=</code> or the <code>X-Game-Master</code> header. Leave empty to use the server default (<code>{{ config('games.gamemaster_secret') }}</code>).</p>
+        <p class="muted">Shared GM key. Players should type this in-room and POST <code>/api/game/rooms/{code}/gamemaster</code>. <code>?gm=</code> / <code>X-Game-Master</code> private-room listing is transitional. Leave empty to use the server default (<code>{{ config('games.gamemaster_secret') }}</code>). Never exposed on <code>/api/game/config</code>.</p>
         <p><button type="submit">Save settings</button></p>
     </form>
 @endsection

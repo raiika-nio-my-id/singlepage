@@ -261,6 +261,7 @@ class GameRoomService
             $player->forceFill([
                 'left_at' => now(),
                 'is_host' => false,
+                'is_gamemaster' => false,
             ])->save();
 
             $nextHost = $room->players()
@@ -292,21 +293,64 @@ class GameRoomService
         return $token;
     }
 
+    /**
+     * @param  array<string, mixed>  $input
+     * @return array<string, mixed>
+     */
+    public function claimGameMaster(CompanyProfile $profile, string $code, string $token, array $input): array
+    {
+        $data = $this->validate($input, [
+            'code' => ['required', 'string', 'max:128'],
+        ]);
+
+        return $this->transaction(function () use ($profile, $code, $token, $data): array {
+            $room = $this->lockRoom($profile, $this->code($code));
+            $player = $this->player($room, $token);
+
+            if ($room->status === 'closed') {
+                throw new GameRoomException('This room is closed.');
+            }
+
+            if (! $this->matchesGameMasterSecret($data['code'])) {
+                throw new GameRoomException('Invalid game master code.', 403);
+            }
+
+            if (! $player->is_gamemaster) {
+                $room->players()
+                    ->where('id', '!=', $player->id)
+                    ->where('is_gamemaster', true)
+                    ->update(['is_gamemaster' => false]);
+
+                $player->forceFill(['is_gamemaster' => true])->save();
+                $this->record($room, $profile, $player, 'gamemaster', []);
+            }
+
+            return $this->present($room->refresh(), $player->refresh());
+        });
+    }
+
     public function isGameMaster(Request $request): bool
     {
-        $secret = Setting::gamemasterSecret();
-
-        if ($secret === '') {
-            return false;
-        }
-
         foreach ([$request->query('gm'), $request->header('X-Game-Master')] as $candidate) {
-            if (is_string($candidate) && $candidate !== '' && hash_equals($secret, $candidate)) {
+            if ($this->matchesGameMasterSecret(is_string($candidate) ? $candidate : null)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    private function matchesGameMasterSecret(?string $candidate): bool
+    {
+        $secret = Setting::gamemasterSecret();
+
+        if ($secret === '' || $candidate === null) {
+            return false;
+        }
+
+        $candidate = trim($candidate);
+
+        return $candidate !== '' && hash_equals($secret, $candidate);
     }
 
     /**
@@ -395,6 +439,7 @@ class GameRoomService
             'token_hash' => hash('sha256', $token),
             'is_host' => $host,
             'is_spectator' => $spectator,
+            'is_gamemaster' => false,
             'private_state' => $private,
         ]);
 
@@ -488,6 +533,7 @@ class GameRoomService
             'maxPlayers' => $room->max_players,
             'host' => $player->is_host,
             'spectator' => $player->is_spectator,
+            'gamemaster' => $player->is_gamemaster,
             'playerId' => $player->id,
             'state' => $room->state ?? [],
             'private' => $player->private_state ?? [],
@@ -497,6 +543,7 @@ class GameRoomService
                 'seat' => $member->seat,
                 'host' => $member->is_host,
                 'spectator' => $member->is_spectator,
+                'gamemaster' => $member->is_gamemaster,
             ])->all(),
             'events' => $events->map(fn ($event): array => [
                 'version' => $event->version,

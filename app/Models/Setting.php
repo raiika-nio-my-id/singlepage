@@ -15,8 +15,8 @@ class Setting extends Model
     }
 
     /**
-     * Shared GM key for listing private lobbies. A non-empty admin-saved
-     * value wins; otherwise the env/config fallback is used.
+     * Shared GM key for in-room claim and (transitional) private lobby listing.
+     * A non-empty admin-saved value wins; otherwise the env/config fallback is used.
      */
     public static function gamemasterSecret(): string
     {

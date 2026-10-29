@@ -23,12 +23,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Gamemaster room list
+    | Gamemaster secret
     |--------------------------------------------------------------------------
     |
-    | GET /api/game/rooms lists public waiting/playing rooms. Sending this
-    | secret as ?gm= or the X-Game-Master header also includes private rooms
-    | for the same tenant. Live clients already use gamemasterjd.
+    | Typed-code path (preferred): a seated player POSTs the code to
+    | /api/game/rooms/{code}/gamemaster. The server compares with
+    | Setting::gamemasterSecret() and never returns the secret.
+    |
+    | Transitional/deprecated: GET /api/game/rooms?gm= or X-Game-Master still
+    | lists private rooms for the same tenant. Live clients still send a
+    | hardcoded key (currently gamemasterjd, rolling toward gmjd1212). Prefer
+    | the typed-code claim going forward; do not add this value to describe
+    | or public config.
     |
     | Admin Settings can store a non-empty override in the settings table.
     | This env value is the fallback when that override is empty or unset.
