@@ -35,7 +35,8 @@ class GamePlatformTest extends TestCase
             ->assertJsonPath('websocket.channelPrefix', 'game.mahjong')
             ->assertJsonPath('websocket.lobbyChannel', 'game.mahjong')
             ->assertJsonPath('websocket.roomChannel', 'game.mahjong.{code}')
-            ->assertJsonPath('websocket.event', 'room.updated');
+            ->assertJsonPath('websocket.event', 'room.updated')
+            ->assertJsonPath('websocket.inputEvent', 'room.input');
 
         $this->assertStringContainsString(
             'ws://mahjong.jadidaring.test/app/test-reverb-key',

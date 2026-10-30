@@ -12,6 +12,7 @@ Route::post('rooms/match', [GameRoomController::class, 'match'])->name('rooms.ma
 Route::get('rooms/{code}', [GameRoomController::class, 'show'])->name('rooms.show');
 Route::post('rooms/{code}/watch', [GameRoomController::class, 'watch'])->name('rooms.watch');
 Route::post('rooms/{code}/actions', [GameRoomController::class, 'act'])->name('rooms.act');
+Route::post('rooms/{code}/input', [GameRoomController::class, 'input'])->middleware('throttle:game-input')->name('rooms.input');
 Route::post('rooms/{code}/leave', [GameRoomController::class, 'leave'])->name('rooms.leave');
 Route::post('rooms/{code}/gamemaster', [GameRoomController::class, 'gamemaster'])->middleware('throttle:20,1')->name('rooms.gamemaster');
 Route::get('scores', [GameScoreController::class, 'index'])->name('scores.index');

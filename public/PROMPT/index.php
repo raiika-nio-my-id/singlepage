@@ -422,7 +422,7 @@ The HTML must NOT contain:
 * the Reverb app secret
 * a player token written into the source (tokens are issued at runtime)
 
-`GET /api/game/config` on the same origin is the source of truth. Call it when online play starts. Use `websocket.url`, `websocket.channelPrefix`, `websocket.lobbyChannel`, `websocket.roomChannel`, and `websocket.event` from that JSON. If `websocket.enabled` is false, keep practice mode and show that online play is unavailable.
+`GET /api/game/config` on the same origin is the source of truth. Call it when online play starts. Use `websocket.url`, `websocket.channelPrefix`, `websocket.lobbyChannel`, `websocket.roomChannel`, `websocket.event`, and `websocket.inputEvent` from that JSON. If `websocket.enabled` is false, keep practice mode and show that online play is unavailable.
 
 The config object also says `database.shared` is true and `database.isolatedBy` is `subdomain`. That is the only database information the page needs.
 
@@ -444,6 +444,7 @@ Send `Content-Type: application/json`. Send the player token as `Authorization: 
 * `POST /api/game/rooms/{code}/watch` — body `{ "displayName" }`. Spectator. Does not take a seat.
 * `GET /api/game/rooms/{code}?since={version}` — member state. `since` equal to the current version returns `{ "unchanged": true, "code", "version" }` and nothing else.
 * `POST /api/game/rooms/{code}/actions` — body `{ "type", "payload": {}, "state": {}, "private": {}, "status": "waiting"|"playing"|"closed", "expectedVersion" }`. `state` and `private` are optional. Omit a key to leave it unchanged.
+* `POST /api/game/rooms/{code}/input` — body `{ "direction"?, "key"?, "payload"? }`. Send at least one of those keys. Ephemeral fanout for a direction, a key, or a small payload. Does not write the database and does not change `version`. Returns `202` `{ "ok": true, "id", "at" }`. Limited to 120 requests a minute per player token. Do not put secrets in this body.
 * `POST /api/game/rooms/{code}/leave` — leave the seat. Clears host and GM flags for that player.
 * `POST /api/game/rooms/{code}/gamemaster` — body `{ "code": "typed-gm-code" }`. Requires a seated player token. On success the room present payload marks that player `gamemaster: true` (one GM per room). Wrong code returns 403 `{ "error": "Invalid game master code." }` and does not say whether the secret almost matched.
 * `GET /api/game/scores?limit=20` — top scores for this subdomain only. Default `limit` is 20, maximum 50. Each entry is `{ "id", "name", "score", "created_at" }`, ordered by score descending, then newest first.
@@ -459,7 +460,9 @@ Create, join, match, and watch return `playerToken` once. Later responses do not
 
 Connect to `websocket.url` from config. Subscribe to the lobby channel while showing open tables, and to `channelPrefix + "." + code` while sitting at a table.
 
-The only game event is `room.updated`, with data `{ "code", "version" }`. It is a wake-up. Refetch `GET /api/game/rooms/{code}` with the player token. Never put a hand, a deck order, or any other secret on the socket, in `state`, or in an action `payload`. Secrets belong in `private`.
+`room.updated` is the state wake-up, with data `{ "code", "version" }`. Refetch `GET /api/game/rooms/{code}` with the player token. Never put a hand, a deck order, or any other secret on the socket, in `state`, in an action `payload`, or in room input. Secrets belong in `private`.
+
+`websocket.inputEvent` is `room.input`. It is optional fanout for high-frequency input. It is not a version bump and it does not replace `room.updated`. Data is `{ "code", "playerId", "displayName", "input", "id", "at" }`. `displayName` is the player's public alias. Apply it locally. Do not refetch the snapshot for it. Authoritative changes still go through `POST /api/game/rooms/{code}/actions`.
 
 Reply to `pusher:ping` or the connection will drop. If the socket closes, poll `GET /api/game/rooms/{code}?since={version}` about once a second until it reconnects.
 
@@ -473,6 +476,11 @@ ws.onmessage = (message) => {
   const frame = JSON.parse(message.data);
   if (frame.event === "pusher:ping") {
     ws.send(JSON.stringify({ event: "pusher:pong", data: {} }));
+    return;
+  }
+  if (frame.event === "room.input") {
+    const data = JSON.parse(frame.data);
+    // Apply data.input for data.playerId. Do not refetch. This frame has no version.
     return;
   }
   if (frame.event === "room.updated") {

@@ -68,6 +68,16 @@ class GameRoomController extends Controller
         ));
     }
 
+    public function input(Request $request, string $tenant, string $code): JsonResponse
+    {
+        return $this->respond(fn (): array => $this->rooms->input(
+            $this->profile($request, $tenant),
+            $code,
+            $this->rooms->token($request),
+            $request->all(),
+        ), 202);
+    }
+
     public function leave(Request $request, string $tenant, string $code): JsonResponse
     {
         return $this->respond(fn (): array => $this->rooms->leave(
@@ -100,10 +110,10 @@ class GameRoomController extends Controller
     /**
      * @param  callable(): array<string, mixed>  $callback
      */
-    private function respond(callable $callback): JsonResponse
+    private function respond(callable $callback, int $status = 200): JsonResponse
     {
         try {
-            return response()->json($callback());
+            return response()->json($callback(), $status);
         } catch (GameRoomException $exception) {
             return response()->json([
                 'error' => $exception->getMessage(),

@@ -41,5 +41,12 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('admin-api', function (Request $request) {
             return Limit::perMinute(60)->by($request->ip());
         });
+
+        RateLimiter::for('game-input', function (Request $request) {
+            $token = (string) ($request->bearerToken() ?: $request->header('X-Player-Token', ''));
+            $identity = $token !== '' ? hash('sha256', $token) : (string) $request->ip();
+
+            return Limit::perMinute(120)->by($identity);
+        });
     }
 }

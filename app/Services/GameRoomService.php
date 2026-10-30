@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\GameRoomInput;
 use App\Events\GameRoomUpdated;
 use App\Exceptions\GameRoomException;
 use App\Models\CompanyProfile;
@@ -50,6 +51,7 @@ class GameRoomService
                 'lobbyChannel' => $prefix,
                 'roomChannel' => $prefix.'.{code}',
                 'event' => 'room.updated',
+                'inputEvent' => 'room.input',
             ],
         ];
     }
@@ -248,6 +250,73 @@ class GameRoomService
 
             return $this->present($room->refresh(), $player->refresh());
         });
+    }
+
+    /**
+     * Fan out ephemeral input on the room channel. Does not write the room or its version.
+     *
+     * @param  array<string, mixed>  $input
+     * @return array{ok: true, id: string, at: string}
+     */
+    public function input(CompanyProfile $profile, string $code, string $token, array $input): array
+    {
+        $data = $this->validate($input, [
+            'direction' => ['sometimes', 'nullable', 'string', 'max:32'],
+            'key' => ['sometimes', 'nullable', 'string', 'max:64'],
+            'payload' => ['sometimes', 'array'],
+        ]);
+
+        $relay = [];
+
+        foreach (['direction', 'key'] as $field) {
+            $candidate = $data[$field] ?? null;
+
+            if (! is_string($candidate)) {
+                continue;
+            }
+
+            $value = trim($candidate);
+
+            if ($value !== '') {
+                $relay[$field] = $value;
+            }
+        }
+
+        if (array_key_exists('payload', $data)) {
+            $relay['payload'] = $data['payload'];
+        }
+
+        if ($relay === []) {
+            throw new GameRoomException('Input is required.', 422);
+        }
+
+        $this->assertDocument($relay, 'input', (int) config('games.input_max_bytes'));
+
+        $room = $this->findRoom($profile, $this->code($code));
+        $player = $this->player($room, $token);
+
+        if ($room->status === 'closed') {
+            throw new GameRoomException('This room is closed.');
+        }
+
+        $id = (string) Str::uuid();
+        $at = now()->toIso8601String();
+
+        broadcast(new GameRoomInput(
+            $profile->subdomain,
+            $room->code,
+            (int) $player->id,
+            $player->display_name,
+            $relay,
+            $id,
+            $at,
+        ));
+
+        return [
+            'ok' => true,
+            'id' => $id,
+            'at' => $at,
+        ];
     }
 
     /**

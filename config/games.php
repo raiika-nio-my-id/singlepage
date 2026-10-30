@@ -19,6 +19,8 @@ return [
 
     'payload_max_bytes' => (int) env('GAME_PAYLOAD_MAX_BYTES', 20_000),
 
+    'input_max_bytes' => (int) env('GAME_INPUT_MAX_BYTES', 4_096),
+
     'spectator_limit' => 20,
 
     /*
