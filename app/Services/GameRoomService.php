@@ -32,6 +32,7 @@ class GameRoomService
         $key = (string) config('broadcasting.connections.reverb.key');
         $prefix = 'game.'.$profile->subdomain;
         $scheme = $request->getScheme() === 'https' ? 'wss' : 'ws';
+        $limits = $this->roomLimits($profile);
 
         return [
             'game' => $profile->subdomain,
@@ -52,6 +53,11 @@ class GameRoomService
                 'roomChannel' => $prefix.'.{code}',
                 'event' => 'room.updated',
                 'inputEvent' => 'room.input',
+            ],
+            'limits' => [
+                'maxPlayers' => $limits['maxPlayers'],
+                'defaultMaxPlayers' => $limits['defaultMaxPlayers'],
+                'spectators' => $limits['spectators'],
             ],
         ];
     }
@@ -93,15 +99,16 @@ class GameRoomService
      */
     public function create(CompanyProfile $profile, array $input): array
     {
+        $limits = $this->roomLimits($profile);
         $data = $this->validate($input, [
             'displayName' => ['required', 'string', 'max:40'],
             'visibility' => ['sometimes', 'in:public,private'],
-            'maxPlayers' => ['sometimes', 'integer', 'min:2', 'max:16'],
+            'maxPlayers' => $this->maxPlayersRules($limits),
             'state' => ['sometimes', 'array'],
             'private' => ['sometimes', 'array'],
         ]);
 
-        return $this->transaction(fn (): array => $this->openRoom($profile, $data));
+        return $this->transaction(fn (): array => $this->openRoom($profile, $data, $limits['defaultMaxPlayers']));
     }
 
     /**
@@ -137,19 +144,20 @@ class GameRoomService
      */
     public function match(CompanyProfile $profile, array $input): array
     {
+        $limits = $this->roomLimits($profile);
         $data = $this->validate($input, [
             'displayName' => ['required', 'string', 'max:40'],
-            'maxPlayers' => ['sometimes', 'integer', 'min:2', 'max:16'],
+            'maxPlayers' => $this->maxPlayersRules($limits),
             'state' => ['sometimes', 'array'],
             'private' => ['sometimes', 'array'],
         ]);
         $data['visibility'] = 'public';
 
-        return $this->transaction(function () use ($profile, $data): array {
+        return $this->transaction(function () use ($profile, $data, $limits): array {
             $room = $this->findPublicSeat($profile);
 
             if (! $room instanceof GameRoom) {
-                return $this->openRoom($profile, $data);
+                return $this->openRoom($profile, $data, $limits['defaultMaxPlayers']);
             }
 
             return $this->seat($room, $profile, $data['displayName'], false, $data['private'] ?? []);
@@ -175,7 +183,7 @@ class GameRoomService
 
             $spectators = $room->players()->whereNull('left_at')->where('is_spectator', true)->count();
 
-            if ($spectators >= (int) config('games.spectator_limit')) {
+            if ($spectators >= $this->roomLimits($profile)['spectators']) {
                 throw new GameRoomException('This room cannot take more spectators.');
             }
 
@@ -426,7 +434,7 @@ class GameRoomService
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
-    private function openRoom(CompanyProfile $profile, array $data): array
+    private function openRoom(CompanyProfile $profile, array $data, int $defaultMaxPlayers): array
     {
         $state = $data['state'] ?? [];
         $private = $data['private'] ?? [];
@@ -435,7 +443,7 @@ class GameRoomService
 
         $room = $this->insertRoom($profile, [
             'visibility' => $data['visibility'] ?? 'private',
-            'max_players' => (int) ($data['maxPlayers'] ?? 4),
+            'max_players' => (int) ($data['maxPlayers'] ?? $defaultMaxPlayers),
             'state' => $state,
         ]);
 
@@ -724,6 +732,35 @@ class GameRoomService
         }
 
         return $code;
+    }
+
+    /**
+     * @return array{minPlayers: int, maxPlayers: int, defaultMaxPlayers: int, spectators: int}
+     */
+    private function roomLimits(CompanyProfile $profile): array
+    {
+        $override = config('games.subdomains.'.strtolower($profile->subdomain));
+        $override = is_array($override) ? $override : [];
+
+        $min = (int) config('games.max_players_min', 2);
+        $max = (int) ($override['max_players_max'] ?? config('games.max_players_max', 16));
+        $default = (int) ($override['default_max_players'] ?? config('games.default_max_players', 4));
+
+        return [
+            'minPlayers' => $min,
+            'maxPlayers' => $max,
+            'defaultMaxPlayers' => max($min, min($default, $max)),
+            'spectators' => (int) ($override['spectator_limit'] ?? config('games.spectator_limit', 20)),
+        ];
+    }
+
+    /**
+     * @param  array{minPlayers: int, maxPlayers: int, defaultMaxPlayers: int, spectators: int}  $limits
+     * @return list<string>
+     */
+    private function maxPlayersRules(array $limits): array
+    {
+        return ['sometimes', 'integer', 'min:'.$limits['minPlayers'], 'max:'.$limits['maxPlayers']];
     }
 
     private function displayName(string $name): string

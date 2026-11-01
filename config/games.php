@@ -21,7 +21,41 @@ return [
 
     'input_max_bytes' => (int) env('GAME_INPUT_MAX_BYTES', 4_096),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Room capacity
+    |--------------------------------------------------------------------------
+    |
+    | Ordinary games stay small: create/match accept maxPlayers from 2 to 16,
+    | omit it and the room stores 4, and watch stops at 20 spectators.
+    |
+    | drawquarium and langitbersama share one public room with a crowd.
+    | Those primary subdomains override the three numbers below. An explicit
+    | maxPlayers is still stored as sent, so those clients should omit it or
+    | send the ceiling. Other subdomains are unchanged.
+    |
+    */
+
+    'max_players_min' => 2,
+
+    'max_players_max' => 16,
+
+    'default_max_players' => 4,
+
     'spectator_limit' => 20,
+
+    'subdomains' => [
+        'drawquarium' => [
+            'max_players_max' => 500,
+            'default_max_players' => 500,
+            'spectator_limit' => 500,
+        ],
+        'langitbersama' => [
+            'max_players_max' => 500,
+            'default_max_players' => 500,
+            'spectator_limit' => 500,
+        ],
+    ],
 
     /*
     |--------------------------------------------------------------------------

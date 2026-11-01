@@ -436,12 +436,12 @@ Online buttons run only when `location.protocol` is `http:` or `https:` and `loc
 
 Send `Content-Type: application/json`. Send the player token as `Authorization: Bearer PLAYER_TOKEN` after a seat is issued. Store the token in `sessionStorage`, not in the HTML.
 
-* `GET /api/game/config` — connection for this subdomain.
+* `GET /api/game/config` — connection for this subdomain. Also returns `limits.maxPlayers` (highest accepted `maxPlayers`), `limits.defaultMaxPlayers` (stored when create/match omit `maxPlayers`), and `limits.spectators` (watch cap) for this subdomain.
 * `GET /api/game/rooms` — public tables for this subdomain only. No secrets. `?gm=` / `X-Game-Master` still lists private rooms (transitional/deprecated). Never put the GM secret in a URL hash or in `/api/game/config`.
-* `POST /api/game/rooms` — body `{ "displayName", "visibility": "public"|"private", "maxPlayers": 2-16, "state": {}, "private": {} }`. Default visibility is `private`.
+* `POST /api/game/rooms` — body `{ "displayName", "visibility": "public"|"private", "maxPlayers", "state": {}, "private": {} }`. Default visibility is `private`. `maxPlayers` is an integer from 2 to `limits.maxPlayers`. Omit it to store `limits.defaultMaxPlayers`.
 * `POST /api/game/rooms/join` — body `{ "code", "displayName", "private": {} }`. Only `waiting` rooms with a free seat.
-* `POST /api/game/rooms/match` — body `{ "displayName", "maxPlayers", "state", "private" }`. Joins the oldest public waiting room for this subdomain, or creates one.
-* `POST /api/game/rooms/{code}/watch` — body `{ "displayName" }`. Spectator. Does not take a seat.
+* `POST /api/game/rooms/match` — body `{ "displayName", "maxPlayers", "state", "private" }`. Joins the oldest public waiting room for this subdomain that still has a free seat, or creates one. `maxPlayers` is used only when this call creates the room. A room with status `playing` is not a match target.
+* `POST /api/game/rooms/{code}/watch` — body `{ "displayName" }`. Spectator. Does not take a seat. The room stops at `limits.spectators` spectators.
 * `GET /api/game/rooms/{code}?since={version}` — member state. `since` equal to the current version returns `{ "unchanged": true, "code", "version" }` and nothing else.
 * `POST /api/game/rooms/{code}/actions` — body `{ "type", "payload": {}, "state": {}, "private": {}, "status": "waiting"|"playing"|"closed", "expectedVersion" }`. `state` and `private` are optional. Omit a key to leave it unchanged.
 * `POST /api/game/rooms/{code}/input` — body `{ "direction"?, "key"?, "payload"? }`. Send at least one of those keys. Ephemeral fanout for a direction, a key, or a small payload. Does not write the database and does not change `version`. Returns `202` `{ "ok": true, "id", "at" }`. Limited to 120 requests a minute per player token. Do not put secrets in this body.
@@ -449,6 +449,10 @@ Send `Content-Type: application/json`. Send the player token as `Authorization: 
 * `POST /api/game/rooms/{code}/gamemaster` — body `{ "code": "typed-gm-code" }`. Requires a seated player token. On success the room present payload marks that player `gamemaster: true` (one GM per room). Wrong code returns 403 `{ "error": "Invalid game master code." }` and does not say whether the secret almost matched.
 * `GET /api/game/scores?limit=20` — top scores for this subdomain only. Default `limit` is 20, maximum 50. Each entry is `{ "id", "name", "score", "created_at" }`, ordered by score descending, then newest first.
 * `POST /api/game/scores` — body `{ "name", "score" }`. `name` is 1–16 characters after trim (letters, numbers, spaces, `._'-`). `score` is an integer from 0 to 1000000000. Returns the saved entry. Do not store highscores in an eternal room.
+
+Most games: `limits.maxPlayers` is 16, `limits.defaultMaxPlayers` is 4, and `limits.spectators` is 20.
+
+`drawquarium` and `langitbersama` only: all three limits are 500. Omit `maxPlayers` on create/match, or send `500`, so visitors stay in one public room. An explicit smaller `maxPlayers` is stored on the room that call creates and will split the crowd once those seats are full. Leave that shared room at status `waiting`. Match will not join a `playing` room, so flipping status opens a second public room.
 
 Create, join, match, and watch return `playerToken` once. Later responses do not repeat it.
 
