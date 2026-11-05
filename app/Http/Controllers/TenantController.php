@@ -6,6 +6,7 @@ use App\Models\CompanyProfile;
 use App\Services\GameHub;
 use App\Services\GameHubCatalog;
 use App\Services\LegalNoticeInjector;
+use App\Services\PlayerNameBridge;
 use App\Services\SeoInjector;
 use App\Services\TenantPath;
 use Illuminate\Contracts\View\View;
@@ -23,7 +24,7 @@ class TenantController extends Controller
         'headlesschrome', 'phantomjs', 'selenium',
     ];
 
-    public function show(Request $request, LegalNoticeInjector $legalInjector, SeoInjector $seoInjector, GameHubCatalog $catalog): Response
+    public function show(Request $request, LegalNoticeInjector $legalInjector, SeoInjector $seoInjector, GameHubCatalog $catalog, PlayerNameBridge $names): Response
     {
         $profile = $this->profile($request);
         $html = $profile->html;
@@ -38,6 +39,7 @@ class TenantController extends Controller
             : $legalInjector->inject($html, $this->termsUrl($request, $profile));
 
         $html = $seoInjector->inject($html, $this->canonicalUrl($request, $profile), $this->ogImageUrl($request, $profile));
+        $html = $names->inject($html);
 
         // trackVisit() runs only for the main page response; /robots.txt and
         // /sitemap.xml are handled by separate route closures and never reach here.

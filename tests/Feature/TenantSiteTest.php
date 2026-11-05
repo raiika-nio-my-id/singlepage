@@ -39,8 +39,26 @@ class TenantSiteTest extends TestCase
             ->assertSee('https://jadidaring.com/', false)
             ->assertDontSee('bukan tanggung jawab', false)
             ->assertSee('http://www.jadidaring.test/acme/syarat-ketentuan', false)
+            ->assertDontSee('data-jdng-name-bridge', false)
             ->assertHeader('X-Content-Type-Options', 'nosniff')
             ->assertHeader('Permissions-Policy', 'camera=(), microphone=(self), geolocation=()');
+    }
+
+    public function test_a_game_that_asks_for_a_name_receives_the_shared_name_bridge(): void
+    {
+        CompanyProfile::factory()->published()->create([
+            'subdomain' => 'ulartangga',
+            'html' => '<html><head><title>Ular Tangga</title></head><body><!-- jd-namegate --></body></html>',
+        ]);
+
+        $html = $this->get('http://www.jadidaring.test/ulartangga/')->assertOk()->getContent();
+        $bridgeAt = strpos($html, 'data-jdng-name-bridge');
+        $titleAt = strpos($html, '<title>');
+
+        $this->assertIsInt($bridgeAt);
+        $this->assertIsInt($titleAt);
+        $this->assertLessThan($titleAt, $bridgeAt);
+        $this->assertStringContainsString("'jdng.name'", $html);
     }
 
     public function test_hidden_footer_profile_does_not_include_the_platform_notice(): void
@@ -53,6 +71,7 @@ class TenantSiteTest extends TestCase
         $this->get('http://www.jadidaring.test/vip/')
             ->assertOk()
             ->assertSee('White label site', false)
+            ->assertDontSee('data-jdng-name-bridge', false)
             ->assertDontSee('data-jadidaring-legal-notice', false)
             ->assertDontSee('Syarat &amp; Ketentuan', false);
     }

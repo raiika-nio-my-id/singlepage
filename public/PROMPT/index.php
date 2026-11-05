@@ -426,6 +426,14 @@ The HTML must NOT contain:
 
 The config object also says `database.shared` is true and `database.isolatedBy` is `subdomain`. That is the only database information the page needs.
 
+## Player name
+
+Pages on `www` share one origin. The platform inlines `public/js/player-name.js` at the start of `<head>` on pages that already ask for a name. It keeps the player's name in `localStorage` under `jdng.name`.
+
+The existing name gate may keep using `sessionStorage` key `jdng.<slug>` and the game's own name field. The bridge copies those writes into `jdng.name` and answers a `jdng.<slug>` read with that shared name, so the "Siapa namamu?" modal stays closed once any game has stored a name. If `jdng.name` is missing and no per-game name is saved, ask again.
+
+Do not add a second blocking name prompt. A game that already has a way to change the name keeps that control; write the new name to the game's existing key (or to `jdng.<slug>`) and the bridge updates `jdng.name`. Games that never ask for a name must not start asking. Do not put the name, or the gamemaster secret, in `/api/game/config`.
+
 ## Offline / practice
 
 The single HTML file must still open from disk or work as a local practice table with no server.
