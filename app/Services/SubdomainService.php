@@ -33,9 +33,27 @@ class SubdomainService
         )->validate();
 
         if (in_array($value, Setting::reservedSubdomains(), true)) {
-            throw ValidationException::withMessages([
-                'subdomain' => 'This subdomain is reserved.',
-            ]);
+            $keepsCurrent = $ignoreProfileId !== null
+                && CompanyProfile::query()
+                    ->whereKey($ignoreProfileId)
+                    ->where('subdomain', $value)
+                    ->exists();
+
+            if (! $keepsCurrent) {
+                throw ValidationException::withMessages([
+                    'subdomain' => 'This subdomain is reserved.',
+                ]);
+            }
+        }
+
+        if ($ignoreProfileId !== null) {
+            $current = CompanyProfile::query()->whereKey($ignoreProfileId)->value('subdomain');
+
+            if (is_string($current) && GameHub::isSubdomain($current) && ! GameHub::isSubdomain($value)) {
+                throw ValidationException::withMessages([
+                    'subdomain' => 'The GameHub profile is served at /gamehub and keeps the gamehub subdomain.',
+                ]);
+            }
         }
 
         $taken = CompanyProfile::query()

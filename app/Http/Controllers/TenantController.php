@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CompanyProfile;
+use App\Services\GameHub;
 use App\Services\LegalNoticeInjector;
 use App\Services\SeoInjector;
 use Illuminate\Contracts\View\View;
@@ -23,12 +24,12 @@ class TenantController extends Controller
     public function show(Request $request, LegalNoticeInjector $legalInjector, SeoInjector $seoInjector): Response
     {
         $profile = $this->profile($request);
+        $html = GameHub::isProfile($profile) ? GameHub::rewriteHtml($profile->html) : $profile->html;
         $html = $profile->hide_footer
-            ? $profile->html
-            : $legalInjector->inject($profile->html, $this->termsUrl($request));
+            ? $html
+            : $legalInjector->inject($html, $this->termsUrl($request, $profile));
 
-        $canonicalUrl = $request->getSchemeAndHttpHost().'/';
-        $html = $seoInjector->inject($html, $canonicalUrl, $this->ogImageUrl($request));
+        $html = $seoInjector->inject($html, $this->canonicalUrl($request, $profile), $this->ogImageUrl($request, $profile));
 
         // trackVisit() runs only for the main page response; /robots.txt and
         // /sitemap.xml are handled by separate route closures and never reach here.
@@ -44,15 +45,16 @@ class TenantController extends Controller
 
     public function terms(Request $request): View
     {
-        $this->profile($request);
+        $profile = $this->profile($request);
+        $hub = GameHub::isProfile($profile);
 
         return view('tenant.terms', [
             'platformName' => (string) config('singlepage.platform_name', 'Jadidaring'),
             'updatedOn' => Carbon::parse((string) config('singlepage.terms_updated_on'))
                 ->locale('id')
                 ->translatedFormat('d F Y'),
-            'siteHost' => $request->getHost(),
-            'homeUrl' => $request->getSchemeAndHttpHost().'/',
+            'siteHost' => $hub ? $profile->publicLabel() : $request->getHost(),
+            'homeUrl' => $hub ? GameHub::homeUrl($request) : $request->getSchemeAndHttpHost().'/',
         ]);
     }
 
@@ -65,26 +67,31 @@ class TenantController extends Controller
         return $profile;
     }
 
-    private function termsUrl(Request $request): string
+    private function canonicalUrl(Request $request, CompanyProfile $profile): string
     {
+        if (GameHub::isProfile($profile)) {
+            return GameHub::homeUrl($request);
+        }
+
+        return $request->getSchemeAndHttpHost().'/';
+    }
+
+    private function termsUrl(Request $request, CompanyProfile $profile): string
+    {
+        if (GameHub::isProfile($profile)) {
+            return GameHub::termsUrl($request);
+        }
+
         return $request->getSchemeAndHttpHost().'/syarat-ketentuan';
     }
 
-    private function ogImageUrl(Request $request): ?string
+    private function ogImageUrl(Request $request, CompanyProfile $profile): ?string
     {
-        $baseDomain = (string) config('singlepage.base_domain');
-        $host = $request->getHost();
-
-        if (! str_ends_with($host, '.'.$baseDomain)) {
+        if (! GameHub::isProfile($profile)) {
             return null;
         }
 
-        $subdomain = substr($host, 0, -strlen('.'.$baseDomain));
-
-        return match ($subdomain) {
-            'gamehub' => $request->getScheme().'://gamehub.'.$baseDomain.'/og-gamehub.jpg',
-            default => null,
-        };
+        return GameHub::ogImageUrl($request);
     }
 
     private function trackVisit(CompanyProfile $profile, Request $request): void

@@ -16,6 +16,8 @@
                 class="button button-quiet"
                 data-site-link
                 data-site-url-template="{{ \App\Models\CompanyProfile::publicUrlFor('{subdomain}') }}"
+                data-hub-subdomain="{{ \App\Services\GameHub::subdomain() }}"
+                data-hub-url="{{ \App\Services\GameHub::publicUrl() }}"
                 @if ($siteUrl)
                     href="{{ $siteUrl }}"
                 @else

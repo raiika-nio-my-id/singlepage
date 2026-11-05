@@ -311,7 +311,7 @@ class SubdomainAliasTest extends TestCase
         $game = CompanyProfile::factory()->published()->create(['subdomain' => 'realgame']);
         CompanyProfileAlias::factory()->for($game)->create(['subdomain' => 'gamealias']);
 
-        $this->get('http://gamehub.jadidaring.test/sitemap.xml')
+        $this->get('http://www.jadidaring.test/gamehub/sitemap.xml')
             ->assertOk()
             ->assertSee('realgame.jadidaring.test', false)
             ->assertDontSee('gamealias', false);

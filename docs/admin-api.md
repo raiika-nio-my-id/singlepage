@@ -106,7 +106,7 @@ Content-Type: application/json
 }
 ```
 
-The password is never returned.
+The password is never returned. `public_url` is `https://{subdomain}.{base_domain}` for a normal client. The reserved `gamehub` profile is the directory, and its `public_url` is `https://www.{base_domain}/gamehub`.
 
 ## Partial update example
 

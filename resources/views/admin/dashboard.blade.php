@@ -84,7 +84,7 @@
                             </td>
                             <td>
                                 <a href="{{ $profile->publicUrl() }}" target="_blank" rel="noopener noreferrer">
-                                    {{ $profile->subdomain }}.{{ config('singlepage.base_domain') }}
+                                    {{ $profile->publicLabel() }}
                                 </a>
                                 @foreach ($profile->aliases as $alias)
                                     <div class="muted alias-hint">↳ {{ $alias->subdomain }}.{{ config('singlepage.base_domain') }}</div>

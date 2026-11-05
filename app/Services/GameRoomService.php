@@ -34,10 +34,13 @@ class GameRoomService
         $scheme = $request->getScheme() === 'https' ? 'wss' : 'ws';
         $limits = $this->roomLimits($profile);
 
+        $apiPrefix = GameHub::path().'/api/game';
+        $api = $request->is($apiPrefix, $apiPrefix.'/*') ? '/'.$apiPrefix : '/api/game';
+
         return [
             'game' => $profile->subdomain,
             'host' => $request->getHost(),
-            'api' => '/api/game',
+            'api' => $api,
             'database' => [
                 'shared' => true,
                 'isolatedBy' => 'subdomain',

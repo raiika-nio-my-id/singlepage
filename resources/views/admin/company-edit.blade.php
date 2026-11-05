@@ -100,8 +100,11 @@
             <label for="subdomain">{{ $workspace ? 'Your web address' : 'Subdomain' }}</label>
             @can('updateSubdomain', $companyProfile)
                 <input id="subdomain" type="text" name="subdomain" value="{{ old('subdomain', $companyProfile->subdomain) }}" maxlength="63" autocapitalize="off" spellcheck="false" required>
+                @if (\App\Services\GameHub::isProfile($companyProfile))
+                    <p class="muted">Public URL is <a href="{{ $companyProfile->publicUrl() }}" target="_blank" rel="noopener noreferrer">{{ $companyProfile->publicLabel() }}</a>. This name stays reserved.</p>
+                @endif
             @else
-                <p class="readonly-field" id="subdomain">{{ $companyProfile->subdomain }}.{{ config('singlepage.base_domain') }}</p>
+                <p class="readonly-field" id="subdomain">{{ $companyProfile->publicLabel() }}</p>
             @endcan
 
             <label for="expires_at">Expired</label>

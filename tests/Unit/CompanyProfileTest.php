@@ -14,6 +14,14 @@ class CompanyProfileTest extends TestCase
         ]);
 
         $this->assertSame('http://acme.jadidaring.test', $profile->publicUrl());
+        $this->assertSame('acme.jadidaring.test', $profile->publicLabel());
         $this->assertSame('http://draft.jadidaring.test', CompanyProfile::publicUrlFor('draft'));
+
+        $hub = new CompanyProfile([
+            'subdomain' => 'gamehub',
+        ]);
+
+        $this->assertSame('http://www.jadidaring.test/gamehub', $hub->publicUrl());
+        $this->assertSame('www.jadidaring.test/gamehub', $hub->publicLabel());
     }
 }

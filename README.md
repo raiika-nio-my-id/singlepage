@@ -4,6 +4,7 @@ Laravel 13 publisher for one-page client sites.
 
 - Admin: `http://admin.jadidaring.test`
 - Published page: `http://{subdomain}.jadidaring.test`
+- GameHub directory: `http://www.jadidaring.test/gamehub/` (the live profile whose subdomain is `gamehub`). `http://gamehub.jadidaring.test/...` returns 301 to that path. Other games stay on their own subdomains. The apex host is the marketing site and is not this app.
 - Unknown tenant hosts return 404
 - Admin session cookies are host-only (never `Domain=.jadidaring.test`)
 - Client HTML is never rendered in the admin document; preview uses a sandboxed iframe

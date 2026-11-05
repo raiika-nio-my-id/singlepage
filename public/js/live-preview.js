@@ -367,6 +367,8 @@ ${scrollBridgeScript}
     const subdomainField = document.querySelector('#subdomain');
     const siteLink = document.querySelector('[data-site-link]');
     const template = siteLink?.dataset.siteUrlTemplate;
+    const hubSubdomain = (siteLink?.dataset.hubSubdomain || '').toLowerCase();
+    const hubUrl = siteLink?.dataset.hubUrl || '';
 
     if (!siteLink || !template || !(subdomainField instanceof HTMLInputElement)) {
         return;
@@ -383,7 +385,9 @@ ${scrollBridgeScript}
         }
 
         siteLink.removeAttribute('aria-disabled');
-        siteLink.href = template.replace('{subdomain}', subdomain);
+        siteLink.href = hubSubdomain !== '' && subdomain.toLowerCase() === hubSubdomain && hubUrl !== ''
+            ? hubUrl
+            : template.replace('{subdomain}', subdomain);
     };
 
     subdomainField.addEventListener('input', sync);

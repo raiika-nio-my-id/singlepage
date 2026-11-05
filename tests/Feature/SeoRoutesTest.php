@@ -14,9 +14,9 @@ class SeoRoutesTest extends TestCase
 
     public function test_tenant_robots_txt_allows_crawling_and_disallows_api_and_boost(): void
     {
-        CompanyProfile::factory()->published()->create(['subdomain' => 'gamehub']);
+        CompanyProfile::factory()->published()->create(['subdomain' => 'ulartangga']);
 
-        $response = $this->get('http://gamehub.jadidaring.test/robots.txt');
+        $response = $this->get('http://ulartangga.jadidaring.test/robots.txt');
 
         $response->assertOk();
         $response->assertHeader('Content-Type', 'text/plain; charset=utf-8');
@@ -24,7 +24,7 @@ class SeoRoutesTest extends TestCase
         $response->assertSee('Allow: /', false);
         $response->assertSee('Disallow: /api/', false);
         $response->assertSee('Disallow: /_boost/', false);
-        $response->assertSee('Sitemap: https://gamehub.jadidaring.test/sitemap.xml', false);
+        $response->assertSee('Sitemap: https://ulartangga.jadidaring.test/sitemap.xml', false);
     }
 
     public function test_tenant_robots_txt_includes_correct_host_in_sitemap_url(): void
@@ -63,13 +63,14 @@ class SeoRoutesTest extends TestCase
         CompanyProfile::factory()->published()->create(['subdomain' => 'drawguess']);
         CompanyProfile::factory()->create(['subdomain' => 'draft-game']); // draft – must be excluded
 
-        $response = $this->get('http://gamehub.jadidaring.test/sitemap.xml');
+        $response = $this->get('http://www.jadidaring.test/gamehub/sitemap.xml');
 
         $response->assertOk();
         $response->assertHeader('Content-Type', 'application/xml; charset=utf-8');
-        $response->assertSee('http://gamehub.jadidaring.test/', false);
+        $response->assertSee('http://www.jadidaring.test/gamehub/', false);
         $response->assertSee('http://ulartangga.jadidaring.test/', false);
         $response->assertSee('http://drawguess.jadidaring.test/', false);
+        $response->assertDontSee('gamehub.jadidaring.test', false);
         $response->assertDontSee('draft-game', false);
     }
 
@@ -78,7 +79,7 @@ class SeoRoutesTest extends TestCase
         CompanyProfile::factory()->published()->create(['subdomain' => 'gamehub']);
         CompanyProfile::factory()->published()->expired()->create(['subdomain' => 'old-game']);
 
-        $response = $this->get('http://gamehub.jadidaring.test/sitemap.xml');
+        $response = $this->get('http://www.jadidaring.test/gamehub/sitemap.xml');
 
         $response->assertOk();
         $response->assertDontSee('old-game', false);
@@ -101,7 +102,7 @@ class SeoRoutesTest extends TestCase
         CompanyProfile::factory()->published()->create(['subdomain' => 'gamehub']);
         CompanyProfile::factory()->published()->create(['subdomain' => 'ulartangga']);
 
-        $response = $this->get('http://gamehub.jadidaring.test/sitemap.xml');
+        $response = $this->get('http://www.jadidaring.test/gamehub/sitemap.xml');
 
         $xml = simplexml_load_string($response->getContent());
         $this->assertNotFalse($xml, 'Response body is not valid XML');
@@ -148,9 +149,10 @@ class SeoRoutesTest extends TestCase
             'html' => '<html><head><title>Hub</title></head><body>Hub</body></html>',
         ]);
 
-        $this->get('http://gamehub.jadidaring.test/')
+        $this->get('http://www.jadidaring.test/gamehub')
             ->assertOk()
-            ->assertSee('og-gamehub.jpg', false)
+            ->assertSee('http://www.jadidaring.test/og-gamehub.jpg', false)
+            ->assertSee('http://www.jadidaring.test/gamehub/', false)
             ->assertSee('summary_large_image', false);
     }
 

@@ -102,7 +102,7 @@ class GameRoomController extends Controller
         $profile = $request->attributes->get('tenantProfile');
 
         abort_unless($profile instanceof CompanyProfile, 404);
-        abort_unless($tenant === null || strtolower($tenant) === $profile->subdomain, 404);
+        abort_unless($tenant === null || strtolower($tenant) === strtolower($profile->subdomain), 404);
 
         return $profile;
     }

@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Middleware\AuthenticateAdminApiKey;
+use App\Http\Middleware\ResolveGameHub;
 use App\Http\Middleware\ResolveTenantSubdomain;
+use App\Services\GameHub;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -16,6 +18,18 @@ return Application::configure(basePath: dirname(__DIR__))
         channels: __DIR__.'/../routes/channels.php',
         health: '/up',
         then: function (): void {
+            // Registered before {tenant} so www.{base}/gamehub is the hub, not a tenant 404.
+            Route::middleware(['web', ResolveGameHub::class])
+                ->domain(GameHub::host())
+                ->name('gamehub.')
+                ->group(base_path('routes/gamehub.php'));
+
+            Route::middleware([ResolveGameHub::class])
+                ->domain(GameHub::host())
+                ->prefix(GameHub::path().'/api/game')
+                ->name('gamehub.game.')
+                ->group(base_path('routes/game.php'));
+
             Route::middleware('web')
                 ->domain((string) config('singlepage.admin_domain'))
                 ->group(base_path('routes/admin.php'));
