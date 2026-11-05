@@ -6,7 +6,7 @@
     <div class="page-heading">
         <div>
             <h1>Settings</h1>
-            <p class="muted lede">Reserved subdomains and the shared game gamemaster key. Built-in reserved names always include <code>admin</code>, <code>gamehub</code>, <code>reverb</code>, and <code>up</code>.</p>
+            <p class="muted lede">Reserved subdomains and the shared game gamemaster key. Built-in reserved names always include <code>admin</code>, <code>gamehub</code>, <code>marketing</code>, <code>reverb</code>, and <code>up</code>.</p>
         </div>
     </div>
 

@@ -11,7 +11,8 @@ use Illuminate\Http\Request;
  * A live game whose subdomain is "drawquarium" is
  * {scheme}://{host}/drawquarium/... The old host
  * drawquarium.{base_domain}/... answers 301 and keeps the path suffix and query.
- * The apex domain is the marketing site and is not a tenant host.
+ * GET / on the apex and on www is the marketing homepage. The apex
+ * domain is not a tenant host.
  *
  * Reverb stays at {host}/app and {host}/apps. Nginx proxies those prefixes
  * before PHP, so they are not moved under the game path.
