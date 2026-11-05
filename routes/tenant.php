@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\TenantController;
-use App\Models\CompanyProfile;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
@@ -20,21 +19,9 @@ Route::get('/robots.txt', function (Request $request): Response {
 
 Route::get('/sitemap.xml', function (Request $request): Response {
     $host = $request->getHost();
-    $baseDomain = (string) config('singlepage.base_domain');
     $scheme = parse_url((string) config('app.url'), PHP_URL_SCHEME) ?: 'https';
-    $subdomain = substr($host, 0, -strlen('.'.$baseDomain));
     $today = now()->toDateString();
-
-    if ($subdomain === 'gamehub') {
-        $locs = CompanyProfile::query()
-            ->live()
-            ->orderBy('subdomain')
-            ->pluck('subdomain')
-            ->map(fn (string $sub): string => "{$scheme}://{$sub}.{$baseDomain}/")
-            ->all();
-    } else {
-        $locs = ["{$scheme}://{$host}/"];
-    }
+    $locs = ["{$scheme}://{$host}/"];
 
     $xml = '<?xml version="1.0" encoding="UTF-8"?>'
         .'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';

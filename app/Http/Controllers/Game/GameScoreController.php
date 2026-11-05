@@ -25,12 +25,15 @@ class GameScoreController extends Controller
         return $this->respond(fn (): array => $this->scores->submit($this->profile($request), $request->all()));
     }
 
-    private function profile(Request $request, ?string $tenant = null): CompanyProfile
+    private function profile(Request $request): CompanyProfile
     {
         $profile = $request->attributes->get('tenantProfile');
 
         abort_unless($profile instanceof CompanyProfile, 404);
-        abort_unless($tenant === null || strtolower($tenant) === $profile->subdomain, 404);
+
+        $tenant = $request->route('tenant');
+
+        abort_unless(! is_string($tenant) || strtolower($tenant) === strtolower($profile->subdomain), 404);
 
         return $profile;
     }

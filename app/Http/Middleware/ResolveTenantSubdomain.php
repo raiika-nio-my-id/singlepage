@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\CompanyProfile;
 use App\Models\CompanyProfileAlias;
+use App\Services\GameHub;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,6 +25,12 @@ class ResolveTenantSubdomain
 
         if ($subdomain === '' || str_contains($subdomain, '.')) {
             abort(404);
+        }
+
+        // The retired GameHub host always moves to the path, including when
+        // the profile is unpublished, so old bookmarks do not 404 in place.
+        if (GameHub::isSubdomain($subdomain)) {
+            return redirect()->away(GameHub::redirectTarget($request), 301);
         }
 
         // Primary subdomain match — proceed normally.
@@ -49,6 +56,10 @@ class ResolveTenantSubdomain
             ->first();
 
         if ($alias) {
+            if (GameHub::isProfile($alias->companyProfile)) {
+                return redirect()->away(GameHub::redirectTarget($request), 301);
+            }
+
             $primaryHost = $alias->companyProfile->subdomain.'.'.$baseDomain;
             $target = $request->getScheme().'://'.$primaryHost.$request->getRequestUri();
 

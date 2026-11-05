@@ -52,9 +52,9 @@ class SeoInjectorTest extends TestCase
     {
         $html = '<html><head><title>Hub</title></head><body></body></html>';
 
-        $result = $this->injector()->inject($html, 'https://gamehub.jadidaring.com/', 'https://gamehub.jadidaring.com/og-gamehub.jpg');
+        $result = $this->injector()->inject($html, 'https://www.jadidaring.com/gamehub/', 'https://www.jadidaring.com/og-gamehub.jpg');
 
-        $this->assertStringContainsString('<meta property="og:image" content="https://gamehub.jadidaring.com/og-gamehub.jpg">', $result);
+        $this->assertStringContainsString('<meta property="og:image" content="https://www.jadidaring.com/og-gamehub.jpg">', $result);
         $this->assertStringContainsString('<meta property="og:image:width" content="1200">', $result);
         $this->assertStringContainsString('<meta property="og:image:height" content="630">', $result);
         $this->assertStringContainsString('<meta name="twitter:card" content="summary_large_image">', $result);
@@ -64,7 +64,7 @@ class SeoInjectorTest extends TestCase
     {
         $html = '<html><head><meta property="og:image" content="https://existing.com/img.jpg"><title>X</title></head><body></body></html>';
 
-        $result = $this->injector()->inject($html, 'https://gamehub.jadidaring.com/', 'https://gamehub.jadidaring.com/og-gamehub.jpg');
+        $result = $this->injector()->inject($html, 'https://www.jadidaring.com/gamehub/', 'https://www.jadidaring.com/og-gamehub.jpg');
 
         $this->assertStringNotContainsString('og-gamehub.jpg', $result);
         $this->assertSame(1, substr_count($result, 'og:image"'));

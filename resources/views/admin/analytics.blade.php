@@ -8,7 +8,7 @@
             <h1>Analytics</h1>
             <p class="muted lede">
                 <a href="{{ $companyProfile->publicUrl() }}" target="_blank" rel="noopener noreferrer">
-                    {{ $companyProfile->subdomain }}.{{ config('singlepage.base_domain') }}
+                    {{ $companyProfile->publicLabel() }}
                 </a>
                 · Unique visitors per day
             </p>

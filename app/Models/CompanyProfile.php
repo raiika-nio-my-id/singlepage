@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ProfileStatus;
+use App\Services\GameHub;
 use Database\Factories\CompanyProfileFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -59,6 +60,10 @@ class CompanyProfile extends Model
 
     public static function publicUrlFor(string $subdomain): string
     {
+        if (GameHub::isSubdomain($subdomain)) {
+            return GameHub::publicUrl();
+        }
+
         $scheme = parse_url((string) config('app.url'), PHP_URL_SCHEME) ?: 'http';
 
         return sprintf('%s://%s.%s', $scheme, $subdomain, config('singlepage.base_domain'));
@@ -67,6 +72,22 @@ class CompanyProfile extends Model
     public function publicUrl(): string
     {
         return static::publicUrlFor($this->subdomain);
+    }
+
+    /**
+     * Host, plus path for GameHub, without a scheme. Safe to show in the admin.
+     */
+    public function publicLabel(): string
+    {
+        $parts = parse_url($this->publicUrl());
+        $host = is_array($parts) ? (string) ($parts['host'] ?? '') : '';
+        $path = is_array($parts) ? (string) ($parts['path'] ?? '') : '';
+
+        if ($path === '' || $path === '/') {
+            return $host;
+        }
+
+        return $host.rtrim($path, '/');
     }
 
     /**

@@ -44,9 +44,34 @@ return [
 
     'terms_updated_on' => '2026-09-20',
 
+    /*
+    |--------------------------------------------------------------------------
+    | GameHub path
+    |--------------------------------------------------------------------------
+    |
+    | The directory used to be the tenant host gamehub.{base_domain}. It is
+    | now a path on a host this app already serves. The apex domain is the
+    | static marketing site, not this Laravel app. www.{base_domain} is
+    | already proxied here, so that is the public host unless GAMEHUB_HOST
+    | is set (for example after a one-time proxy rule on the apex vhost).
+    |
+    | Hub HTML stays on the live CompanyProfile whose subdomain is gamehub.
+    | That label is reserved and is not served as a normal tenant host.
+    | gamehub.{base_domain}/... answers 301 to {host}/{path}/... and keeps
+    | the path suffix and query string.
+    |
+    */
+
+    'gamehub' => [
+        'subdomain' => 'gamehub',
+        'path' => 'gamehub',
+        'host' => env('GAMEHUB_HOST'),
+    ],
+
     'reserved_subdomains' => [
         'admin',
         'www',
+        'gamehub',
         'mail',
         'api',
         'app',

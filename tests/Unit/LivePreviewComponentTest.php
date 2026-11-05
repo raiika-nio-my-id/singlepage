@@ -16,6 +16,7 @@ class LivePreviewComponentTest extends TestCase
 
         $this->assertStringContainsString('Visit website', $html);
         $this->assertStringContainsString('href="http://acme.jadidaring.test"', $html);
+        $this->assertStringContainsString('data-hub-url="http://www.jadidaring.test/gamehub"', $html);
         $this->assertStringContainsString('target="_blank"', $html);
         $this->assertStringContainsString('rel="noopener noreferrer"', $html);
         $this->assertStringContainsString('>Desktop</button>', $html);
@@ -48,6 +49,7 @@ class LivePreviewComponentTest extends TestCase
         $css = File::get(public_path('css/admin.css'));
 
         $this->assertStringContainsString('data-cms-preview-ui', $script);
+        $this->assertStringContainsString('dataset.hubUrl', $script);
         $this->assertStringContainsString('scrollbar-width: none', $script);
         $this->assertStringContainsString('dragstart', $script);
         $this->assertStringContainsString('-webkit-user-drag: none', $script);
