@@ -6,6 +6,7 @@ use App\Http\Controllers\TenantController;
 use App\Models\CompanyProfile;
 use App\Services\GameHubCatalog;
 use App\Services\LegalNoticeInjector;
+use App\Services\PlayerNameBridge;
 use App\Services\SeoInjector;
 use Illuminate\Http\Request;
 use Tests\TestCase;
@@ -22,7 +23,7 @@ class TenantLegalNoticeTest extends TestCase
         $request = Request::create('http://acme.jadidaring.test/', 'GET');
         $request->attributes->set('tenantProfile', $profile);
 
-        $response = (new TenantController)->show($request, new LegalNoticeInjector, new SeoInjector, new GameHubCatalog);
+        $response = (new TenantController)->show($request, new LegalNoticeInjector, new SeoInjector, new GameHubCatalog, new PlayerNameBridge);
 
         $html = $response->getContent();
 
@@ -47,9 +48,10 @@ class TenantLegalNoticeTest extends TestCase
         $request = Request::create('http://acme.jadidaring.test/', 'GET');
         $request->attributes->set('tenantProfile', $profile);
 
-        $html = (new TenantController)->show($request, new LegalNoticeInjector, new SeoInjector, new GameHubCatalog)->getContent();
+        $html = (new TenantController)->show($request, new LegalNoticeInjector, new SeoInjector, new GameHubCatalog, new PlayerNameBridge)->getContent();
 
         $this->assertSame('<html><body>Acme public site</body></html>', $html);
+        $this->assertStringNotContainsString('data-jdng-name-bridge', $html);
         $this->assertStringNotContainsString('data-jadidaring-legal-notice', $html);
         $this->assertStringNotContainsString('Syarat &amp; Ketentuan', $html);
     }
