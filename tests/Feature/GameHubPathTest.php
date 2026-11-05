@@ -22,7 +22,8 @@ class GameHubPathTest extends TestCase
             ->assertOk()
             ->assertSee('JaRing hub', false)
             ->assertSee('href="https://www.jadidaring.test/gamehub/"', false)
-            ->assertSee('href="https://drawquarium.jadidaring.test/"', false)
+            ->assertSee('href="https://www.jadidaring.test/drawquarium/"', false)
+            ->assertDontSee('drawquarium.jadidaring.test', false)
             ->assertSee('href="/gamehub/syarat-ketentuan"', false)
             ->assertSee('http://www.jadidaring.test/gamehub/syarat-ketentuan', false)
             ->assertDontSee('gamehub.jadidaring.test', false);
@@ -67,7 +68,7 @@ class GameHubPathTest extends TestCase
         $this->get('http://www.jadidaring.test/gamehub')->assertNotFound();
     }
 
-    public function test_other_game_subdomains_stay_on_their_own_host(): void
+    public function test_other_games_use_their_own_path_and_do_not_serve_the_hub(): void
     {
         $this->hub('<html><body>JaRing hub</body></html>');
         CompanyProfile::factory()->published()->create([
@@ -76,14 +77,19 @@ class GameHubPathTest extends TestCase
         ]);
 
         $this->get('http://drawquarium.jadidaring.test/')
+            ->assertStatus(301)
+            ->assertRedirect('http://www.jadidaring.test/drawquarium/');
+
+        $this->get('http://www.jadidaring.test/drawquarium/')
             ->assertOk()
             ->assertSee('Aquarium', false)
             ->assertDontSee('JaRing hub', false)
             ->assertDontSee('og-gamehub.jpg', false);
 
-        $this->get('http://drawquarium.jadidaring.test/gamehub')->assertNotFound();
+        $this->get('http://www.jadidaring.test/drawquarium/gamehub')->assertNotFound();
         $this->get('http://www.jadidaring.test/')->assertNotFound();
         $this->get('http://jadidaring.test/gamehub')->assertNotFound();
+        $this->get('http://jadidaring.test/drawquarium')->assertNotFound();
         $this->get('http://admin.jadidaring.test/gamehub')->assertNotFound();
     }
 
@@ -103,13 +109,18 @@ class GameHubPathTest extends TestCase
         $this->get('http://www.jadidaring.test/gamehub/sitemap.xml')
             ->assertOk()
             ->assertSee('http://www.jadidaring.test/gamehub/', false)
-            ->assertSee('http://drawquarium.jadidaring.test/', false)
+            ->assertSee('http://www.jadidaring.test/drawquarium/', false)
+            ->assertDontSee('drawquarium.jadidaring.test', false)
             ->assertDontSee('gamehub.jadidaring.test', false)
             ->assertDontSee('draft-game', false);
 
         $this->get('http://drawquarium.jadidaring.test/sitemap.xml')
+            ->assertStatus(301)
+            ->assertRedirect('http://www.jadidaring.test/drawquarium/sitemap.xml');
+
+        $this->get('http://www.jadidaring.test/drawquarium/sitemap.xml')
             ->assertOk()
-            ->assertSee('http://drawquarium.jadidaring.test/', false)
+            ->assertSee('http://www.jadidaring.test/drawquarium/', false)
             ->assertDontSee('gamehub', false);
     }
 
@@ -168,14 +179,15 @@ class GameHubPathTest extends TestCase
             'Authorization' => 'Bearer '.$created['playerToken'],
         ])->assertOk()->assertJsonPath('code', $created['code']);
 
-        $this->getJson('http://drawquarium.jadidaring.test/api/game/rooms/'.$created['code'], [
+        $this->getJson('http://www.jadidaring.test/drawquarium/api/game/rooms/'.$created['code'], [
             'Authorization' => 'Bearer '.$created['playerToken'],
         ])->assertNotFound();
 
-        $this->getJson('http://drawquarium.jadidaring.test/api/game/config')
+        $this->getJson('http://www.jadidaring.test/drawquarium/api/game/config')
             ->assertOk()
             ->assertJsonPath('game', 'drawquarium')
-            ->assertJsonPath('api', '/api/game');
+            ->assertJsonPath('api', '/drawquarium/api/game')
+            ->assertJsonPath('host', 'www.jadidaring.test');
     }
 
     public function test_gamehub_name_stays_reserved_for_the_existing_profile(): void

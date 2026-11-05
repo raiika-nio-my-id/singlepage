@@ -6,6 +6,7 @@ use App\Models\CompanyProfile;
 use App\Services\GameHub;
 use App\Services\LegalNoticeInjector;
 use App\Services\SeoInjector;
+use App\Services\TenantPath;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -24,7 +25,7 @@ class TenantController extends Controller
     public function show(Request $request, LegalNoticeInjector $legalInjector, SeoInjector $seoInjector): Response
     {
         $profile = $this->profile($request);
-        $html = GameHub::isProfile($profile) ? GameHub::rewriteHtml($profile->html) : $profile->html;
+        $html = TenantPath::rewriteHtml($profile->html, $profile->subdomain);
         $html = $profile->hide_footer
             ? $html
             : $legalInjector->inject($html, $this->termsUrl($request, $profile));
@@ -46,15 +47,14 @@ class TenantController extends Controller
     public function terms(Request $request): View
     {
         $profile = $this->profile($request);
-        $hub = GameHub::isProfile($profile);
 
         return view('tenant.terms', [
             'platformName' => (string) config('singlepage.platform_name', 'Jadidaring'),
             'updatedOn' => Carbon::parse((string) config('singlepage.terms_updated_on'))
                 ->locale('id')
                 ->translatedFormat('d F Y'),
-            'siteHost' => $hub ? $profile->publicLabel() : $request->getHost(),
-            'homeUrl' => $hub ? GameHub::homeUrl($request) : $request->getSchemeAndHttpHost().'/',
+            'siteHost' => $profile->publicLabel(),
+            'homeUrl' => TenantPath::homeUrl($request, $profile->subdomain),
         ]);
     }
 
@@ -69,20 +69,12 @@ class TenantController extends Controller
 
     private function canonicalUrl(Request $request, CompanyProfile $profile): string
     {
-        if (GameHub::isProfile($profile)) {
-            return GameHub::homeUrl($request);
-        }
-
-        return $request->getSchemeAndHttpHost().'/';
+        return TenantPath::homeUrl($request, $profile->subdomain);
     }
 
     private function termsUrl(Request $request, CompanyProfile $profile): string
     {
-        if (GameHub::isProfile($profile)) {
-            return GameHub::termsUrl($request);
-        }
-
-        return $request->getSchemeAndHttpHost().'/syarat-ketentuan';
+        return TenantPath::termsUrl($request, $profile->subdomain);
     }
 
     private function ogImageUrl(Request $request, CompanyProfile $profile): ?string

@@ -83,11 +83,11 @@
                     <form method="POST" action="{{ route('admin.clients.aliases.store', $companyProfile) }}" class="alias-add-form">
                         @csrf
                         <input id="alias" type="text" name="alias" placeholder="Add alias" maxlength="63" autocapitalize="off" spellcheck="false" autocomplete="off" aria-label="New alias subdomain">
-                        <span class="alias-domain-hint">.{{ config('singlepage.base_domain') }}</span>
+                        <span class="alias-domain-hint">{{ \App\Services\TenantPath::host() }}/</span>
                         <button type="submit" class="button button-quiet button-small">Add</button>
                     </form>
                 </div>
-                <p class="muted alias-bar-hint">Each alias 301s to the primary. Saving a new primary keeps the old name as an alias, so you can swap names in one save.</p>
+                <p class="muted alias-bar-hint">Each alias 301s to the primary path. Saving a new primary keeps the old name as an alias, so you can swap names in one save.</p>
             </div>
         @endif
     @endunless
@@ -100,9 +100,7 @@
             <label for="subdomain">{{ $workspace ? 'Your web address' : 'Subdomain' }}</label>
             @can('updateSubdomain', $companyProfile)
                 <input id="subdomain" type="text" name="subdomain" value="{{ old('subdomain', $companyProfile->subdomain) }}" maxlength="63" autocapitalize="off" spellcheck="false" required>
-                @if (\App\Services\GameHub::isProfile($companyProfile))
-                    <p class="muted">Public URL is <a href="{{ $companyProfile->publicUrl() }}" target="_blank" rel="noopener noreferrer">{{ $companyProfile->publicLabel() }}</a>. This name stays reserved.</p>
-                @endif
+                <p class="muted">Public URL is <a href="{{ $companyProfile->publicUrl() }}" target="_blank" rel="noopener noreferrer">{{ $companyProfile->publicLabel() }}</a>.@if (\App\Services\GameHub::isProfile($companyProfile)) This name stays reserved.@endif</p>
             @else
                 <p class="readonly-field" id="subdomain">{{ $companyProfile->publicLabel() }}</p>
             @endcan

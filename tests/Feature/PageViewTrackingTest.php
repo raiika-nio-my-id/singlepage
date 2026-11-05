@@ -16,7 +16,7 @@ class PageViewTrackingTest extends TestCase
     {
         CompanyProfile::factory()->published()->create(['subdomain' => 'tracked']);
 
-        $this->get('http://tracked.jadidaring.test/')->assertOk();
+        $this->get('http://www.jadidaring.test/tracked/')->assertOk();
 
         $count = DB::table('page_view_records')
             ->join('company_profiles', 'company_profiles.id', '=', 'page_view_records.company_profile_id')
@@ -32,9 +32,9 @@ class PageViewTrackingTest extends TestCase
 
         // Three requests from the same IP + user-agent combination should
         // produce exactly one unique-visitor row for today.
-        $this->get('http://deduped.jadidaring.test/')->assertOk();
-        $this->get('http://deduped.jadidaring.test/')->assertOk();
-        $this->get('http://deduped.jadidaring.test/')->assertOk();
+        $this->get('http://www.jadidaring.test/deduped/')->assertOk();
+        $this->get('http://www.jadidaring.test/deduped/')->assertOk();
+        $this->get('http://www.jadidaring.test/deduped/')->assertOk();
 
         $count = DB::table('page_view_records')
             ->join('company_profiles', 'company_profiles.id', '=', 'page_view_records.company_profile_id')
@@ -49,7 +49,7 @@ class PageViewTrackingTest extends TestCase
         CompanyProfile::factory()->published()->create(['subdomain' => 'nobots']);
 
         $this->withHeaders(['User-Agent' => 'Googlebot/2.1 (+http://www.google.com/bot.html)'])
-            ->get('http://nobots.jadidaring.test/')
+            ->get('http://www.jadidaring.test/nobots/')
             ->assertOk();
 
         $count = DB::table('page_view_records')

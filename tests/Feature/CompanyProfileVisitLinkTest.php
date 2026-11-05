@@ -23,7 +23,7 @@ class CompanyProfileVisitLinkTest extends TestCase
             ->assertOk()
             ->assertSee('Live preview')
             ->assertSee('Visit website')
-            ->assertSee('href="http://acme.jadidaring.test"', false)
+            ->assertSee('href="http://www.jadidaring.test/acme"', false)
             ->assertSee('target="_blank"', false);
     }
 
@@ -38,7 +38,7 @@ class CompanyProfileVisitLinkTest extends TestCase
             ->get('http://admin.jadidaring.test/')
             ->assertOk()
             ->assertSee('Visit website')
-            ->assertSee('href="http://acme.jadidaring.test"', false)
+            ->assertSee('href="http://www.jadidaring.test/acme"', false)
             ->assertSee('target="_blank"', false);
     }
 
@@ -53,7 +53,7 @@ class CompanyProfileVisitLinkTest extends TestCase
             ->get('http://admin.jadidaring.test/')
             ->assertOk()
             ->assertSee('Visit website')
-            ->assertSee('href="http://owned.jadidaring.test"', false);
+            ->assertSee('href="http://www.jadidaring.test/owned"', false);
     }
 
     public function test_create_client_page_includes_a_visit_website_control(): void
@@ -64,7 +64,7 @@ class CompanyProfileVisitLinkTest extends TestCase
             ->get('http://admin.jadidaring.test/clients/create')
             ->assertOk()
             ->assertSee('Visit website')
-            ->assertSee('data-site-url-template="http://{subdomain}.jadidaring.test"', false)
+            ->assertSee('data-site-url-template="http://www.jadidaring.test/{subdomain}"', false)
             ->assertSee('aria-disabled="true"', false);
     }
 }

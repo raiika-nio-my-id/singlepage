@@ -24,7 +24,7 @@ class CompanyProfileAuthorizationTest extends TestCase
             ->assertOk()
             ->assertSee('Your site')
             ->assertSee('Published')
-            ->assertSee('owned.jadidaring.test')
+            ->assertSee('www.jadidaring.test/owned')
             ->assertSee('Expired')
             ->assertDontSee('name="expires_at"', false)
             ->assertDontSee('name="hide_footer"', false)

@@ -148,7 +148,7 @@ class SubdomainService
     }
 
     /**
-     * Keep a former primary as an alias so the old host 301s to the new one.
+     * Keep a former primary as an alias so the old name 301s to the new path.
      */
     public function rememberFormerPrimary(CompanyProfile $profile, string $formerSubdomain): void
     {

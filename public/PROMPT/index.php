@@ -175,7 +175,7 @@ IMPORTANT:
 
 and opening it in a browser.
 
-A normal page must work with no server. A multiplayer game must also work as one HTML file: practice mode runs in the browser, and online play uses only the platform API in the MULTIPLAYER GAMES section when the page is served on its own subdomain.
+A normal page must work with no server. A multiplayer game must also work as one HTML file: practice mode runs in the browser, and online play uses only the platform API in the MULTIPLAYER GAMES section when the page is served on its Jadidaring path.
 
 8. No build process or installation must be required.
 
@@ -400,17 +400,17 @@ Online play uses the Jadidaring Laravel app:
 * **Websocket:** one Laravel Reverb server for every game. Do not start a second websocket, Socket.IO server, or Node realtime server.
 * **Database:** one MySQL database (the Singlepage application database) for every game. Do not create a database per game. Do not use Neon, Supabase, a private Postgres URL, or a `DATABASE_URL` in the HTML.
 
-The private subdomain chooses the data and the channel. The server rejects rooms that belong to another subdomain.
+The subdomain label chooses the data and the channel. The server rejects rooms that belong to another subdomain. The public page is a path on www, not a separate host.
 
-| Published host | Websocket lobby channel | Room channel | Database scope |
+| Published URL | Websocket lobby channel | Room channel | Database scope |
 | --- | --- | --- | --- |
-| `mahjong.jadidaring.com` | `game.mahjong` | `game.mahjong.{code}` | rows for subdomain `mahjong` only |
-| `explodingkitten.jadidaring.com` | `game.explodingkitten` | `game.explodingkitten.{code}` | rows for subdomain `explodingkitten` only |
-| `{subdomain}.jadidaring.com` | `game.{subdomain}` | `game.{subdomain}.{code}` | rows for that subdomain only |
+| `https://www.jadidaring.com/mahjong/` | `game.mahjong` | `game.mahjong.{code}` | rows for subdomain `mahjong` only |
+| `https://www.jadidaring.com/explodingkitten/` | `game.explodingkitten` | `game.explodingkitten.{code}` | rows for subdomain `explodingkitten` only |
+| `https://www.jadidaring.com/{subdomain}/` | `game.{subdomain}` | `game.{subdomain}.{code}` | rows for that subdomain only |
 
-Local hosts use `jadidaring.test` instead of `jadidaring.com`. The channel prefix does not include the base domain.
+Local hosts use `http://www.jadidaring.test/{subdomain}/`. `{subdomain}.jadidaring.com/...` and `{subdomain}.jadidaring.test/...` permanently redirect to that path. The channel prefix does not include the base domain.
 
-Read the subdomain from `location.hostname` (the label before the base domain). Never hardcode another game's host, channel, or room list.
+Do not read the game id from `location.hostname`. On the public host that value is `www`. Use `game` from `GET /api/game/config`. Keep calling the root-relative path `/api/game/...`; when the platform serves the page it rewrites that to `/{subdomain}/api/game/...`. The websocket URL from config is `wss://www.jadidaring.com/app/...` at the host root, not under the game path. Never hardcode another game's host, channel, or room list.
 
 ## Credentials stay on the server
 
@@ -436,7 +436,7 @@ Online buttons run only when `location.protocol` is `http:` or `https:` and `loc
 
 Send `Content-Type: application/json`. Send the player token as `Authorization: Bearer PLAYER_TOKEN` after a seat is issued. Store the token in `sessionStorage`, not in the HTML.
 
-* `GET /api/game/config` — connection for this subdomain. Also returns `limits.maxPlayers` (highest accepted `maxPlayers`), `limits.defaultMaxPlayers` (stored when create/match omit `maxPlayers`), and `limits.spectators` (watch cap) for this subdomain.
+* `GET /api/game/config` — connection for this game. The served page rewrites it to `/{subdomain}/api/game/config`. Also returns `limits.maxPlayers` (highest accepted `maxPlayers`), `limits.defaultMaxPlayers` (stored when create/match omit `maxPlayers`), and `limits.spectators` (watch cap) for this subdomain. `game` is the subdomain label. `host` is the public www host. `websocket.url` uses `/app` on that host.
 * `GET /api/game/rooms` — public tables for this subdomain only. No secrets. `?gm=` / `X-Game-Master` still lists private rooms (transitional/deprecated). Never put the GM secret in a URL hash or in `/api/game/config`.
 * `POST /api/game/rooms` — body `{ "displayName", "visibility": "public"|"private", "maxPlayers", "state": {}, "private": {} }`. Default visibility is `private`. `maxPlayers` is an integer from 2 to `limits.maxPlayers`. Omit it to store `limits.defaultMaxPlayers`.
 * `POST /api/game/rooms/join` — body `{ "code", "displayName", "private": {} }`. Only `waiting` rooms with a free seat.
@@ -1056,7 +1056,7 @@ Before producing the final answer, internally verify:
 * no backend forms
 * no fake submit behavior
 * contact/RSVP forms use WhatsApp when applicable
-* multiplayer games, when that is the page, use `/api/game` on their own subdomain and the websocket from `/api/game/config`
+* multiplayer games, when that is the page, use root-relative `/api/game` (served under `/{subdomain}/api/game`) and the websocket URL from `/api/game/config`
 
 ### JSON
 

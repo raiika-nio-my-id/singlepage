@@ -65,6 +65,7 @@ class AdminClientApiTest extends TestCase
             ->assertJsonPath('data.hide_footer', true)
             ->assertJsonPath('data.is_pinned', true)
             ->assertJsonPath('data.aliases', ['acme-old'])
+            ->assertJsonPath('data.public_url', 'http://www.jadidaring.test/acme')
             ->assertJsonMissingPath('data.password');
 
         $this->assertDatabaseHas('company_profiles', [

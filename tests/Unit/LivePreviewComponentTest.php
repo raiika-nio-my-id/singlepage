@@ -15,7 +15,8 @@ class LivePreviewComponentTest extends TestCase
         ]);
 
         $this->assertStringContainsString('Visit website', $html);
-        $this->assertStringContainsString('href="http://acme.jadidaring.test"', $html);
+        $this->assertStringContainsString('href="http://www.jadidaring.test/acme"', $html);
+        $this->assertStringContainsString('data-site-url-template="http://www.jadidaring.test/{subdomain}"', $html);
         $this->assertStringContainsString('data-hub-url="http://www.jadidaring.test/gamehub"', $html);
         $this->assertStringContainsString('target="_blank"', $html);
         $this->assertStringContainsString('rel="noopener noreferrer"', $html);

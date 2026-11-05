@@ -87,7 +87,7 @@
                                     {{ $profile->publicLabel() }}
                                 </a>
                                 @foreach ($profile->aliases as $alias)
-                                    <div class="muted alias-hint">↳ {{ $alias->subdomain }}.{{ config('singlepage.base_domain') }}</div>
+                                    <div class="muted alias-hint">↳ {{ \App\Services\TenantPath::label($alias->subdomain) }}</div>
                                 @endforeach
                             </td>
                             <td>

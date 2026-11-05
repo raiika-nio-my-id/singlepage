@@ -35,7 +35,7 @@ class DatabaseSeeder extends Seeder
 </head>
 <body>
     <h1>Demo Company</h1>
-    <p>This published profile is served on the client subdomain.</p>
+    <p>This published profile is served at /demo on the www host.</p>
 </body>
 </html>
 HTML,
