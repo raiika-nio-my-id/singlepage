@@ -20,12 +20,19 @@
 /auth.json
 /node_modules
 /public/build
+/public/build.incoming.*
+/public/build.outgoing.*
 /public/fonts-manifest.dev.json
 /public/hot
 /public/storage
 /storage/*.key
 /storage/pail
 /vendor
+/vendor.incoming.*
+/vendor.outgoing.*
+# Deploy runtime. nginx-upstream.conf is a tracked symlink; everything else is local.
+/.deploy/*
+!/.deploy/nginx-upstream.conf
 _ide_helper.php
 Homestead.json
 Homestead.yaml

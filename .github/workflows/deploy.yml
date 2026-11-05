@@ -20,6 +20,21 @@ on:
         required: false
         default: ''
         type: string
+      maintenance:
+        description: 'artisan down for a breaking schema change'
+        required: false
+        default: false
+        type: boolean
+      force_recreate:
+        description: 'Force a blue-green container replace'
+        required: false
+        default: false
+        type: boolean
+      restart_reverb:
+        description: 'Recreate Reverb after the deploy (WebSocket clients reconnect)'
+        required: false
+        default: false
+        type: boolean
 
 # ── Safety: only one deploy at a time ─────────────────────────────────────────
 # A second run queues (cancel-in-progress: false) rather than clobbering the
@@ -57,6 +72,11 @@ jobs:
           # inputs.ref is empty on push triggers; github.ref_name is the pushed branch.
           DEPLOY_REF: ${{ inputs.ref || github.ref_name }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          # Push events have no inputs; both expressions are 0 unless the
+          # workflow_dispatch checkbox is set.
+          DEPLOY_MAINTENANCE: ${{ inputs.maintenance && '1' || '0' }}
+          DEPLOY_FORCE_RECREATE: ${{ inputs.force_recreate && '1' || '0' }}
+          DEPLOY_RESTART_REVERB: ${{ inputs.restart_reverb && '1' || '0' }}
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
@@ -68,11 +88,12 @@ jobs:
           #   ssh-keygen -l -f /etc/ssh/ssh_host_ed25519_key.pub | awk '{print $2}'
           # Output looks like: SHA256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
           fingerprint: ${{ secrets.DEPLOY_HOST_FINGERPRINT }}
-          envs: DEPLOY_REF,DEPLOY_PATH
+          envs: DEPLOY_REF,DEPLOY_PATH,DEPLOY_MAINTENANCE,DEPLOY_FORCE_RECREATE,DEPLOY_RESTART_REVERB
           # Bootstrap: fetch first so scripts/deploy.sh is available even on the
           # first run (the server checkout may not yet contain the script).
           # Piping from origin/$DEPLOY_REF guarantees the server always runs the
-          # same version of deploy.sh that is in the target ref.
+          # same version of deploy.sh that is in the target ref. That script
+          # chooses Path A (bind-mounted code) or Path B (blue-green).
           script: |
             set -euo pipefail
             APP_DIR="${DEPLOY_PATH:-/var/www/singlepage}"
@@ -80,4 +101,14 @@ jobs:
             echo "==> Fetching latest refs from origin..."
             git fetch --prune --tags origin
             echo "==> Running scripts/deploy.sh @ origin/${DEPLOY_REF}"
-            git show "origin/${DEPLOY_REF}:scripts/deploy.sh" | bash -s -- "$DEPLOY_REF"
+            args=( "${DEPLOY_REF}" )
+            if [ "${DEPLOY_MAINTENANCE:-0}" = "1" ]; then
+              args+=( --maintenance )
+            fi
+            if [ "${DEPLOY_FORCE_RECREATE:-0}" = "1" ]; then
+              args+=( --force-recreate )
+            fi
+            if [ "${DEPLOY_RESTART_REVERB:-0}" = "1" ]; then
+              args+=( --restart-reverb )
+            fi
+            git show "origin/${DEPLOY_REF}:scripts/deploy.sh" | bash -s -- "${args[@]}"
