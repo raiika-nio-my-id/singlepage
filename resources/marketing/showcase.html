@@ -1,0 +1,1681 @@
+<!-- =====================================================
+     JA RING SHOWCASE CONFIG
+
+     CUKUP EDIT BAGIAN INI.
+
+     JUMLAH DEMO OTOMATIS MENGIKUTI JUMLAH
+     ITEM DI DALAM DEMO_TITLES.
+
+     URL AKAN OTOMATIS:
+
+     https://www.jadidaring.com/demo1/
+     https://www.jadidaring.com/demo2/
+     https://www.jadidaring.com/demo3/
+     ...
+===================================================== -->
+
+<script>
+
+    const DEMO_TITLES = [
+
+        "Event",
+
+        "Wedding",
+
+        "Restaurant",
+
+        "Personal Portfolio",
+
+        "Campaign",
+
+        "Birthday",
+
+        "Seminar",
+
+        "Promotion",
+
+        "Workshop",
+
+        "Property",
+
+        "Announcement",
+
+        "Community"
+
+    ];
+
+    const customs = [
+    ];
+
+
+    const WHATSAPP_NUMBER =
+        "6285117177883";
+
+
+    const WHATSAPP_MESSAGE =
+        "Halo, saya tertarik untuk membuat single page website seperti demo JaRing.";
+
+</script>
+
+
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>JaRing — Website Showcase</title>
+
+    <meta
+        name="description"
+        content="Showcase demo website JaRing — Jadi Daring."
+    >
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+
+        body {
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            background: #f5f5f3;
+
+            color: #171717;
+
+            min-height: 100vh;
+        }
+
+
+        /* =========================================
+           HEADER
+        ========================================= */
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+
+            height: 72px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 40px;
+
+            background:
+                rgba(245, 245, 243, 0.88);
+
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+
+            border-bottom:
+                1px solid rgba(0, 0, 0, 0.08);
+        }
+
+
+        .brand {
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
+
+            font-size: 20px;
+
+            font-weight: 800;
+
+            letter-spacing: -0.5px;
+        }
+
+
+        .brand small {
+            font-size: 12px;
+
+            font-weight: 500;
+
+            color: #777;
+
+            letter-spacing: 0;
+        }
+
+
+        .header-right {
+            display: flex;
+
+            align-items: center;
+
+            gap: 18px;
+        }
+
+
+        .header-label {
+            font-size: 13px;
+
+            color: #777;
+        }
+
+
+        /* =========================================
+           WHATSAPP BUTTON
+        ========================================= */
+
+        .whatsapp-button {
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 8px;
+
+            min-height: 38px;
+
+            padding:
+                0 16px;
+
+            border-radius: 999px;
+
+            background: #111;
+
+            color: white;
+
+            text-decoration: none;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            letter-spacing: 0.1px;
+
+            transition:
+                transform 0.25s ease,
+                background 0.25s ease;
+        }
+
+
+        .whatsapp-button:hover {
+
+            transform:
+                translateY(-2px);
+
+            background: #222;
+        }
+
+
+        .whatsapp-icon {
+
+            width: 18px;
+
+            height: 18px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 14px;
+        }
+
+
+        /* =========================================
+           HERO
+        ========================================= */
+
+        .hero {
+            max-width: 1200px;
+
+            margin: 0 auto;
+
+            padding:
+                100px 30px 70px;
+        }
+
+
+        .eyebrow {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            text-transform: uppercase;
+
+            letter-spacing: 1.5px;
+
+            color: #777;
+
+            margin-bottom: 20px;
+        }
+
+
+        .eyebrow::before {
+            content: "";
+
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: #111;
+        }
+
+
+        h1 {
+            max-width: 800px;
+
+            font-size:
+                clamp(48px, 7vw, 92px);
+
+            line-height: 0.95;
+
+            letter-spacing: -5px;
+
+            font-weight: 800;
+
+            margin-bottom: 28px;
+        }
+
+
+        .hero-description {
+            max-width: 600px;
+
+            font-size: 18px;
+
+            line-height: 1.7;
+
+            color: #666;
+        }
+
+
+        /* =========================================
+           SHOWCASE
+        ========================================= */
+
+        .showcase {
+            max-width: 1400px;
+
+            margin: 0 auto;
+
+            padding:
+                0 30px 100px;
+        }
+
+
+        .showcase-header {
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: end;
+
+            margin-bottom: 25px;
+        }
+
+
+        .showcase-title {
+            font-size: 14px;
+
+            font-weight: 700;
+
+            text-transform: uppercase;
+
+            letter-spacing: 1px;
+        }
+
+
+        .showcase-count {
+            font-size: 13px;
+
+            color: #888;
+        }
+
+
+        .showcase-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            padding: 5px;
+            width: fit-content;
+            max-width: 100%;
+            background: #e9e9e6;
+            border-radius: 12px;
+        }
+
+        .showcase-tab {
+            border: 0;
+            border-radius: 8px;
+            padding: 12px 20px;
+            background: transparent;
+            color: #666;
+            font: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .showcase-tab.active {
+            background: #fff;
+            color: #171717;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+        }
+
+        .showcase-tab:focus-visible {
+            outline: 2px solid #111;
+            outline-offset: 3px;
+        }
+
+        .demo-panel[hidden] {
+            display: none !important;
+        }
+
+
+        /* =========================================
+           GRID
+        ========================================= */
+
+        .grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 28px;
+        }
+
+
+        /* =========================================
+           DEMO CARD
+        ========================================= */
+
+        .demo-card {
+            position: relative;
+
+            background: white;
+
+            border-radius: 18px;
+
+            overflow: hidden;
+
+            border:
+                1px solid rgba(0, 0, 0, 0.08);
+
+            box-shadow:
+                0 10px 30px
+                rgba(0, 0, 0, 0.04);
+
+            transition:
+                transform 0.35s ease,
+                box-shadow 0.35s ease;
+
+            cursor: pointer;
+        }
+
+
+        .demo-card:hover {
+            transform:
+                translateY(-5px);
+
+            box-shadow:
+                0 20px 50px
+                rgba(0, 0, 0, 0.10);
+        }
+
+
+        /* =========================================
+           BROWSER BAR
+        ========================================= */
+
+        .browser-bar {
+            height: 42px;
+
+            display: flex;
+
+            align-items: center;
+
+            padding: 0 14px;
+
+            background: #fafafa;
+
+            border-bottom:
+                1px solid #eee;
+        }
+
+
+        .browser-dots {
+            display: flex;
+
+            gap: 6px;
+        }
+
+
+        .browser-dots span {
+            width: 9px;
+            height: 9px;
+
+            border-radius: 50%;
+
+            background: #d2d2d2;
+        }
+
+
+        .browser-url {
+            flex: 1;
+
+            margin-left: 14px;
+
+            height: 24px;
+
+            display: flex;
+
+            align-items: center;
+
+            padding: 0 10px;
+
+            border-radius: 6px;
+
+            background: #f0f0f0;
+
+            color: #888;
+
+            font-size: 10px;
+
+            overflow: hidden;
+
+            white-space: nowrap;
+
+            text-overflow: ellipsis;
+        }
+
+
+        /* =========================================
+           PREVIEW
+        ========================================= */
+
+        .preview {
+            position: relative;
+
+            height: 420px;
+
+            overflow: hidden;
+
+            background: #eee;
+        }
+
+
+        .preview iframe {
+            width: 100%;
+
+            height: 100%;
+
+            border: 0;
+
+            display: block;
+
+            background: white;
+
+            pointer-events: none;
+        }
+
+
+        .preview-overlay {
+            position: absolute;
+
+            inset: 0;
+
+            z-index: 5;
+
+            background: transparent;
+        }
+
+
+        .preview-overlay::after {
+            content: "OPEN PREVIEW";
+
+            position: absolute;
+
+            left: 50%;
+            top: 50%;
+
+            transform:
+                translate(-50%, -50%)
+                scale(0.9);
+
+            padding:
+                12px 18px;
+
+            border-radius: 999px;
+
+            background:
+                rgba(0, 0, 0, 0.82);
+
+            color: white;
+
+            font-size: 11px;
+
+            font-weight: 700;
+
+            letter-spacing: 1px;
+
+            opacity: 0;
+
+            transition:
+                opacity 0.25s ease,
+                transform 0.25s ease;
+        }
+
+
+        .demo-card:hover
+        .preview-overlay::after {
+
+            opacity: 1;
+
+            transform:
+                translate(-50%, -50%)
+                scale(1);
+        }
+
+
+        /* =========================================
+           DEMO INFO
+        ========================================= */
+
+        .demo-info {
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding:
+                20px 22px;
+        }
+
+
+        .demo-name {
+            font-size: 17px;
+
+            font-weight: 700;
+        }
+
+
+        .demo-url {
+            margin-top: 4px;
+
+            font-size: 11px;
+
+            color: #999;
+        }
+
+
+        .open-button {
+            width: 38px;
+            height: 38px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            border-radius: 50%;
+
+            background: #111;
+
+            color: white;
+
+            font-size: 16px;
+
+            transition:
+                transform 0.25s ease;
+        }
+
+
+        .demo-card:hover
+        .open-button {
+
+            transform:
+                rotate(45deg);
+        }
+
+
+        /* =========================================
+           FOOTER
+        ========================================= */
+
+        footer {
+            padding:
+                50px 30px 70px;
+
+            border-top:
+                1px solid rgba(0, 0, 0, 0.08);
+
+            text-align: center;
+
+            color: #888;
+
+            font-size: 13px;
+        }
+
+
+        footer strong {
+            color: #222;
+        }
+
+
+        /* =========================================
+           MODAL
+        ========================================= */
+
+        .modal {
+            position: fixed;
+
+            inset: 0;
+
+            z-index: 999;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 25px;
+
+            background:
+                rgba(0, 0, 0, 0.78);
+
+            backdrop-filter: blur(12px);
+
+            -webkit-backdrop-filter: blur(12px);
+
+            opacity: 0;
+
+            visibility: hidden;
+
+            transition:
+                opacity 0.3s ease,
+                visibility 0.3s ease;
+        }
+
+
+        .modal.active {
+            opacity: 1;
+
+            visibility: visible;
+        }
+
+
+        .modal-window {
+            width:
+                min(1400px, 100%);
+
+            height:
+                min(900px, 94vh);
+
+            background: white;
+
+            border-radius: 16px;
+
+            overflow: hidden;
+
+            transform:
+                scale(0.95);
+
+            transition:
+                transform 0.3s ease;
+
+            box-shadow:
+                0 30px 100px
+                rgba(0, 0, 0, 0.35);
+        }
+
+
+        .modal.active
+        .modal-window {
+
+            transform:
+                scale(1);
+        }
+
+
+        .modal-header {
+            height: 52px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 0 18px;
+
+            background: #fafafa;
+
+            border-bottom:
+                1px solid #eee;
+        }
+
+
+        .modal-title {
+            font-size: 13px;
+
+            font-weight: 700;
+        }
+
+
+        .modal-actions {
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+        }
+
+
+        .modal-link,
+        .modal-close {
+
+            height: 34px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 0 12px;
+
+            border: 0;
+
+            border-radius: 7px;
+
+            background: #eee;
+
+            color: #333;
+
+            text-decoration: none;
+
+            font-size: 11px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+        }
+
+
+        .modal-close {
+
+            width: 34px;
+
+            padding: 0;
+
+            background: #111;
+
+            color: white;
+
+            font-size: 16px;
+        }
+
+
+        .modal iframe {
+
+            width: 100%;
+
+            height:
+                calc(100% - 52px);
+
+            border: 0;
+
+            display: block;
+        }
+
+
+        /* =========================================
+           RESPONSIVE
+        ========================================= */
+
+        @media (max-width: 900px) {
+
+            header {
+                padding: 0 20px;
+            }
+
+
+            .header-label {
+                display: none;
+            }
+
+
+            .hero {
+                padding:
+                    70px 20px 50px;
+            }
+
+
+            h1 {
+                letter-spacing: -3px;
+            }
+
+
+            .showcase {
+                padding:
+                    0 20px 70px;
+            }
+
+
+            .grid {
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .preview {
+                height: 430px;
+            }
+
+        }
+
+
+        @media (max-width: 600px) {
+
+            .showcase-tabs {
+                width: 100%;
+            }
+
+            .showcase-tab {
+                flex: 1;
+                padding: 12px 10px;
+            }
+
+            header {
+                height: 62px;
+            }
+
+
+            .brand {
+                font-size: 18px;
+            }
+
+
+            .header-right {
+                gap: 0;
+            }
+
+
+            .header-label {
+                display: none;
+            }
+
+
+            .whatsapp-button {
+
+                min-height: 36px;
+
+                padding:
+                    0 13px;
+
+                font-size: 11px;
+            }
+
+
+            .whatsapp-icon {
+                font-size: 13px;
+            }
+
+
+            .hero {
+                padding-top: 55px;
+            }
+
+
+            h1 {
+                font-size: 48px;
+
+                letter-spacing: -2.5px;
+            }
+
+
+            .hero-description {
+                font-size: 16px;
+            }
+
+
+            .preview {
+                height: 360px;
+            }
+
+
+            .demo-info {
+                padding: 16px;
+            }
+
+
+            .modal {
+                padding: 8px;
+            }
+
+
+            .modal-window {
+                height: 96vh;
+
+                border-radius: 10px;
+            }
+
+        }
+
+    </style>
+
+<link rel="canonical" href="https://www.jadidaring.com/showcase/">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+
+
+<body>
+
+
+<header>
+
+    <a
+        class="brand"
+        href="https://jadidaring.com"
+        style="text-decoration:none;color:black"
+    >
+
+        JaRing
+
+        <small>
+            Jadi Daring
+        </small>
+
+    </a>
+
+
+    <div class="header-right">
+
+        <div class="header-label">
+
+            Website Demo Showcase
+
+        </div>
+
+
+        <a
+            class="whatsapp-button"
+            id="whatsappButton"
+            href="#"
+            target="_blank"
+            rel="noopener"
+        >
+
+            <span class="whatsapp-icon">
+                ◉
+            </span>
+
+            Contact via WhatsApp
+
+        </a>
+
+    </div>
+
+</header>
+
+
+
+<main>
+
+
+    <section class="hero">
+
+        <div class="eyebrow">
+
+            Website Showcase
+
+        </div>
+
+
+        <h1>
+
+            Your ideas.<br>
+            One page.
+
+        </h1>
+
+
+        <p class="hero-description">
+
+            Koleksi demo website JaRing — berbagai konsep
+            website satu halaman yang siap disesuaikan
+            dengan kebutuhan bisnis, event, wedding,
+            produk, maupun personal brand.
+
+        </p>
+
+    </section>
+
+
+
+    <section class="showcase">
+
+
+        <div class="showcase-header">
+
+            <div class="showcase-title">
+
+                Selected Demos
+
+            </div>
+
+
+            <div
+                class="showcase-count"
+                id="showcaseCount"
+            >
+
+                00 Websites
+
+            </div>
+
+        </div>
+
+
+        
+
+        <div
+            class="demo-panel"
+            id="uniqueWebPanel"
+           
+           
+        >
+            <div class="grid" id="demoGrid"></div>
+        </div>
+
+        
+
+
+    </section>
+
+
+</main>
+
+
+
+<footer>
+
+    <strong>
+        JaRing — Jadi Daring
+    </strong>
+
+    <br>
+
+    One-page websites made simple.
+
+</footer>
+
+
+
+<!-- =========================================
+     MODAL
+========================================= -->
+
+<div
+    class="modal"
+    id="previewModal"
+>
+
+
+    <div class="modal-window">
+
+
+        <div class="modal-header">
+
+
+            <div
+                class="modal-title"
+                id="modalTitle"
+            >
+
+                Demo
+
+            </div>
+
+
+            <div class="modal-actions">
+
+
+                <a
+                    href="#"
+                    target="_blank"
+                    rel="noopener"
+                    class="modal-link"
+                    id="openExternal"
+                >
+
+                    Open Website ↗
+
+                </a>
+
+
+                <button
+                    class="modal-close"
+                    id="closeModal"
+                    aria-label="Close"
+                >
+
+                    ×
+
+                </button>
+
+
+            </div>
+
+        </div>
+
+
+        <iframe
+            id="modalFrame"
+            src=""
+            title="Website Preview"
+        >
+        </iframe>
+
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+/* =====================================================
+   CONFIG
+===================================================== */
+
+const DOMAIN =
+    "jadidaring.com";
+
+
+const PROTOCOL =
+    "https";
+
+
+const DEMO_PREFIX =
+    "demo";
+
+
+
+/* =====================================================
+   NUMBER OF DEMOS
+
+   Tidak perlu TOTAL_DEMOS lagi.
+
+   Jumlah demo otomatis mengikuti:
+   DEMO_TITLES.length
+===================================================== */
+
+const TOTAL_DEMOS =
+    DEMO_TITLES.length;
+
+
+
+/* =====================================================
+   WHATSAPP URL
+===================================================== */
+
+const whatsappButton =
+    document.getElementById(
+        "whatsappButton"
+    );
+
+
+const whatsappUrl =
+    `https://wa.me/${WHATSAPP_NUMBER}?text=` +
+    encodeURIComponent(
+        WHATSAPP_MESSAGE
+    );
+
+
+whatsappButton.href =
+    whatsappUrl;
+
+
+
+/* =====================================================
+   ELEMENTS
+===================================================== */
+
+const demoGrid =
+    document.getElementById(
+        "demoGrid"
+    );
+
+
+const showcaseCount =
+    document.getElementById(
+        "showcaseCount"
+    );
+
+
+const modal =
+    document.getElementById(
+        "previewModal"
+    );
+
+
+const modalFrame =
+    document.getElementById(
+        "modalFrame"
+    );
+
+
+const modalTitle =
+    document.getElementById(
+        "modalTitle"
+    );
+
+
+const openExternal =
+    document.getElementById(
+        "openExternal"
+    );
+
+
+const closeModal =
+    document.getElementById(
+        "closeModal"
+    );
+
+
+
+/* =====================================================
+   CREATE URL
+===================================================== */
+
+function getDemoUrl(number) {
+
+    return (
+        `${PROTOCOL}://` +
+        `${DEMO_PREFIX}${number}.` +
+        `${DOMAIN}/`
+    );
+
+}
+
+
+
+/* =====================================================
+   FORMAT NUMBER
+
+   1  → 01
+   2  → 02
+   9  → 09
+   10 → 10
+===================================================== */
+
+function formatNumber(number) {
+
+    return String(number)
+        .padStart(2, "0");
+
+}
+
+
+
+/* =====================================================
+   GET DEMO TITLE
+===================================================== */
+
+function getDemoTitle(number) {
+
+    return (
+        DEMO_TITLES[number - 1] ||
+        `Demo ${formatNumber(number)}`
+    );
+
+}
+
+
+
+/* =====================================================
+   CREATE DEMO CARD
+===================================================== */
+
+function createDemoCard(number) {
+
+    const formattedNumber =
+        formatNumber(number);
+
+
+    const url =
+        getDemoUrl(number);
+
+
+    const hostname =
+        `${DEMO_PREFIX}${number}.${DOMAIN}`;
+
+
+    const title =
+        getDemoTitle(number);
+
+
+    const card =
+        document.createElement("article");
+
+
+    card.className =
+        "demo-card";
+
+
+    card.dataset.name =
+        title;
+
+
+    card.dataset.url =
+        url;
+
+
+    card.innerHTML = `
+
+        <div class="browser-bar">
+
+            <div class="browser-dots">
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </div>
+
+
+            <div class="browser-url">
+
+                ${hostname}
+
+            </div>
+
+        </div>
+
+
+        <div class="preview">
+
+            <iframe
+                src="${url}"
+                loading="lazy"
+                title="${title}"
+            >
+            </iframe>
+
+
+            <div
+                class="preview-overlay"
+            >
+            </div>
+
+        </div>
+
+
+        <div class="demo-info">
+
+            <div>
+
+                <div class="demo-name">
+
+                    ${title}
+
+                </div>
+
+
+                <div class="demo-url">
+
+                    ${hostname}
+
+                </div>
+
+            </div>
+
+
+            <div class="open-button">
+
+                ↗
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    return card;
+
+}
+
+function createCustomCard(url, title) {
+    const parsedUrl = new URL(url, window.location.href);
+
+    if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+        throw new Error("The URL must use HTTP or HTTPS.");
+    }
+
+    const card = document.createElement("article");
+
+    card.className = "demo-card";
+    card.dataset.name = title;
+    card.dataset.url = parsedUrl.href;
+
+    card.innerHTML = `
+        <div class="browser-bar">
+            <div class="browser-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+            <div class="browser-url"></div>
+        </div>
+
+        <div class="preview">
+            <iframe loading="lazy"></iframe>
+            <div class="preview-overlay"></div>
+        </div>
+
+        <div class="demo-info">
+            <div>
+                <div class="demo-name"></div>
+                <div class="demo-url"></div>
+            </div>
+
+            <div class="open-button">↗</div>
+        </div>
+    `;
+
+    // Assign custom values safely instead of interpolating HTML.
+    card.querySelector(".browser-url").textContent = parsedUrl.host;
+    card.querySelector(".demo-url").textContent = parsedUrl.host;
+    card.querySelector(".demo-name").textContent = title;
+
+    const iframe = card.querySelector("iframe");
+    iframe.src = parsedUrl.href;
+    iframe.title = title;
+
+    return card;
+}
+
+
+/* =====================================================
+   GENERATE ALL DEMOS
+===================================================== */
+
+for (
+    let number = 1;
+    number <= TOTAL_DEMOS;
+    number++
+) {
+
+    const card =
+        createDemoCard(number);
+
+
+    demoGrid.appendChild(card);
+
+}
+
+
+
+if (typeof showcaseCount !== "undefined" && typeof TOTAL_DEMOS !== "undefined") { showcaseCount.textContent = `${String(TOTAL_DEMOS).padStart(2, "0")} Websites`; }
+
+
+
+/* =====================================================
+   CARD CLICK
+===================================================== */
+
+document
+    .querySelectorAll(".demo-card")
+    .forEach(card => {
+
+        card.addEventListener(
+            "click",
+            () => {
+
+                const url =
+                    card.dataset.url;
+
+
+                const name =
+                    card.dataset.name;
+
+
+                modalTitle.textContent =
+                    name;
+
+
+                modalFrame.src =
+                    url;
+
+
+                openExternal.href =
+                    url;
+
+
+                modal.classList.add(
+                    "active"
+                );
+
+
+                document.body.style.overflow =
+                    "hidden";
+
+            }
+        );
+
+    });
+
+
+
+/* =====================================================
+   CLOSE MODAL
+===================================================== */
+
+function closePreview() {
+
+    modal.classList.remove(
+        "active"
+    );
+
+
+    document.body.style.overflow =
+        "";
+
+
+    setTimeout(() => {
+
+        modalFrame.src = "";
+
+    }, 300);
+
+}
+
+
+closeModal.addEventListener(
+    "click",
+    closePreview
+);
+
+
+
+/* =====================================================
+   CLICK OUTSIDE
+===================================================== */
+
+modal.addEventListener(
+    "click",
+    event => {
+
+        if (
+            event.target === modal
+        ) {
+
+            closePreview();
+
+        }
+
+    }
+);
+
+
+
+/* =====================================================
+   ESC
+===================================================== */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key === "Escape"
+        ) {
+
+            closePreview();
+
+        }
+
+    }
+);
+
+</script>
+
+
+</body>
+
+</html>

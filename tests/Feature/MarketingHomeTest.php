@@ -36,6 +36,8 @@ class MarketingHomeTest extends TestCase
                 ->assertSee('Rp30jt', false)
                 ->assertSee('6285117177883', false)
                 ->assertSee('family=Archivo', false)
+                ->assertSee('href="/showcase/"', false)
+                ->assertDontSee('href="#showcase"', false)
                 ->assertSee('https://www.jadidaring.com/gamehub/', false)
                 ->assertSee('https://www.jadidaring.com/drawquarium/', false)
                 ->assertSee('https://www.jadidaring.com/langitbersama/', false)
