@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\MarketingSite;
+use App\Services\ShowcasePage;
 use Illuminate\Http\Response;
 
 class MarketingController extends Controller
@@ -10,6 +11,15 @@ class MarketingController extends Controller
     public function show(): Response
     {
         return response(MarketingSite::html(), 200, [
+            'Content-Type' => 'text/html; charset=UTF-8',
+            'X-Content-Type-Options' => 'nosniff',
+            'Referrer-Policy' => 'strict-origin-when-cross-origin',
+        ]);
+    }
+
+    public function showcase(): Response
+    {
+        return response(ShowcasePage::html(), 200, [
             'Content-Type' => 'text/html; charset=UTF-8',
             'X-Content-Type-Options' => 'nosniff',
             'Referrer-Policy' => 'strict-origin-when-cross-origin',

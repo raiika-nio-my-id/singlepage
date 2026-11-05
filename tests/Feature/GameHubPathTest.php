@@ -14,6 +14,19 @@ class GameHubPathTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_hub_header_uses_the_homepage_monogram(): void
+    {
+        $this->hub('<html><head><link rel="icon" type="image/svg+xml" href="data:image/svg+xml,old"></head><body><a class="brand" id="brand" href="https://jadidaring.com"><span>JaRing</span></a></body></html>');
+
+        $this->get('http://www.jadidaring.test/gamehub/')
+            ->assertOk()
+            ->assertSee('class="brand__mark"', false)
+            ->assertSee('M1307 2788', false)
+            ->assertSee('fill="#D4FF3A"', false)
+            ->assertSee('href="/marketing/images/logo-mark.svg"', false)
+            ->assertDontSee('data:image/svg+xml,old', false);
+    }
+
     public function test_path_serves_the_hub_and_rewrites_its_canonical_url(): void
     {
         $this->hub('<html><head><link rel="canonical" href="https://gamehub.jadidaring.test/"></head><body>JaRing hub <a href="https://drawquarium.jadidaring.test/">Draw</a><a href="/syarat-ketentuan">Terms</a></body></html>');

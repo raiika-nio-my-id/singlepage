@@ -149,7 +149,7 @@
     });
   }
 
-  var links = document.querySelectorAll('a[href="#showcase"], a[href="#expertise"], a[href="#pricing"], a[href="#contact"]');
+  var links = document.querySelectorAll('a[href="#expertise"], a[href="#pricing"], a[href="#contact"]');
   if ("IntersectionObserver" in window) {
     var so = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) {
@@ -160,7 +160,7 @@
         });
       });
     }, { rootMargin: "-45% 0px -50% 0px" });
-    ["showcase", "expertise", "pricing", "contact"].forEach(function (id) {
+    ["expertise", "pricing", "contact"].forEach(function (id) {
       var s = document.getElementById(id);
       if (s) so.observe(s);
     });
