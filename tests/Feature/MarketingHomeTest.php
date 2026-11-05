@@ -13,14 +13,20 @@ class MarketingHomeTest extends TestCase
     public function test_www_and_apex_serve_the_marketing_homepage(): void
     {
         foreach (['http://www.jadidaring.test/', 'http://jadidaring.test/'] as $url) {
-            $this->get($url)
+            $response = $this->get($url);
+            $response
                 ->assertOk()
                 ->assertSee('JadiDaring', false)
                 ->assertSee('JaRing', false)
                 ->assertSee('GameHub', false)
                 ->assertSee('/marketing/images/favicon.svg', false)
                 ->assertSee('/marketing/images/logo-mark.svg', false)
-                ->assertSee('class="brand__mark"', false)
+                ->assertSee('<svg class="brand__mark"', false)
+                ->assertSee('M22 7v15.5c0 4.6-2.7 7-6.8 7', false)
+                ->assertSee('fill="#D4FF3A"', false)
+                ->assertDontSee('<img class="brand__mark"', false)
+                ->assertDontSee('JD-TARIF', false)
+                ->assertDontSee('Lembar tarif', false)
                 ->assertSee('/marketing/css/styles.css', false)
                 ->assertSee('/marketing/js/main.js', false)
                 ->assertSee('Link nyala.', false)
@@ -40,6 +46,8 @@ class MarketingHomeTest extends TestCase
                 ->assertDontSee('produk digital yang beneran', false)
                 ->assertDontSee('jaring-icon', false)
                 ->assertDontSee('og-image.png', false);
+
+            $this->assertSame(3, substr_count($response->getContent(), '<svg class="brand__mark"'));
         }
     }
 
