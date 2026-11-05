@@ -19,12 +19,25 @@ class MarketingHomeTest extends TestCase
                 ->assertSee('JaRing', false)
                 ->assertSee('GameHub', false)
                 ->assertSee('/marketing/images/favicon.svg', false)
+                ->assertSee('/marketing/images/logo-mark.svg', false)
+                ->assertSee('class="brand__mark"', false)
                 ->assertSee('/marketing/css/styles.css', false)
                 ->assertSee('/marketing/js/main.js', false)
-                ->assertSee('class="wordmark__mark"', false)
+                ->assertSee('Link nyala.', false)
+                ->assertSee('Rp50rb', false)
+                ->assertSee('Rp200rb', false)
+                ->assertSee('Rp5jt', false)
+                ->assertSee('Rp30jt', false)
+                ->assertSee('6285117177883', false)
+                ->assertSee('family=Archivo', false)
                 ->assertSee('https://www.jadidaring.com/gamehub/', false)
+                ->assertSee('https://www.jadidaring.com/drawquarium/', false)
+                ->assertSee('https://www.jadidaring.com/langitbersama/', false)
                 ->assertSee('https://www.jadidaring.com/marketing/images/logo.svg', false)
                 ->assertDontSee('href="css/styles.css"', false)
+                ->assertDontSee('wordmark__mark', false)
+                ->assertDontSee('Instrument+Serif', false)
+                ->assertDontSee('produk digital yang beneran', false)
                 ->assertDontSee('jaring-icon', false)
                 ->assertDontSee('og-image.png', false);
         }
@@ -73,8 +86,16 @@ class MarketingHomeTest extends TestCase
         $this->assertFileDoesNotExist(public_path('marketing/images/og-image.png'));
         $this->assertDirectoryDoesNotExist(public_path('marketing/brand'));
         $this->assertFileExists(public_path('marketing/images/logo.svg'));
+        $this->assertFileExists(public_path('marketing/images/logo-mark.svg'));
         $this->assertFileExists(public_path('marketing/images/favicon.svg'));
         $this->assertFileExists(public_path('marketing/images/buminata.webp'));
+
+        $mark = file_get_contents(public_path('marketing/images/logo-mark.svg'));
+        $this->assertIsString($mark);
+        $this->assertStringContainsString('<svg', $mark);
+        $this->assertStringContainsString('#D4FF3A', $mark);
+        $this->assertFileDoesNotExist(public_path('marketing/images/logo-mark.png'));
+        $this->assertFileDoesNotExist(public_path('marketing/images/favicon-32.png'));
     }
 
     public function test_marketing_label_is_not_a_game_path(): void
