@@ -10,8 +10,9 @@ return [
     | Game pages are https://www.{base_domain}/{subdomain}/. The stored label
     | is still the company subdomain. {subdomain}.{base_domain}/... answers
     | 301 to that path and keeps the suffix and query string. The admin host
-    | is never a tenant. The apex domain is the marketing site, not this app.
-    | Local default is jadidaring.test; production is jadidaring.com.
+    | is never a tenant. GET / on the apex and on www is the marketing
+    | homepage served by this app. Local default is jadidaring.test;
+    | production is jadidaring.com.
     |
     */
 
@@ -54,10 +55,9 @@ return [
     |
     | The directory used to be the tenant host gamehub.{base_domain}. It is
     | a path on the host this app already serves, and every other game uses
-    | that same host under /{subdomain}. The apex domain is the static
-    | marketing site, not this Laravel app. www.{base_domain} is already
-    | proxied here, so that is the public host unless GAMEHUB_HOST is set
-    | (for example after a one-time proxy rule on the apex vhost).
+    | that same host under /{subdomain}. GET / on the apex and on
+    | www.{base_domain} is the marketing homepage. www is the public
+    | game host unless GAMEHUB_HOST is set.
     |
     | Hub HTML stays on the live CompanyProfile whose subdomain is gamehub.
     | That label is reserved. Dedicated /gamehub routes win over the generic
@@ -77,8 +77,9 @@ return [
     | Labels that are not game paths. gamehub is the directory. app, apps,
     | and reverb belong to the websocket proxy (nginx claims /app and /apps
     | before PHP). up is the Laravel health route. www is the public host.
-    | The apex domain has no label. Admin settings can add more names; the
-    | built-in list is always reserved even when the saved setting omits it.
+    | marketing is the homepage asset prefix (public/marketing). The apex
+    | domain has no label. Admin settings can add more names; the built-in
+    | list is always reserved even when the saved setting omits it.
     */
 
     'reserved_subdomains' => [
@@ -93,6 +94,7 @@ return [
         'assets',
         'reverb',
         'up',
+        'marketing',
     ],
 
     /*

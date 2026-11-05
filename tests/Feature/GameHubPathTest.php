@@ -87,7 +87,11 @@ class GameHubPathTest extends TestCase
             ->assertDontSee('og-gamehub.jpg', false);
 
         $this->get('http://www.jadidaring.test/drawquarium/gamehub')->assertNotFound();
-        $this->get('http://www.jadidaring.test/')->assertNotFound();
+        $this->get('http://www.jadidaring.test/')
+            ->assertOk()
+            ->assertSee('JadiDaring', false)
+            ->assertDontSee('JaRing hub', false)
+            ->assertDontSee('Aquarium', false);
         $this->get('http://jadidaring.test/gamehub')->assertNotFound();
         $this->get('http://jadidaring.test/drawquarium')->assertNotFound();
         $this->get('http://admin.jadidaring.test/gamehub')->assertNotFound();

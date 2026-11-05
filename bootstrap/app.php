@@ -5,6 +5,7 @@ use App\Http\Middleware\ResolveGameHub;
 use App\Http\Middleware\ResolveTenantPath;
 use App\Http\Middleware\ResolveTenantSubdomain;
 use App\Services\GameHub;
+use App\Services\MarketingSite;
 use App\Services\TenantPath;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -20,6 +21,14 @@ return Application::configure(basePath: dirname(__DIR__))
         channels: __DIR__.'/../routes/channels.php',
         health: '/up',
         then: function (): void {
+            // Exact GET / (plus root robots/sitemap) on apex and www. Not
+            // registered on the admin host. Asset files live in public/marketing.
+            foreach (MarketingSite::hosts() as $host) {
+                Route::middleware('web')
+                    ->domain($host)
+                    ->group(base_path('routes/marketing.php'));
+            }
+
             // Registered before {tenant} so www.{base}/gamehub is the hub, not a game path.
             Route::middleware(['web', ResolveGameHub::class])
                 ->domain(GameHub::host())

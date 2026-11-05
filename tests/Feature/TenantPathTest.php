@@ -103,7 +103,7 @@ class TenantPathTest extends TestCase
 
     public function test_reserved_labels_and_other_hosts_are_not_game_paths(): void
     {
-        foreach (['admin', 'api', 'app', 'apps', 'reverb', 'up', 'mail', 'www'] as $label) {
+        foreach (['admin', 'api', 'app', 'apps', 'reverb', 'up', 'mail', 'www', 'marketing'] as $label) {
             CompanyProfile::factory()->published()->create([
                 'subdomain' => $label,
                 'html' => '<html><body>reserved-'.$label.'</body></html>',
@@ -113,9 +113,14 @@ class TenantPathTest extends TestCase
         $this->get('http://www.jadidaring.test/admin')->assertNotFound();
         $this->get('http://www.jadidaring.test/reverb')->assertNotFound();
         $this->get('http://www.jadidaring.test/app')->assertNotFound();
+        $this->get('http://www.jadidaring.test/marketing')->assertNotFound();
         $this->get('http://reverb.jadidaring.test/')->assertNotFound();
         $this->get('http://api.jadidaring.test/play')->assertNotFound();
-        $this->get('http://www.jadidaring.test/')->assertNotFound();
+        $this->get('http://www.jadidaring.test/')
+            ->assertOk()
+            ->assertSee('JadiDaring', false)
+            ->assertDontSee('reserved-admin', false)
+            ->assertDontSee('reserved-marketing', false);
         $this->get('http://jadidaring.test/drawquarium')->assertNotFound();
         $this->get('http://admin.jadidaring.test/drawquarium')->assertNotFound();
 
