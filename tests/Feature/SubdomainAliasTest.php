@@ -20,7 +20,7 @@ class SubdomainAliasTest extends TestCase
         CompanyProfileAlias::factory()->for($profile)->create(['subdomain' => 'alias1']);
 
         $this->get('http://alias1.jadidaring.test/')
-            ->assertRedirect('http://primary.jadidaring.test/')
+            ->assertRedirect('http://www.jadidaring.test/primary/')
             ->assertStatus(301);
     }
 
@@ -30,7 +30,7 @@ class SubdomainAliasTest extends TestCase
         CompanyProfileAlias::factory()->for($profile)->create(['subdomain' => 'alt']);
 
         $this->get('http://alt.jadidaring.test/some/path?foo=bar')
-            ->assertRedirect('http://main.jadidaring.test/some/path?foo=bar')
+            ->assertRedirect('http://www.jadidaring.test/main/some/path?foo=bar')
             ->assertStatus(301);
     }
 
@@ -57,7 +57,7 @@ class SubdomainAliasTest extends TestCase
         CompanyProfileAlias::factory()->for($profile)->create(['subdomain' => 'altdomain']);
 
         $this->get('http://altdomain.jadidaring.test/robots.txt')
-            ->assertRedirect('http://canonical.jadidaring.test/robots.txt')
+            ->assertRedirect('http://www.jadidaring.test/canonical/robots.txt')
             ->assertStatus(301);
     }
 
@@ -67,7 +67,7 @@ class SubdomainAliasTest extends TestCase
         CompanyProfileAlias::factory()->for($profile)->create(['subdomain' => 'altdomain2']);
 
         $this->get('http://altdomain2.jadidaring.test/sitemap.xml')
-            ->assertRedirect('http://canonical.jadidaring.test/sitemap.xml')
+            ->assertRedirect('http://www.jadidaring.test/canonical/sitemap.xml')
             ->assertStatus(301);
     }
 
@@ -174,7 +174,7 @@ class SubdomainAliasTest extends TestCase
         ]);
 
         $this->get('http://alpha.jadidaring.test/')
-            ->assertRedirect('http://beta.jadidaring.test/')
+            ->assertRedirect('http://www.jadidaring.test/beta/')
             ->assertStatus(301);
     }
 
@@ -313,7 +313,7 @@ class SubdomainAliasTest extends TestCase
 
         $this->get('http://www.jadidaring.test/gamehub/sitemap.xml')
             ->assertOk()
-            ->assertSee('realgame.jadidaring.test', false)
+            ->assertSee('http://www.jadidaring.test/realgame/', false)
             ->assertDontSee('gamealias', false);
     }
 }

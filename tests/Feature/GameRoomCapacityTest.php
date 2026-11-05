@@ -26,7 +26,7 @@ class GameRoomCapacityTest extends TestCase
         foreach (['coratcoret', 'explodingkitten', 'mahjong', 'duelular'] as $game) {
             $this->publish($game);
 
-            $this->getJson('http://'.$game.'.jadidaring.test/api/game/config')
+            $this->getJson('http://www.jadidaring.test/'.$game.'/api/game/config')
                 ->assertOk()
                 ->assertJsonPath('limits.maxPlayers', 16)
                 ->assertJsonPath('limits.defaultMaxPlayers', 4)
@@ -36,7 +36,7 @@ class GameRoomCapacityTest extends TestCase
         foreach (['drawquarium', 'langitbersama'] as $game) {
             $this->publish($game);
 
-            $this->getJson('http://'.$game.'.jadidaring.test/api/game/config')
+            $this->getJson('http://www.jadidaring.test/'.$game.'/api/game/config')
                 ->assertOk()
                 ->assertJsonPath('limits.maxPlayers', 500)
                 ->assertJsonPath('limits.defaultMaxPlayers', 500)
@@ -48,19 +48,19 @@ class GameRoomCapacityTest extends TestCase
     {
         $this->publish('coratcoret');
 
-        $this->postJson('http://coratcoret.jadidaring.test/api/game/rooms', [
+        $this->postJson('http://www.jadidaring.test/coratcoret/api/game/rooms', [
             'displayName' => 'Ada',
             'visibility' => 'public',
             'maxPlayers' => 17,
         ])->assertJsonValidationErrors(['maxPlayers']);
 
-        $room = $this->postJson('http://coratcoret.jadidaring.test/api/game/rooms/match', [
+        $room = $this->postJson('http://www.jadidaring.test/coratcoret/api/game/rooms/match', [
             'displayName' => 'Ada',
         ])->assertOk()->json();
 
         $this->assertSame(4, $room['maxPlayers']);
 
-        $this->postJson('http://coratcoret.jadidaring.test/api/game/rooms', [
+        $this->postJson('http://www.jadidaring.test/coratcoret/api/game/rooms', [
             'displayName' => 'Bayu',
             'visibility' => 'private',
             'maxPlayers' => 16,
@@ -72,19 +72,19 @@ class GameRoomCapacityTest extends TestCase
         foreach (['drawquarium', 'langitbersama'] as $game) {
             $this->publish($game);
 
-            $this->postJson('http://'.$game.'.jadidaring.test/api/game/rooms', [
+            $this->postJson('http://www.jadidaring.test/'.$game.'/api/game/rooms', [
                 'displayName' => 'Ada',
                 'visibility' => 'public',
                 'maxPlayers' => 501,
             ])->assertJsonValidationErrors(['maxPlayers']);
 
-            $created = $this->postJson('http://'.$game.'.jadidaring.test/api/game/rooms/match', [
+            $created = $this->postJson('http://www.jadidaring.test/'.$game.'/api/game/rooms/match', [
                 'displayName' => 'Ada',
             ])->assertOk()->json();
 
             $this->assertSame(500, $created['maxPlayers']);
 
-            $joined = $this->postJson('http://'.$game.'.jadidaring.test/api/game/rooms/match', [
+            $joined = $this->postJson('http://www.jadidaring.test/'.$game.'/api/game/rooms/match', [
                 'displayName' => 'Bayu',
                 'maxPlayers' => 16,
             ])->assertOk()->json();
@@ -92,7 +92,7 @@ class GameRoomCapacityTest extends TestCase
             $this->assertSame($created['code'], $joined['code']);
             $this->assertSame(500, $joined['maxPlayers']);
 
-            $explicit = $this->postJson('http://'.$game.'.jadidaring.test/api/game/rooms', [
+            $explicit = $this->postJson('http://www.jadidaring.test/'.$game.'/api/game/rooms', [
                 'displayName' => 'Cici',
                 'visibility' => 'private',
                 'maxPlayers' => 500,
@@ -107,7 +107,7 @@ class GameRoomCapacityTest extends TestCase
     {
         $this->publish('drawquarium');
 
-        $room = $this->postJson('http://drawquarium.jadidaring.test/api/game/rooms', [
+        $room = $this->postJson('http://www.jadidaring.test/drawquarium/api/game/rooms', [
             'displayName' => 'Ada',
             'visibility' => 'public',
             'maxPlayers' => 4,
@@ -120,14 +120,14 @@ class GameRoomCapacityTest extends TestCase
     {
         $this->publish('mahjong');
 
-        $room = $this->postJson('http://mahjong.jadidaring.test/api/game/rooms/match', [
+        $room = $this->postJson('http://www.jadidaring.test/mahjong/api/game/rooms/match', [
             'displayName' => 'Ada',
             'maxPlayers' => 2,
         ])->assertOk()->json();
 
         $this->fillMembers($room['roomId'], 20, true);
 
-        $this->postJson('http://mahjong.jadidaring.test/api/game/rooms/'.$room['code'].'/watch', [
+        $this->postJson('http://www.jadidaring.test/mahjong/api/game/rooms/'.$room['code'].'/watch', [
             'displayName' => 'Deni',
         ])->assertStatus(409)
             ->assertJsonPath('error', 'This room cannot take more spectators.');
@@ -137,19 +137,19 @@ class GameRoomCapacityTest extends TestCase
     {
         $this->publish('langitbersama');
 
-        $room = $this->postJson('http://langitbersama.jadidaring.test/api/game/rooms/match', [
+        $room = $this->postJson('http://www.jadidaring.test/langitbersama/api/game/rooms/match', [
             'displayName' => 'Ada',
         ])->assertOk()->json();
 
         $this->fillMembers($room['roomId'], 20, true);
 
-        $this->postJson('http://langitbersama.jadidaring.test/api/game/rooms/'.$room['code'].'/watch', [
+        $this->postJson('http://www.jadidaring.test/langitbersama/api/game/rooms/'.$room['code'].'/watch', [
             'displayName' => 'Deni',
         ])->assertOk()->assertJsonPath('spectator', true);
 
         $this->fillMembers($room['roomId'], 479, true, 0, 20);
 
-        $this->postJson('http://langitbersama.jadidaring.test/api/game/rooms/'.$room['code'].'/watch', [
+        $this->postJson('http://www.jadidaring.test/langitbersama/api/game/rooms/'.$room['code'].'/watch', [
             'displayName' => 'Eka',
         ])->assertStatus(409)
             ->assertJsonPath('error', 'This room cannot take more spectators.');
@@ -159,7 +159,7 @@ class GameRoomCapacityTest extends TestCase
     {
         $this->publish('drawquarium');
 
-        $first = $this->postJson('http://drawquarium.jadidaring.test/api/game/rooms/match', [
+        $first = $this->postJson('http://www.jadidaring.test/drawquarium/api/game/rooms/match', [
             'displayName' => 'Ada',
         ])->assertOk()->json();
 
@@ -168,7 +168,7 @@ class GameRoomCapacityTest extends TestCase
 
         $this->assertSame(500, GameRoom::query()->findOrFail($first['roomId'])->players()->whereNull('left_at')->where('is_spectator', false)->count());
 
-        $second = $this->postJson('http://drawquarium.jadidaring.test/api/game/rooms/match', [
+        $second = $this->postJson('http://www.jadidaring.test/drawquarium/api/game/rooms/match', [
             'displayName' => 'Bayu',
         ])->assertOk()->json();
 
@@ -184,7 +184,7 @@ class GameRoomCapacityTest extends TestCase
 
         $drawWaiting = $this->openPublic('drawquarium', 'Ada', 4, 'waiting');
         $drawPlaying = $this->openPublic('drawquarium', 'Bayu', 8, 'playing');
-        $drawPrivate = $this->postJson('http://drawquarium.jadidaring.test/api/game/rooms', [
+        $drawPrivate = $this->postJson('http://www.jadidaring.test/drawquarium/api/game/rooms', [
             'displayName' => 'Cici',
             'visibility' => 'private',
             'maxPlayers' => 4,
@@ -206,7 +206,7 @@ class GameRoomCapacityTest extends TestCase
     {
         $this->publish('drawquarium');
 
-        $room = $this->postJson('http://drawquarium.jadidaring.test/api/game/rooms/match', [
+        $room = $this->postJson('http://www.jadidaring.test/drawquarium/api/game/rooms/match', [
             'displayName' => 'Ada',
         ])->assertOk()->json();
 
@@ -230,7 +230,7 @@ class GameRoomCapacityTest extends TestCase
      */
     private function openPublic(string $subdomain, string $name, int $maxPlayers, string $status): array
     {
-        $room = $this->postJson('http://'.$subdomain.'.jadidaring.test/api/game/rooms', [
+        $room = $this->postJson('http://www.jadidaring.test/'.$subdomain.'/api/game/rooms', [
             'displayName' => $name,
             'visibility' => 'public',
             'maxPlayers' => $maxPlayers,

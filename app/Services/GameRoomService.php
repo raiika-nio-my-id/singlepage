@@ -33,14 +33,15 @@ class GameRoomService
         $prefix = 'game.'.$profile->subdomain;
         $scheme = $request->getScheme() === 'https' ? 'wss' : 'ws';
         $limits = $this->roomLimits($profile);
-
-        $apiPrefix = GameHub::path().'/api/game';
-        $api = $request->is($apiPrefix, $apiPrefix.'/*') ? '/'.$apiPrefix : '/api/game';
+        // Reverb is nginx's /app prefix on the public host, not /{game}/app.
+        $socketHost = strcasecmp($request->getHost(), TenantPath::host()) === 0
+            ? $request->getHttpHost()
+            : TenantPath::host();
 
         return [
             'game' => $profile->subdomain,
-            'host' => $request->getHost(),
-            'api' => $api,
+            'host' => TenantPath::host(),
+            'api' => '/'.TenantPath::segment($profile->subdomain).'/api/game',
             'database' => [
                 'shared' => true,
                 'isolatedBy' => 'subdomain',
@@ -49,7 +50,7 @@ class GameRoomService
                 'enabled' => $key !== '',
                 'url' => $key === ''
                     ? null
-                    : $scheme.'://'.$request->getHttpHost().'/app/'.$key.'?protocol=7&client=jadidaring&version=1.0',
+                    : $scheme.'://'.$socketHost.'/app/'.$key.'?protocol=7&client=jadidaring&version=1.0',
                 'key' => $key === '' ? null : $key,
                 'channelPrefix' => $prefix,
                 'lobbyChannel' => $prefix,

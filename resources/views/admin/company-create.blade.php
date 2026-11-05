@@ -7,7 +7,7 @@
     <div class="page-heading">
         <div>
             <h1>New client</h1>
-            <p class="muted lede">Creates one client account and their unique company subdomain. Client HTML is never rendered in this admin page.</p>
+            <p class="muted lede">Creates one client account. The public page is <code>{{ \App\Services\TenantPath::host() }}/subdomain</code>. Client HTML is never rendered in this admin page.</p>
         </div>
     </div>
 
@@ -34,6 +34,7 @@
 
             <label for="subdomain">Subdomain</label>
             <input id="subdomain" type="text" name="subdomain" value="{{ old('subdomain') }}" maxlength="63" autocapitalize="off" spellcheck="false" required>
+            <p class="muted">Old <code>subdomain.{{ config('singlepage.base_domain') }}</code> addresses redirect to that path.</p>
 
             <label for="expires_at">Expired</label>
             <input id="expires_at" type="date" name="expires_at" value="{{ old('expires_at', $defaultExpiresAt) }}" required>

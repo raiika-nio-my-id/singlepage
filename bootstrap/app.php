@@ -2,8 +2,10 @@
 
 use App\Http\Middleware\AuthenticateAdminApiKey;
 use App\Http\Middleware\ResolveGameHub;
+use App\Http\Middleware\ResolveTenantPath;
 use App\Http\Middleware\ResolveTenantSubdomain;
 use App\Services\GameHub;
+use App\Services\TenantPath;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,7 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         channels: __DIR__.'/../routes/channels.php',
         health: '/up',
         then: function (): void {
-            // Registered before {tenant} so www.{base}/gamehub is the hub, not a tenant 404.
+            // Registered before {tenant} so www.{base}/gamehub is the hub, not a game path.
             Route::middleware(['web', ResolveGameHub::class])
                 ->domain(GameHub::host())
                 ->name('gamehub.')
@@ -30,19 +32,29 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->name('gamehub.game.')
                 ->group(base_path('routes/game.php'));
 
+            Route::middleware(['web', ResolveTenantPath::class])
+                ->domain(TenantPath::host())
+                ->name('path.')
+                ->group(base_path('routes/tenant-path.php'));
+
+            Route::middleware([ResolveTenantPath::class])
+                ->domain(TenantPath::host())
+                ->prefix('{tenant}/api/game')
+                ->where(['tenant' => TenantPath::routePattern()])
+                ->name('path.game.')
+                ->group(base_path('routes/game.php'));
+
             Route::middleware('web')
                 ->domain((string) config('singlepage.admin_domain'))
                 ->group(base_path('routes/admin.php'));
 
-            Route::middleware(['web', ResolveTenantSubdomain::class])
+            // Retired game hosts. Live profiles 301 to /{subdomain} on the public host.
+            // www and the other reserved labels are not part of this domain,
+            // so the public host keeps /up and its path routes.
+            Route::middleware(ResolveTenantSubdomain::class)
                 ->domain('{tenant}.'.config('singlepage.base_domain'))
+                ->where(['tenant' => TenantPath::routePattern()])
                 ->group(base_path('routes/tenant.php'));
-
-            Route::middleware([ResolveTenantSubdomain::class])
-                ->domain('{tenant}.'.config('singlepage.base_domain'))
-                ->prefix('api/game')
-                ->name('game.')
-                ->group(base_path('routes/game.php'));
 
             Route::middleware(['api', 'admin.api', 'throttle:admin-api'])
                 ->domain((string) config('singlepage.admin_domain'))

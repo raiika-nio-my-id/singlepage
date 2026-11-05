@@ -57,7 +57,7 @@ Only fields that already exist on `CompanyProfile` / the client `User` / aliases
 | `sort_order` | integer ≥ 0 | optional, default `0` | optional | Dashboard sort |
 | `aliases` | string[] | optional | optional | When sent, **replaces** the alias set. Each value is a subdomain |
 
-Changing `subdomain` reuses the admin UI swap: the former primary is kept as an alias (so the old host 301s). If `aliases` is also sent in the same request, that array is the exact resulting set.
+Changing `subdomain` reuses the admin UI swap: the former primary is kept as an alias (so the old subdomain and the alias path 301 to the primary path). If `aliases` is also sent in the same request, that array is the exact resulting set.
 
 ## Create example
 
@@ -99,14 +99,14 @@ Content-Type: application/json
     "sort_order": 0,
     "html": "<!doctype html><html><body><h1>Acme</h1></body></html>",
     "aliases": ["acme-old"],
-    "public_url": "https://acme.jadidaring.com",
+    "public_url": "https://www.jadidaring.com/acme",
     "created_at": "2026-10-27T12:00:00+00:00",
     "updated_at": "2026-10-27T12:00:00+00:00"
   }
 }
 ```
 
-The password is never returned. `public_url` is `https://{subdomain}.{base_domain}` for a normal client. The reserved `gamehub` profile is the directory, and its `public_url` is `https://www.{base_domain}/gamehub`.
+The password is never returned. `public_url` is `https://www.{base_domain}/{subdomain}` for every client, including the reserved `gamehub` profile (`https://www.{base_domain}/gamehub`). `{subdomain}.{base_domain}/...` permanently redirects to that path.
 
 ## Partial update example
 

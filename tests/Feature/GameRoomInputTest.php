@@ -31,7 +31,7 @@ class GameRoomInputTest extends TestCase
         $this->publish('ular');
         $this->travelTo('2026-10-30 06:57:00');
 
-        $room = $this->postJson('http://ular.jadidaring.test/api/game/rooms', [
+        $room = $this->postJson('http://www.jadidaring.test/ular/api/game/rooms', [
             'displayName' => 'Ada',
             'visibility' => 'public',
             'state' => ['wall' => 1],
@@ -39,7 +39,7 @@ class GameRoomInputTest extends TestCase
         ])->assertOk()->json();
 
         $response = $this->withToken($room['playerToken'])
-            ->postJson('http://ular.jadidaring.test/api/game/rooms/'.$room['code'].'/input', [
+            ->postJson('http://www.jadidaring.test/ular/api/game/rooms/'.$room['code'].'/input', [
                 'direction' => '  up  ',
                 'key' => 'ArrowUp',
                 'payload' => ['seq' => 1],
@@ -84,7 +84,7 @@ class GameRoomInputTest extends TestCase
         });
 
         $this->withHeader('X-Player-Token', $room['playerToken'])
-            ->postJson('http://ular.jadidaring.test/api/game/rooms/'.$room['code'].'/input', [
+            ->postJson('http://www.jadidaring.test/ular/api/game/rooms/'.$room['code'].'/input', [
                 'key' => 'w',
             ])
             ->assertAccepted()
@@ -94,7 +94,7 @@ class GameRoomInputTest extends TestCase
         Event::assertDispatchedTimes(GameRoomUpdated::class, 1);
 
         $seen = $this->withToken($room['playerToken'])
-            ->getJson('http://ular.jadidaring.test/api/game/rooms/'.$room['code'])
+            ->getJson('http://www.jadidaring.test/ular/api/game/rooms/'.$room['code'])
             ->assertOk()
             ->json();
 
@@ -110,7 +110,7 @@ class GameRoomInputTest extends TestCase
         $this->publish('ular');
         $room = $this->openRoom('ular', 'Ada');
 
-        $this->postJson('http://ular.jadidaring.test/api/game/rooms/'.$room['code'].'/input', [
+        $this->postJson('http://www.jadidaring.test/ular/api/game/rooms/'.$room['code'].'/input', [
             'direction' => 'up',
         ])->assertUnauthorized()
             ->assertJsonPath('error', 'A player token is required.');
@@ -124,7 +124,7 @@ class GameRoomInputTest extends TestCase
         $room = $this->openRoom('ular', 'Ada');
 
         $this->withToken('not-a-member')
-            ->postJson('http://ular.jadidaring.test/api/game/rooms/'.$room['code'].'/input', [
+            ->postJson('http://www.jadidaring.test/ular/api/game/rooms/'.$room['code'].'/input', [
                 'direction' => 'left',
             ])
             ->assertForbidden()
@@ -139,11 +139,11 @@ class GameRoomInputTest extends TestCase
         $room = $this->openRoom('ular', 'Ada');
 
         $this->withToken($room['playerToken'])
-            ->postJson('http://ular.jadidaring.test/api/game/rooms/'.$room['code'].'/leave')
+            ->postJson('http://www.jadidaring.test/ular/api/game/rooms/'.$room['code'].'/leave')
             ->assertOk();
 
         $this->withToken($room['playerToken'])
-            ->postJson('http://ular.jadidaring.test/api/game/rooms/'.$room['code'].'/input', [
+            ->postJson('http://www.jadidaring.test/ular/api/game/rooms/'.$room['code'].'/input', [
                 'direction' => 'up',
             ])
             ->assertForbidden()
@@ -163,7 +163,7 @@ class GameRoomInputTest extends TestCase
         $room = $this->openRoom('ular', 'Ada');
 
         $this->withToken($room['playerToken'])
-            ->postJson('http://other.jadidaring.test/api/game/rooms/'.$room['code'].'/input', [
+            ->postJson('http://www.jadidaring.test/other/api/game/rooms/'.$room['code'].'/input', [
                 'direction' => 'up',
             ])
             ->assertNotFound();
@@ -177,7 +177,7 @@ class GameRoomInputTest extends TestCase
         $room = $this->openRoom('ular', 'Ada');
 
         $this->withToken($room['playerToken'])
-            ->postJson('http://ular.jadidaring.test/api/game/rooms/ABCDEF/input', [
+            ->postJson('http://www.jadidaring.test/ular/api/game/rooms/ABCDEF/input', [
                 'direction' => 'up',
             ])
             ->assertNotFound()
@@ -190,7 +190,7 @@ class GameRoomInputTest extends TestCase
         $room = $this->openRoom('ular', 'Ada');
 
         $this->withToken($room['playerToken'])
-            ->postJson('http://ular.jadidaring.test/api/game/rooms/nope/input', [
+            ->postJson('http://www.jadidaring.test/ular/api/game/rooms/nope/input', [
                 'direction' => 'up',
             ])
             ->assertUnprocessable()
@@ -203,12 +203,12 @@ class GameRoomInputTest extends TestCase
         $room = $this->openRoom('ular', 'Ada');
 
         $this->withToken($room['playerToken'])
-            ->postJson('http://ular.jadidaring.test/api/game/rooms/'.$room['code'].'/input', [])
+            ->postJson('http://www.jadidaring.test/ular/api/game/rooms/'.$room['code'].'/input', [])
             ->assertUnprocessable()
             ->assertJsonPath('error', 'Input is required.');
 
         $this->withToken($room['playerToken'])
-            ->postJson('http://ular.jadidaring.test/api/game/rooms/'.$room['code'].'/input', [
+            ->postJson('http://www.jadidaring.test/ular/api/game/rooms/'.$room['code'].'/input', [
                 'direction' => '   ',
                 'key' => '',
             ])
@@ -229,7 +229,7 @@ class GameRoomInputTest extends TestCase
         $room = $this->openRoom('ular', 'Ada');
 
         $this->withToken($room['playerToken'])
-            ->postJson('http://ular.jadidaring.test/api/game/rooms/'.$room['code'].'/input', [
+            ->postJson('http://www.jadidaring.test/ular/api/game/rooms/'.$room['code'].'/input', [
                 'direction' => ['up'],
             ])
             ->assertUnprocessable()
@@ -244,14 +244,14 @@ class GameRoomInputTest extends TestCase
         $room = $this->openRoom('ular', 'Ada');
 
         $this->withToken($room['playerToken'])
-            ->postJson('http://ular.jadidaring.test/api/game/rooms/'.$room['code'].'/input', [
+            ->postJson('http://www.jadidaring.test/ular/api/game/rooms/'.$room['code'].'/input', [
                 'direction' => str_repeat('u', 33),
             ])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['direction']);
 
         $this->withToken($room['playerToken'])
-            ->postJson('http://ular.jadidaring.test/api/game/rooms/'.$room['code'].'/input', [
+            ->postJson('http://www.jadidaring.test/ular/api/game/rooms/'.$room['code'].'/input', [
                 'key' => str_repeat('k', 65),
             ])
             ->assertUnprocessable()
@@ -266,7 +266,7 @@ class GameRoomInputTest extends TestCase
         $room = $this->openRoom('ular', 'Ada');
 
         $this->withToken($room['playerToken'])
-            ->postJson('http://ular.jadidaring.test/api/game/rooms/'.$room['code'].'/input', [
+            ->postJson('http://www.jadidaring.test/ular/api/game/rooms/'.$room['code'].'/input', [
                 'payload' => 'up',
             ])
             ->assertUnprocessable()
@@ -281,7 +281,7 @@ class GameRoomInputTest extends TestCase
         $room = $this->openRoom('ular', 'Ada');
 
         $this->withToken($room['playerToken'])
-            ->postJson('http://ular.jadidaring.test/api/game/rooms/'.$room['code'].'/input', [
+            ->postJson('http://www.jadidaring.test/ular/api/game/rooms/'.$room['code'].'/input', [
                 'payload' => ['blob' => str_repeat('x', (int) config('games.input_max_bytes'))],
             ])
             ->assertUnprocessable()
@@ -300,7 +300,7 @@ class GameRoomInputTest extends TestCase
         $room = $this->openRoom('ular', 'Ada');
 
         $this->withToken($room['playerToken'])
-            ->postJson('http://ular.jadidaring.test/api/game/rooms/'.$room['code'].'/actions', [
+            ->postJson('http://www.jadidaring.test/ular/api/game/rooms/'.$room['code'].'/actions', [
                 'type' => 'close',
                 'status' => 'closed',
                 'expectedVersion' => 1,
@@ -309,7 +309,7 @@ class GameRoomInputTest extends TestCase
             ->assertJsonPath('version', 2);
 
         $this->withToken($room['playerToken'])
-            ->postJson('http://ular.jadidaring.test/api/game/rooms/'.$room['code'].'/input', [
+            ->postJson('http://www.jadidaring.test/ular/api/game/rooms/'.$room['code'].'/input', [
                 'direction' => 'up',
             ])
             ->assertStatus(409)
@@ -328,12 +328,12 @@ class GameRoomInputTest extends TestCase
         $this->publish('ular');
         $room = $this->openRoom('ular', 'Ada');
 
-        $watcher = $this->postJson('http://ular.jadidaring.test/api/game/rooms/'.$room['code'].'/watch', [
+        $watcher = $this->postJson('http://www.jadidaring.test/ular/api/game/rooms/'.$room['code'].'/watch', [
             'displayName' => 'Deni',
         ])->assertOk()->json();
 
         $this->withToken($watcher['playerToken'])
-            ->postJson('http://ular.jadidaring.test/api/game/rooms/'.$room['code'].'/input', [
+            ->postJson('http://www.jadidaring.test/ular/api/game/rooms/'.$room['code'].'/input', [
                 'direction' => 'left',
             ])
             ->assertAccepted();
@@ -387,14 +387,14 @@ class GameRoomInputTest extends TestCase
         });
 
         $room = $this->openRoom('ular', 'Ada');
-        $friend = $this->postJson('http://ular.jadidaring.test/api/game/rooms/join', [
+        $friend = $this->postJson('http://www.jadidaring.test/ular/api/game/rooms/join', [
             'code' => $room['code'],
             'displayName' => 'Bayu',
         ])->assertOk()->json();
 
         $send = function (string $token) use ($room) {
             return $this->withToken($token)->postJson(
-                'http://ular.jadidaring.test/api/game/rooms/'.$room['code'].'/input',
+                'http://www.jadidaring.test/ular/api/game/rooms/'.$room['code'].'/input',
                 ['direction' => 'up'],
             );
         };
@@ -423,7 +423,7 @@ class GameRoomInputTest extends TestCase
      */
     private function openRoom(string $subdomain, string $displayName): array
     {
-        return $this->postJson('http://'.$subdomain.'.jadidaring.test/api/game/rooms', [
+        return $this->postJson('http://www.jadidaring.test/'.$subdomain.'/api/game/rooms', [
             'displayName' => $displayName,
             'visibility' => 'private',
         ])->assertOk()->json();

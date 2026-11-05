@@ -42,6 +42,8 @@ class GameHubTest extends TestCase
 <a href="https://gamehub.jadidaring.test/#faq">FAQ</a>
 <a href="https://drawquarium.jadidaring.test/">Draw</a>
 <a href="https://mygamehub.jadidaring.test/">Not the hub</a>
+<a href="https://admin.jadidaring.test/login">Admin</a>
+<a href="mailto:ada@drawquarium.jadidaring.test">Mail</a>
 <a href="/syarat-ketentuan">Terms</a>
 <script>fetch("/api/game/config"); new WebSocket("wss://gamehub.jadidaring.test/app/key");</script>
 </body></html>
@@ -52,8 +54,10 @@ HTML;
         $this->assertStringContainsString('href="https://www.jadidaring.test/gamehub/"', $result);
         $this->assertStringContainsString('href="https://www.jadidaring.test/gamehub/#faq"', $result);
         $this->assertStringContainsString('content="https://www.jadidaring.test/og-gamehub.jpg"', $result);
-        $this->assertStringContainsString('href="https://drawquarium.jadidaring.test/"', $result);
-        $this->assertStringContainsString('href="https://mygamehub.jadidaring.test/"', $result);
+        $this->assertStringContainsString('href="https://www.jadidaring.test/drawquarium/"', $result);
+        $this->assertStringContainsString('href="https://www.jadidaring.test/mygamehub/"', $result);
+        $this->assertStringContainsString('href="https://admin.jadidaring.test/login"', $result);
+        $this->assertStringContainsString('mailto:ada@drawquarium.jadidaring.test', $result);
         $this->assertStringContainsString('href="/gamehub/syarat-ketentuan"', $result);
         $this->assertStringContainsString('fetch("/gamehub/api/game/config")', $result);
         $this->assertStringContainsString('wss://www.jadidaring.test/app/key', $result);
@@ -61,5 +65,6 @@ HTML;
         $this->assertStringNotContainsString('wss://gamehub.jadidaring.test', $result);
         $this->assertStringNotContainsString('/gamehub/og-gamehub.jpg', $result);
         $this->assertStringNotContainsString('/gamehub/app/', $result);
+        $this->assertStringNotContainsString('/drawquarium/app/', $result);
     }
 }
