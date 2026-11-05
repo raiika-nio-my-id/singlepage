@@ -102,6 +102,36 @@ HTML;
         $this->assertStringNotContainsString('/drawquarium/app/', $result);
     }
 
+    public function test_game_subdomain_helper_uses_the_path_on_the_public_host(): void
+    {
+        $spaced = <<<'HTML'
+<script>
+function gameSubdomain(hostname) { const m = /^([a-z0-9-]+)\.jadidaring\.(?:com|test)$/i.exec(String(hostname || '')); return m ? m[1].toLowerCase() : null; }
+</script>
+HTML;
+        $minified = <<<'HTML'
+<script>function gameSubdomain(hostname){const m=/^([a-z0-9-]+)\.jadidaring\.(?:com|test)$/i.exec(String(hostname||''));return m?m[1].toLowerCase():null;}</script>
+HTML;
+        $exported = <<<'HTML'
+<script type="text/plain">
+export function gameSubdomain(hostname) {
+ return /^([a-z0-9-]+)\.jadidaring\.(?:com|test)$/i.exec(hostname)?.[1].toLowerCase()||null;
+}
+</script>
+HTML;
+
+        foreach (['drawquarium' => $spaced, 'langitbersama' => $spaced, 'coratcoret' => $minified, 'mahjong' => $exported] as $game => $html) {
+            $rewritten = TenantPath::rewriteHtml($html, $game);
+            $again = TenantPath::rewriteHtml($rewritten, $game);
+
+            $this->assertSame($rewritten, $again, $game);
+            $this->assertGameIdentity($rewritten, $game);
+        }
+
+        $custom = '<script>function gameSubdomain(hostname) { return String(hostname || ""); }</script>';
+        $this->assertSame($custom, TenantPath::rewriteHtml($custom, 'drawquarium'));
+    }
+
     public function test_reserved_infrastructure_labels_are_blocked(): void
     {
         foreach (['www', 'admin', 'api', 'app', 'apps', 'reverb', 'up', 'gamehub', 'mail'] as $label) {

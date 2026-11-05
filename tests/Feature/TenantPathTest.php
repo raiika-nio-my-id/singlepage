@@ -232,6 +232,28 @@ HTML);
         $this->assertSame(1, $this->views('drawquarium'));
     }
 
+    public function test_served_html_passes_the_connection_identity_check_on_www(): void
+    {
+        $source = <<<'HTML'
+<!doctype html><html><head><title>Tank</title></head><body>
+<script id="dq-net">
+function gameSubdomain(hostname) { const m = /^([a-z0-9-]+)\.jadidaring\.(?:com|test)$/i.exec(String(hostname || '')); return m ? m[1].toLowerCase() : null; }
+</script>
+</body></html>
+HTML;
+
+        $this->publish('drawquarium', $source);
+        $this->publish('langitbersama', str_replace('Tank', 'Sky', $source));
+
+        $draw = $this->get('http://www.jadidaring.test/drawquarium/');
+        $draw->assertOk();
+        $this->assertGameIdentity($draw->getContent(), 'drawquarium', '/drawquarium/');
+
+        $sky = $this->get('http://www.jadidaring.test/langitbersama/');
+        $sky->assertOk();
+        $this->assertGameIdentity($sky->getContent(), 'langitbersama', '/langitbersama/');
+    }
+
     public function test_terms_robots_and_sitemap_use_the_path(): void
     {
         $this->publish('langitbersama', '<html><body>Sky</body></html>');

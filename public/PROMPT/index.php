@@ -410,7 +410,7 @@ The subdomain label chooses the data and the channel. The server rejects rooms t
 
 Local hosts use `http://www.jadidaring.test/{subdomain}/`. `{subdomain}.jadidaring.com/...` and `{subdomain}.jadidaring.test/...` permanently redirect to that path. The channel prefix does not include the base domain.
 
-Do not read the game id from `location.hostname`. On the public host that value is `www`. Use `game` from `GET /api/game/config`. Keep calling the root-relative path `/api/game/...`; when the platform serves the page it rewrites that to `/{subdomain}/api/game/...`. The websocket URL from config is `wss://www.jadidaring.com/app/...` at the host root, not under the game path. Never hardcode another game's host, channel, or room list.
+Do not read the game id from `location.hostname`. On the public host that value is `www`. Use `game` from `GET /api/game/config`. A `gameSubdomain(hostname)` helper that only matches `{label}.jadidaring.com` or `{label}.jadidaring.test` is rewritten when the page is served: on the public host it uses the first path segment (this page's subdomain when that segment is missing). Keep calling the root-relative path `/api/game/...`; when the platform serves the page it rewrites that to `/{subdomain}/api/game/...`. The websocket URL from config is `wss://www.jadidaring.com/app/...` at the host root, not under the game path. Never hardcode another game's host, channel, or room list.
 
 ## Credentials stay on the server
 

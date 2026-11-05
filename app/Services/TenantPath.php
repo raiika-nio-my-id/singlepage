@@ -89,13 +89,16 @@ class TenantPath
      * Point stored HTML at path URLs. System hosts (admin, www, reverb, …)
      * are left alone. Websocket /app and /apps move to the public host root.
      * The shared hub JPEG stays at the host root. Root-relative /api/game and
-     * terms links are prefixed with this game's path.
+     * terms links are prefixed with this game's path. gameSubdomain(hostname)
+     * helpers that only parse {label}.{base} are taught to read /{subdomain}/
+     * on the public host, so www is not treated as the game id.
      */
     public static function rewriteHtml(string $html, string $subdomain): string
     {
         $html = self::rewriteAbsoluteUrls($html);
+        $html = self::rewriteRootPaths($html, $subdomain);
 
-        return self::rewriteRootPaths($html, $subdomain);
+        return self::rewriteGameIdentity($html, $subdomain);
     }
 
     public static function isHostLabel(string $label): bool
@@ -261,6 +264,82 @@ class TenantPath
         );
 
         return '(?!'.implode('|', $alternatives).')';
+    }
+
+    /**
+     * Games shipped with gameSubdomain(hostname) matching only
+     * {label}.jadidaring.com|test. On www that returns "www", and
+     * Connection.start then rejects config.game. On the public host the
+     * first path segment is the game; a missing segment falls back to this
+     * page's subdomain. The old host parse stays for any other hostname.
+     */
+    private static function rewriteGameIdentity(string $html, string $subdomain): string
+    {
+        $pattern = '/(?:export\s+)?function\s+gameSubdomain\s*\(\s*hostname\s*\)\s*\{/';
+        $offset = 0;
+
+        while (preg_match($pattern, $html, $match, PREG_OFFSET_CAPTURE, $offset) === 1) {
+            $start = $match[0][1];
+            $open = $start + strlen($match[0][0]) - 1;
+            $end = self::closingBrace($html, $open);
+
+            if ($end === null) {
+                break;
+            }
+
+            $fn = substr($html, $start, $end - $start + 1);
+            $offset = $end + 1;
+
+            if (! str_contains($fn, '(?:com|test)') || str_contains($fn, 'location.pathname')) {
+                continue;
+            }
+
+            $export = preg_match('/^\s*export\b/', $fn) === 1;
+            $replacement = self::gameSubdomainFunction($subdomain, $export);
+            $html = substr($html, 0, $start).$replacement.substr($html, $end + 1);
+            $offset = $start + strlen($replacement);
+        }
+
+        return $html;
+    }
+
+    private static function gameSubdomainFunction(string $subdomain, bool $export): string
+    {
+        $segment = json_encode(self::segment($subdomain), JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        $host = json_encode(strtolower(self::host()), JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        $prefix = $export ? 'export function' : 'function';
+
+        return $prefix.' gameSubdomain(hostname) {'
+            .' const host = String(hostname || "").toLowerCase();'
+            .' if (host === '.$host.') {'
+            .' const seg = String((typeof location !== "undefined" && location && location.pathname) || "").split("/").filter(Boolean)[0] || "";'
+            .' const label = seg.toLowerCase();'
+            .' if (/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label) && label !== '.$host.'.split(".")[0]) return label;'
+            .' return '.$segment.';'
+            .' }'
+            .' const m = /^([a-z0-9-]+)\\.jadidaring\\.(?:com|test)$/i.exec(host);'
+            .' return m ? m[1].toLowerCase() : null;'
+            .' }';
+    }
+
+    private static function closingBrace(string $html, int $open): ?int
+    {
+        $depth = 0;
+        $length = strlen($html);
+
+        for ($i = $open; $i < $length; $i++) {
+            if ($html[$i] === '{') {
+                $depth++;
+            } elseif ($html[$i] === '}') {
+                $depth--;
+
+                if ($depth === 0) {
+                    return $i;
+                }
+            }
+        }
+
+        return null;
     }
 
     private static function replace(string $html, string $pattern, string $replacement): string
