@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Http\Controllers\TenantController;
 use App\Models\CompanyProfile;
+use App\Services\GameHubCatalog;
 use App\Services\LegalNoticeInjector;
 use App\Services\SeoInjector;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ class TenantLegalNoticeTest extends TestCase
         $request = Request::create('http://acme.jadidaring.test/', 'GET');
         $request->attributes->set('tenantProfile', $profile);
 
-        $response = (new TenantController)->show($request, new LegalNoticeInjector, new SeoInjector);
+        $response = (new TenantController)->show($request, new LegalNoticeInjector, new SeoInjector, new GameHubCatalog);
 
         $html = $response->getContent();
 
@@ -46,7 +47,7 @@ class TenantLegalNoticeTest extends TestCase
         $request = Request::create('http://acme.jadidaring.test/', 'GET');
         $request->attributes->set('tenantProfile', $profile);
 
-        $html = (new TenantController)->show($request, new LegalNoticeInjector, new SeoInjector)->getContent();
+        $html = (new TenantController)->show($request, new LegalNoticeInjector, new SeoInjector, new GameHubCatalog)->getContent();
 
         $this->assertSame('<html><body>Acme public site</body></html>', $html);
         $this->assertStringNotContainsString('data-jadidaring-legal-notice', $html);

@@ -9,7 +9,9 @@ use Illuminate\Http\Request;
  * Public GameHub URL and the 301 target for the retired gamehub host.
  *
  * The hub document is the live company profile whose subdomain is "gamehub".
- * That label is reserved and is not a normal game path. GET / on the apex
+ * Stored HTML is the chrome. GameHubCatalog fills the directory from the
+ * other live profiles on each request. The gamehub label is reserved and
+ * is not a normal game path. GET / on the apex
  * and on www is the marketing homepage. The directory is served on
  * www.{base_domain} unless GAMEHUB_HOST overrides the host. Every other
  * game uses that same host under /{subdomain}; see TenantPath.
