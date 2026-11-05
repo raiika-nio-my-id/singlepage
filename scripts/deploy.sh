@@ -1187,6 +1187,9 @@ main() {
     finish_log
 }
 
-if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+# GitHub Actions pipes this file into `bash -s`. BASH_SOURCE is unset in that
+# case. A direct run sets it equal to $0. Sourcing (the classifier tests)
+# sets it to this file and leaves $0 as the caller, so main stays uncalled.
+if [ -z "${BASH_SOURCE[0]:-}" ] || [ "${BASH_SOURCE[0]}" = "$0" ]; then
     main "$@"
 fi
