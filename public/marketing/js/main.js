@@ -16,34 +16,24 @@
     "cta.open": "Open",
     "cta.openSite": "Open site",
     "hero.kicker": "Web studio in Indonesia",
-    "hero.title": "Live links.<br><span class=\"hl\">Fixed prices.</span>",
+    "hero.title": "Live links.<br>Fixed prices.",
     "hero.sub": "Single page Rp50rb (usually Rp200rb). Laravel listings Rp5jt. Marketplaces Rp30jt. GameHub, Drawquarium, and Langit Bersama are playable now.",
-    "st.y": "years with Laravel",
-    "st.ship": "shipped",
-    "st.games": "live games",
-    "st.from": "starting price",
-    "sc.eyebrow": "Showcase",
-    "sc.title": "Open it today.",
-    "sc.sub": "Three browser games, and client work that is already online.",
+    "sc.title": "Already live.",
+    "sc.sub": "Client sites, then games you can open in the browser.",
     "sc.hub.d": "Home of every JadiDaring mini-game. Pick one, invite friends, play from your phone.",
     "sc.dq.d": "Draw your fish, then watch it swim with everyone else's.",
     "sc.lb.d": "A shared night sky, filled in real time, in the browser.",
-    "sc.client": "Client work",
-    "wk.title": "Already live.",
-    "wk.sub": "Not mockups. Sites and panels people actually use.",
     "sc.bum.c": "Company profile",
     "sc.bum.d": "Hajj and Umrah: tour packages and a booking path. Prospective pilgrims can reach the team directly.",
     "sc.ius.c": "Listing",
     "sc.ius.d": "Used-iPhone catalog, trade-in, and pages that lead to a chat.",
     "sc.inv.d": "Invoices, stock, IMEI, and supplier debt in one Laravel panel.",
     "sc.private": "Internal system. Demo over WhatsApp.",
-    "exp.eyebrow": "Stack",
-    "exp.title": "Used on shipped work.",
-    "exp.sub": "Five capabilities already running, not an empty services list.",
+    "exp.title": "What we use.",
+    "exp.sub": "Five capabilities already running on shipped work.",
     "exp.ai": "LLM, RAG, workflow automation, OpenAI, Claude",
     "exp.pos": "Checkout, stock, multi-outlet, reports",
-    "pr.eyebrow": "Pricing",
-    "pr.title": "The figure we bill.",
+    "pr.title": "Pricing.",
     "pr.sub": "Per project. The first conversation is free.",
     "pr.early": "Early client",
     "pr.asked": "Most requested",
@@ -57,9 +47,7 @@
     "pr.e.n": "Marketplace",
     "pr.e.d": "Multi-vendor, Midtrans or Xendit, escrow, reviews, and recommendations.",
     "pr.e.meta": "60 days + 30 days of support",
-    "pr.foot": "Every figure is per project. First conversation is free, on WhatsApp.",
-    "ct.eyebrow": "Contact",
-    "ct.title": "Send the brief.",
+    "ct.title": "Write it short.",
     "ct.sub": "This opens WhatsApp 0851-1717-7883 with the text you wrote.",
     "ct.name": "Name",
     "ct.budget": "Budget",
@@ -70,10 +58,11 @@
     "ct.o4": "Custom budget",
     "ct.msg": "Project",
     "ct.err": "Add your name and the project first.",
+    "ct.errName": "Add your name.",
+    "ct.errMsg": "Tell us about the project.",
     "ct.send": "Send to WhatsApp",
     "ct.hint": "Opens WhatsApp with your message filled in.",
-    "ft.rights": "All rights reserved.",
-    "ft.blurb": "JadiDaring (JaRing), a web studio in Indonesia."
+    "ft.rights": "All rights reserved."
   };
 
   var ID = {};
@@ -189,11 +178,19 @@
       var msg = fMsg.value.trim();
       var selected = fBudget.options[fBudget.selectedIndex];
       var budget = fBudget.value ? selected.text : "";
+      var errName = document.getElementById("err-name");
+      var errMsg = document.getElementById("err-msg");
       fName.setAttribute("aria-invalid", String(!name));
       fMsg.setAttribute("aria-invalid", String(!msg));
+      if (errName) errName.hidden = !!name;
+      if (errMsg) errMsg.hidden = !!msg;
+      if (!name) fName.setAttribute("aria-describedby", "err-name");
+      else fName.removeAttribute("aria-describedby");
+      if (!msg) fMsg.setAttribute("aria-describedby", "err-msg");
+      else fMsg.removeAttribute("aria-describedby");
       if (!name || !msg) {
         err.hidden = false;
-        (name ? fMsg : fName).focus();
+        err.focus();
         return;
       }
       err.hidden = true;
