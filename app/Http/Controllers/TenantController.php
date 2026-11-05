@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CompanyProfile;
 use App\Services\GameHub;
+use App\Services\GameHubCatalog;
 use App\Services\LegalNoticeInjector;
 use App\Services\SeoInjector;
 use App\Services\TenantPath;
@@ -22,10 +23,16 @@ class TenantController extends Controller
         'headlesschrome', 'phantomjs', 'selenium',
     ];
 
-    public function show(Request $request, LegalNoticeInjector $legalInjector, SeoInjector $seoInjector): Response
+    public function show(Request $request, LegalNoticeInjector $legalInjector, SeoInjector $seoInjector, GameHubCatalog $catalog): Response
     {
         $profile = $this->profile($request);
-        $html = TenantPath::rewriteHtml($profile->html, $profile->subdomain);
+        $html = $profile->html;
+
+        if (GameHub::isProfile($profile)) {
+            $html = $catalog->apply($html, $request);
+        }
+
+        $html = TenantPath::rewriteHtml($html, $profile->subdomain);
         $html = $profile->hide_footer
             ? $html
             : $legalInjector->inject($html, $this->termsUrl($request, $profile));

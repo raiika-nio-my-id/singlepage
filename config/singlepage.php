@@ -60,6 +60,8 @@ return [
     | game host unless GAMEHUB_HOST is set.
     |
     | Hub HTML stays on the live CompanyProfile whose subdomain is gamehub.
+    | Game cards are not edited there: GameHubCatalog lists every other live
+    | profile (path, title, description, cover) and sorts by newest or views.
     | That label is reserved. Dedicated /gamehub routes win over the generic
     | game path, so a profile named gamehub stays the directory.
     | gamehub.{base_domain}/... answers 301 to {host}/{path}/... and keeps
