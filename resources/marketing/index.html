@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>JadiDaring (JaRing) — Web dirilis, harga tertulis</title>
   <meta name="description" content="Studio web Indonesia. Single page Rp50rb (normal Rp200rb), listing Laravel Rp5jt, marketplace Rp30jt. Game live: GameHub, Drawquarium, Langit Bersama." />
-  <meta name="theme-color" content="#121211" />
-  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#F1EBDD" />
+  <meta name="color-scheme" content="light" />
   <link rel="canonical" href="https://www.jadidaring.com/" />
   <link rel="alternate" hreflang="id" href="https://www.jadidaring.com/" />
   <link rel="alternate" hreflang="en" href="https://www.jadidaring.com/?lang=en" />
   <link rel="alternate" hreflang="x-default" href="https://www.jadidaring.com/" />
+  <link rel="icon" href="images/logo-mark.svg" type="image/svg+xml" />
   <link rel="icon" href="images/favicon.svg" type="image/svg+xml" />
-  <link rel="preload" href="images/logo-mark.svg" as="image" type="image/svg+xml" />
 
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="JadiDaring" />
@@ -57,7 +57,10 @@
   <header class="nav" id="top">
     <div class="wrap nav__bar">
       <a class="brand" href="#top">
-        <img class="brand__mark" src="images/logo-mark.svg" alt="" width="40" height="40" fetchpriority="high" />
+        <svg class="brand__mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="44" height="44" aria-hidden="true" focusable="false">
+          <rect width="36" height="36" fill="#D4FF3A"/>
+          <path d="M22 7v15.5c0 4.6-2.7 7-6.8 7-2.3 0-4.2-.7-5.6-2l2.2-3.4c.9.8 1.9 1.2 3 1.2 1.6 0 2.5-.9 2.5-3V7z" fill="#121211"/>
+        </svg>
         <span class="brand__names">
           <span class="brand__name">JadiDaring</span>
           <span class="brand__aka">JaRing</span>
@@ -66,155 +69,229 @@
       <nav class="nav__links" aria-label="Utama">
         <a href="#showcase" data-i18n="nav.showcase">Showcase</a>
         <a href="#expertise" data-i18n="nav.expertise">Mesin</a>
-        <a href="#pricing" data-i18n="nav.pricing">Tarif</a>
-        <a href="#contact" data-i18n="nav.contact">Order</a>
+        <a href="#pricing" data-i18n="nav.pricing">Harga</a>
+        <a href="#contact" data-i18n="nav.contact">Kontak</a>
       </nav>
       <div class="nav__actions">
         <div class="lang" role="group" aria-label="Bahasa">
           <button type="button" data-lang="id" aria-pressed="true">ID</button>
           <button type="button" data-lang="en" aria-pressed="false">EN</button>
         </div>
-        <a class="btn btn--lime btn--sm" href="https://www.jadidaring.com/gamehub/">GameHub</a>
+        <a class="btn btn--lime btn--sm" href="https://wa.me/6285117177883?text=Halo%20JadiDaring!%20Saya%20mau%20diskusi%20project." target="_blank" rel="noopener noreferrer">WhatsApp</a>
         <button class="nav__burger" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Menu">
-          <span></span><span></span>
+          <span></span><span></span><span></span>
         </button>
       </div>
     </div>
     <div class="wrap">
       <nav class="mobile-menu" id="mobile-menu" hidden aria-label="Menu">
+        <a class="brand brand--menu" href="#top">
+          <svg class="brand__mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="44" height="44" aria-hidden="true" focusable="false">
+            <rect width="36" height="36" fill="#D4FF3A"/>
+            <path d="M22 7v15.5c0 4.6-2.7 7-6.8 7-2.3 0-4.2-.7-5.6-2l2.2-3.4c.9.8 1.9 1.2 3 1.2 1.6 0 2.5-.9 2.5-3V7z" fill="#121211"/>
+          </svg>
+          <span class="brand__names">
+            <span class="brand__name">JadiDaring</span>
+            <span class="brand__aka">JaRing</span>
+          </span>
+        </a>
         <a href="#showcase" data-i18n="nav.showcase">Showcase</a>
         <a href="#expertise" data-i18n="nav.expertise">Mesin</a>
-        <a href="#pricing" data-i18n="nav.pricing">Tarif</a>
-        <a href="#contact" data-i18n="nav.contact">Order</a>
+        <a href="#pricing" data-i18n="nav.pricing">Harga</a>
+        <a href="#contact" data-i18n="nav.contact">Kontak</a>
         <div class="lang" role="group" aria-label="Bahasa">
           <button type="button" data-lang="id" aria-pressed="true">ID</button>
           <button type="button" data-lang="en" aria-pressed="false">EN</button>
         </div>
-        <a class="btn btn--lime" href="https://www.jadidaring.com/gamehub/">GameHub</a>
+        <a class="btn btn--ink" href="https://www.jadidaring.com/gamehub/">GameHub</a>
+        <a class="btn btn--lime" href="https://wa.me/6285117177883?text=Halo%20JadiDaring!%20Saya%20mau%20diskusi%20project." target="_blank" rel="noopener noreferrer">WhatsApp</a>
       </nav>
     </div>
   </header>
 
   <main id="main">
     <section class="hero" aria-labelledby="hero-title">
-      <div class="wrap">
-        <p class="kicker">
-          <span data-i18n="hero.kicker">Studio web · Indonesia · terima order</span>
-          <span>JD-HOME-2026</span>
-        </p>
-        <h1 id="hero-title" data-i18n-html="hero.title">Link nyala.<br>Harga fix.</h1>
-        <div class="hero__grid">
+      <div class="hero__band">
+        <div class="wrap hero__grid">
           <div class="hero__copy">
-            <p class="lede" data-i18n="hero.sub">Single page Rp50rb (normal Rp200rb). Listing Laravel Rp5jt. Marketplace Rp30jt. GameHub, Drawquarium, dan Langit Bersama sudah bisa dimainkan. Studio JadiDaring (JaRing), Indonesia.</p>
+            <p class="kicker" data-i18n="hero.kicker">Studio web di Indonesia</p>
+            <h1 id="hero-title" data-i18n-html="hero.title">Link nyala.<br><span class="hl">Harga fix.</span></h1>
+            <p class="lede" data-i18n="hero.sub">Single page Rp50rb (normal Rp200rb). Listing Laravel Rp5jt. Marketplace Rp30jt. GameHub, Drawquarium, dan Langit Bersama sudah bisa dimainkan.</p>
             <div class="hero__ctas">
-              <a class="btn btn--lime" href="https://wa.me/6285117177883?text=Halo%20JadiDaring!%20Saya%20mau%20diskusi%20project." target="_blank" rel="noopener noreferrer" data-i18n="cta.wa">Chat WhatsApp</a>
-              <a class="btn" href="#showcase" data-i18n="cta.showcase">Lihat showcase</a>
-              <a class="btn" href="https://www.jadidaring.com/gamehub/" data-i18n="cta.gamehub">Buka GameHub</a>
+              <a class="btn btn--ink" href="https://wa.me/6285117177883?text=Halo%20JadiDaring!%20Saya%20mau%20diskusi%20project." target="_blank" rel="noopener noreferrer" data-i18n="cta.wa">Chat WhatsApp</a>
+              <a class="btn btn--paper" href="#showcase" data-i18n="cta.showcase">Lihat showcase</a>
+              <a class="btn btn--line" href="https://www.jadidaring.com/gamehub/" data-i18n="cta.gamehub">Buka GameHub</a>
             </div>
           </div>
-          <nav class="dock" aria-label="Game live">
-            <a href="https://www.jadidaring.com/gamehub/">
-              <span class="dock__path">/gamehub/</span>
-              <span class="dock__name">GameHub</span>
-              <span class="dock__go" data-i18n="cta.open">Buka</span>
-            </a>
-            <a href="https://www.jadidaring.com/drawquarium/">
-              <span class="dock__path">/drawquarium/</span>
-              <span class="dock__name">Drawquarium</span>
-              <span class="dock__go" data-i18n="cta.open">Buka</span>
-            </a>
-            <a href="https://www.jadidaring.com/langitbersama/">
-              <span class="dock__path">/langitbersama/</span>
-              <span class="dock__name">Langit Bersama</span>
-              <span class="dock__go" data-i18n="cta.open">Buka</span>
-            </a>
-          </nav>
+          <div class="hero__art">
+            <svg viewBox="0 0 640 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dua maskot JadiDaring, satu duduk dengan laptop, satu berdiri dengan ponsel.">
+              <circle cx="430" cy="236" r="188" fill="#F1EBDD"/>
+              <circle cx="78" cy="86" r="22" fill="#121211"/>
+              <rect x="548" y="64" width="52" height="52" rx="16" fill="#F1EBDD" stroke="#121211" stroke-width="4"/>
+              <ellipse cx="300" cy="470" rx="230" ry="22" fill="#121211" opacity="0.1"/>
+
+              <g id="mascot-standing">
+                <path d="M498 292c36-8 62-46 52-92" fill="none" stroke="#121211" stroke-width="30" stroke-linecap="round"/>
+                <path d="M498 292c36-8 62-46 52-92" fill="none" stroke="#F1EBDD" stroke-width="18" stroke-linecap="round"/>
+                <circle cx="546" cy="190" r="16" fill="#F1EBDD" stroke="#121211" stroke-width="4"/>
+                <rect x="408" y="356" width="26" height="92" rx="13" fill="#121211"/>
+                <rect x="458" y="356" width="26" height="92" rx="13" fill="#121211"/>
+                <rect x="396" y="432" width="48" height="20" rx="10" fill="#F1EBDD" stroke="#121211" stroke-width="3"/>
+                <rect x="450" y="432" width="48" height="20" rx="10" fill="#F1EBDD" stroke="#121211" stroke-width="3"/>
+                <rect x="386" y="246" width="128" height="132" rx="42" fill="#121211"/>
+                <rect x="418" y="274" width="64" height="52" rx="14" fill="#D4FF3A"/>
+                <path d="M457 286v18.2c0 5.4-3.2 8.2-8 8.2-2.7 0-4.9-.8-6.6-2.4l2.6-4c1 .9 2.2 1.4 3.5 1.4 1.9 0 3-1.1 3-3.5V286z" fill="#121211"/>
+                <path d="M500 318c24 6 40 28 46 52" fill="none" stroke="#121211" stroke-width="26" stroke-linecap="round"/>
+                <path d="M500 318c24 6 40 28 46 52" fill="none" stroke="#F1EBDD" stroke-width="14" stroke-linecap="round"/>
+                <rect x="528" y="348" width="42" height="66" rx="10" fill="#F1EBDD" stroke="#121211" stroke-width="4"/>
+                <rect x="534" y="356" width="30" height="42" rx="4" fill="#121211"/>
+                <circle cx="542" cy="368" r="2" fill="#D4FF3A"/>
+                <circle cx="554" cy="378" r="2" fill="#D4FF3A"/>
+                <circle cx="546" cy="388" r="1.6" fill="#D4FF3A"/>
+                <circle cx="450" cy="188" r="60" fill="#F1EBDD" stroke="#121211" stroke-width="4"/>
+                <path d="M396 186c8-52 108-54 112 2-12-28-96-26-112-2z" fill="#121211"/>
+                <circle cx="428" cy="192" r="5.5" fill="#121211"/>
+                <circle cx="470" cy="190" r="5.5" fill="#121211"/>
+                <path d="M426 214c10 12 30 12 42-1" fill="none" stroke="#121211" stroke-width="4" stroke-linecap="round"/>
+                <circle cx="412" cy="208" r="6" fill="#D4FF3A"/>
+              </g>
+
+              <g id="mascot-seated">
+                <rect x="168" y="372" width="150" height="34" rx="16" fill="#121211"/>
+                <rect x="156" y="396" width="52" height="22" rx="11" fill="#F1EBDD" stroke="#121211" stroke-width="3"/>
+                <rect x="268" y="396" width="52" height="22" rx="11" fill="#F1EBDD" stroke="#121211" stroke-width="3"/>
+                <rect x="118" y="248" width="168" height="148" rx="48" fill="#D4FF3A" stroke="#121211" stroke-width="4"/>
+                <path d="M168 278v28c0 8.3-4.9 12.6-12.2 12.6-4.1 0-7.6-1.3-10.1-3.6l4-6.1c1.6 1.4 3.4 2.2 5.4 2.2 2.9 0 4.5-1.6 4.5-5.4V278z" fill="#121211"/>
+                <path d="M132 308c-24 8-30 34-14 50" fill="none" stroke="#121211" stroke-width="26" stroke-linecap="round"/>
+                <path d="M132 308c-24 8-30 34-14 50" fill="none" stroke="#F1EBDD" stroke-width="14" stroke-linecap="round"/>
+                <circle cx="112" cy="362" r="14" fill="#F1EBDD" stroke="#121211" stroke-width="4"/>
+                <rect x="286" y="286" width="176" height="118" rx="16" fill="#121211"/>
+                <rect x="298" y="298" width="152" height="86" rx="8" fill="#F1EBDD"/>
+                <rect x="310" y="310" width="128" height="12" rx="4" fill="#121211"/>
+                <circle cx="320" cy="316" r="2.4" fill="#D4FF3A"/>
+                <ellipse cx="366" cy="352" rx="24" ry="13" fill="#121211"/>
+                <path d="M388 352l18-11v22z" fill="#121211"/>
+                <circle cx="354" cy="350" r="2.4" fill="#D4FF3A"/>
+                <path d="M300 404h168l-18 18H318z" fill="#121211"/>
+                <circle cx="202" cy="176" r="72" fill="#F1EBDD" stroke="#121211" stroke-width="4"/>
+                <path d="M138 168c6-78 132-86 140 4-18-40-118-36-140-4z" fill="#121211"/>
+                <path d="M246 112c22-30 52-8 40 20-18-12-32-10-40-20z" fill="#121211"/>
+                <circle cx="176" cy="182" r="6.5" fill="#121211"/>
+                <circle cx="228" cy="182" r="6.5" fill="#121211"/>
+                <path d="M174 208c14 18 42 18 58 0" fill="none" stroke="#121211" stroke-width="4" stroke-linecap="round"/>
+                <circle cx="158" cy="200" r="8" fill="#D4FF3A"/>
+                <circle cx="246" cy="200" r="8" fill="#D4FF3A"/>
+              </g>
+            </svg>
+          </div>
         </div>
-        <p class="spec" data-i18n="hero.spec">LARAVEL 5+ TH · 20+ RILIS · 5 MESIN · MULAI Rp50rb</p>
       </div>
     </section>
 
-    <div class="perf" aria-hidden="true"></div>
+    <section class="stats" aria-label="Angka studio">
+      <div class="wrap stats__grid">
+        <article class="stat">
+          <p class="stat__n">5+</p>
+          <p class="stat__l" data-i18n="st.y">tahun bersama Laravel</p>
+        </article>
+        <article class="stat">
+          <p class="stat__n">20+</p>
+          <p class="stat__l" data-i18n="st.ship">rilis</p>
+        </article>
+        <article class="stat">
+          <p class="stat__n">3</p>
+          <p class="stat__l" data-i18n="st.games">game live</p>
+        </article>
+        <article class="stat">
+          <p class="stat__n">Rp50rb</p>
+          <p class="stat__l" data-i18n="st.from">harga mulai</p>
+        </article>
+      </div>
+    </section>
 
     <section class="section" id="showcase" aria-labelledby="sc-title">
       <div class="wrap">
         <header class="section__head">
-          <p class="eyebrow"><span class="eyebrow__no">A</span> <span data-i18n="sc.eyebrow">Showcase</span></p>
-          <h2 id="sc-title" data-i18n="sc.title">Yang bisa dibuka hari ini.</h2>
-          <p class="section__sub" data-i18n="sc.sub">Tiga game di browser, tiga kerjaan klien yang sudah online.</p>
+          <div>
+            <p class="eyebrow" data-i18n="sc.eyebrow">Showcase</p>
+            <h2 id="sc-title" data-i18n="sc.title">Yang bisa dibuka hari ini.</h2>
+          </div>
+          <p class="section__sub" data-i18n="sc.sub">Tiga game di browser, dan kerjaan klien yang sudah online.</p>
         </header>
-
-        <p class="group-label" data-i18n="sc.live">Game live</p>
-        <div class="posters">
-          <article class="poster poster--hub">
-            <p class="poster__path">/gamehub/</p>
+        <div class="games">
+          <article class="game game--hub">
+            <p class="game__path">/gamehub/</p>
             <h3>GameHub</h3>
             <p data-i18n="sc.hub.d">Pusat mini-game JadiDaring. Pilih game, ajak teman, main dari HP.</p>
             <a class="btn btn--ink" href="https://www.jadidaring.com/gamehub/" data-i18n="cta.gamehub">Buka GameHub</a>
           </article>
-          <article class="poster poster--draw">
-            <p class="poster__path">/drawquarium/</p>
+          <article class="game">
+            <p class="game__path">/drawquarium/</p>
             <h3>Drawquarium</h3>
             <p data-i18n="sc.dq.d">Gambar ikanmu, lalu lihat ia berenang bareng ikan orang lain.</p>
-            <a class="btn btn--lime" href="https://www.jadidaring.com/drawquarium/" data-i18n="cta.open">Buka</a>
+            <a class="btn btn--line" href="https://www.jadidaring.com/drawquarium/" data-i18n="cta.open">Buka</a>
           </article>
-          <article class="poster poster--sky">
-            <p class="poster__path">/langitbersama/</p>
+          <article class="game">
+            <p class="game__path">/langitbersama/</p>
             <h3>Langit Bersama</h3>
             <p data-i18n="sc.lb.d">Langit malam yang diisi bersama, real-time, dari browser.</p>
-            <a class="btn btn--lime" href="https://www.jadidaring.com/langitbersama/" data-i18n="cta.open">Buka</a>
+            <a class="btn btn--line" href="https://www.jadidaring.com/langitbersama/" data-i18n="cta.open">Buka</a>
           </article>
         </div>
+      </div>
+    </section>
 
-        <p class="group-label group-label--next" data-i18n="sc.client">Kerjaan klien</p>
-        <article class="piece piece--lead">
-          <a class="piece__frame" href="https://buminata.co.id" target="_blank" rel="noopener noreferrer">
-            <picture>
-              <source srcset="images/buminata.webp" type="image/webp" />
-              <img src="images/buminata.jpg" alt="Tampilan situs Buminata Wisata" width="1400" height="719" fetchpriority="high" />
-            </picture>
-            <span class="piece__open">
-              <span class="piece__id">
-                <span class="mono" data-i18n="sc.bum.c">Company profile</span>
-                <strong>Buminata Wisata</strong>
-              </span>
-              <span class="piece__go"><span data-i18n="cta.openSite">Buka situs</span> · buminata.co.id</span>
-            </span>
-          </a>
-          <p class="piece__note" data-i18n="sc.bum.d">Haji dan Umrah: paket tour dan alur booking. Calon jamaah bisa langsung menghubungi.</p>
-        </article>
-        <div class="pair">
-          <article class="piece">
-            <a class="piece__frame" href="https://iusedphone.id" target="_blank" rel="noopener noreferrer">
+    <section class="band" aria-labelledby="work-title">
+      <div class="wrap">
+        <header class="section__head">
+          <div>
+            <p class="eyebrow" data-i18n="sc.client">Kerjaan klien</p>
+            <h2 id="work-title" data-i18n="wk.title">Sudah tayang.</h2>
+          </div>
+          <p class="section__sub" data-i18n="wk.sub">Bukan mockup. Situs dan panel yang dipakai orang.</p>
+        </header>
+        <div class="stories">
+          <article class="story">
+            <a class="story__media" href="https://buminata.co.id" target="_blank" rel="noopener noreferrer">
+              <picture>
+                <source srcset="images/buminata.webp" type="image/webp" />
+                <img src="images/buminata.jpg" alt="Tampilan situs Buminata Wisata" width="1400" height="719" />
+              </picture>
+            </a>
+            <div class="story__body">
+              <p class="story__cat" data-i18n="sc.bum.c">Company profile</p>
+              <h3>Buminata Wisata</h3>
+              <p data-i18n="sc.bum.d">Haji dan Umrah: paket tour dan alur booking. Calon jamaah bisa langsung menghubungi.</p>
+              <a class="story__go" href="https://buminata.co.id" target="_blank" rel="noopener noreferrer"><span data-i18n="cta.openSite">Buka situs</span> · buminata.co.id</a>
+            </div>
+          </article>
+          <article class="story">
+            <a class="story__media" href="https://iusedphone.id" target="_blank" rel="noopener noreferrer">
               <picture>
                 <source srcset="images/iusedphone.webp" type="image/webp" />
                 <img src="images/iusedphone.jpg" alt="Tampilan situs iUsedPhone" width="1400" height="721" loading="lazy" />
               </picture>
-              <span class="piece__open">
-                <span class="piece__id">
-                  <span class="mono" data-i18n="sc.ius.c">Listing</span>
-                  <strong>iUsedPhone</strong>
-                </span>
-                <span class="piece__go"><span data-i18n="cta.openSite">Buka situs</span> · iusedphone.id</span>
-              </span>
             </a>
-            <p class="piece__note" data-i18n="sc.ius.d">Katalog iPhone bekas, tukar tambah, dan halaman yang mengarah ke chat.</p>
+            <div class="story__body">
+              <p class="story__cat" data-i18n="sc.ius.c">Listing</p>
+              <h3>iUsedPhone</h3>
+              <p data-i18n="sc.ius.d">Katalog iPhone bekas, tukar tambah, dan halaman yang mengarah ke chat.</p>
+              <a class="story__go" href="https://iusedphone.id" target="_blank" rel="noopener noreferrer"><span data-i18n="cta.openSite">Buka situs</span> · iusedphone.id</a>
+            </div>
           </article>
-          <article class="piece">
-            <div class="piece__frame piece__frame--static">
+          <article class="story">
+            <div class="story__media">
               <picture>
                 <source srcset="images/invoiceku.webp" type="image/webp" />
                 <img src="images/invoiceku.jpg" alt="Tampilan panel Invoiceku" width="1400" height="718" loading="lazy" />
               </picture>
-              <p class="piece__open piece__open--shut">
-                <span class="piece__id">
-                  <span class="mono">POS</span>
-                  <strong>Invoiceku</strong>
-                </span>
-                <span data-i18n="sc.private">Sistem internal. Demo lewat WhatsApp.</span>
-              </p>
             </div>
-            <p class="piece__note" data-i18n="sc.inv.d">Invoice, stok, IMEI, dan hutang supplier dalam satu panel Laravel.</p>
+            <div class="story__body">
+              <p class="story__cat">POS</p>
+              <h3>Invoiceku</h3>
+              <p data-i18n="sc.inv.d">Invoice, stok, IMEI, dan hutang supplier dalam satu panel Laravel.</p>
+              <a class="story__go" href="https://wa.me/6285117177883?text=Halo%20JadiDaring!%20Saya%20mau%20lihat%20demo%20Invoiceku." target="_blank" rel="noopener noreferrer" data-i18n="sc.private">Sistem internal. Demo lewat WhatsApp.</a>
+            </div>
           </article>
         </div>
       </div>
@@ -223,178 +300,181 @@
     <section class="section" id="expertise" aria-labelledby="exp-title">
       <div class="wrap">
         <header class="section__head">
-          <p class="eyebrow"><span class="eyebrow__no">B</span> <span data-i18n="exp.eyebrow">Mesin</span></p>
-          <h2 id="exp-title" data-i18n="exp.title">Mesin yang dipakai.</h2>
-          <p class="section__sub" data-i18n="exp.sub">Lima kemampuan yang sudah jalan di project rilis.</p>
+          <div>
+            <p class="eyebrow" data-i18n="exp.eyebrow">Mesin</p>
+            <h2 id="exp-title" data-i18n="exp.title">Yang dipakai di project rilis.</h2>
+          </div>
+          <p class="section__sub" data-i18n="exp.sub">Lima kemampuan yang sudah jalan, bukan daftar jasa kosong.</p>
         </header>
-        <ul class="matrix">
+        <ul class="stack">
           <li>
             <h3>Laravel</h3>
-            <p>Eloquent · Livewire · Filament · Queue · REST</p>
+            <p>Eloquent, Livewire, Filament, queue, REST</p>
           </li>
           <li>
             <h3>AI agent</h3>
-            <p data-i18n="exp.ai">LLM · RAG · Otomasi alur · OpenAI · Claude</p>
+            <p data-i18n="exp.ai">LLM, RAG, otomasi alur, OpenAI, Claude</p>
           </li>
           <li>
             <h3>POS</h3>
-            <p data-i18n="exp.pos">Kasir · Stok · Multi-outlet · Laporan</p>
+            <p data-i18n="exp.pos">Kasir, stok, multi-outlet, laporan</p>
           </li>
           <li>
             <h3>Marketplace</h3>
-            <p>Multi-vendor · Midtrans · Escrow · Seller</p>
+            <p>Multi-vendor, Midtrans, escrow, seller</p>
           </li>
           <li>
             <h3>Single page</h3>
-            <p>Wedding · Event · Ceremony · Company · Personal</p>
+            <p>Wedding, event, ceremony, company, personal</p>
           </li>
         </ul>
       </div>
     </section>
 
-    <section class="section" id="pricing" aria-labelledby="pr-title">
+    <section class="section section--tight" id="pricing" aria-labelledby="pr-title">
       <div class="wrap">
         <header class="section__head">
-          <p class="eyebrow"><span class="eyebrow__no">C</span> <span data-i18n="pr.eyebrow">Tarif</span></p>
-          <h2 id="pr-title" data-i18n="pr.title">Lembar tarif 2026.</h2>
-          <p class="section__sub" data-i18n="pr.sub">Angka ini yang ditagih, per project. Diskusi pertama gratis.</p>
+          <div>
+            <p class="eyebrow" data-i18n="pr.eyebrow">Harga</p>
+            <h2 id="pr-title" data-i18n="pr.title">Angka yang ditagih.</h2>
+          </div>
+          <p class="section__sub" data-i18n="pr.sub">Per project. Diskusi pertama gratis.</p>
         </header>
-
-        <div class="invoice">
-          <div class="invoice__banner">
-            <span>JD-TARIF-2026</span>
-            <span data-i18n="pr.currency">Mata uang: IDR</span>
-          </div>
-          <div class="invoice__row invoice__head">
-            <span data-i18n="pr.col.code">Kode</span>
-            <span data-i18n="pr.col.job">Pekerjaan</span>
-            <span data-i18n="pr.col.price">Harga</span>
-            <span data-i18n="pr.col.order">Order</span>
-          </div>
-
-          <article class="invoice__row rate">
-            <p class="rate__code">ST-01</p>
-            <div class="rate__job">
-              <h3>
-                <span data-i18n="pr.s.n">Single page</span>
-                <span class="stamp stamp--line" data-i18n="pr.early">Klien awal</span>
-              </h3>
-              <p data-i18n="pr.s.d">Wedding, event, ceremony, company profile, personal. SEO dasar dan WhatsApp.</p>
-            </div>
-            <p class="rate__price">
+        <div class="prices">
+          <article class="price">
+            <p class="chip" data-i18n="pr.early">Klien awal</p>
+            <h3 data-i18n="pr.s.n">Single page</h3>
+            <p data-i18n="pr.s.d">Wedding, event, ceremony, company profile, personal. SEO dasar dan WhatsApp.</p>
+            <p class="price__num">
               <span class="sr-only" data-i18n="pr.was">Harga normal</span>
               <s>Rp200rb</s>
               <strong>Rp50rb</strong>
-              <span class="rate__fig">Rp50.000</span>
-              <span class="rate__meta" data-i18n="pr.s.meta">Selesai 7 hari</span>
+              <span>Rp50.000 · <span data-i18n="pr.s.meta">Selesai 7 hari</span></span>
             </p>
-            <a class="btn btn--lime" target="_blank" rel="noopener noreferrer" href="https://wa.me/6285117177883?text=Halo%20JadiDaring!%20Saya%20mau%20paket%20Starter%20Single%20Page%20(Rp50rb%2C%20normal%20Rp200rb).">WhatsApp</a>
+            <a class="btn btn--ink" target="_blank" rel="noopener noreferrer" href="https://wa.me/6285117177883?text=Halo%20JadiDaring!%20Saya%20mau%20paket%20Starter%20Single%20Page%20(Rp50rb%2C%20normal%20Rp200rb).">WhatsApp</a>
           </article>
-
-          <article class="invoice__row rate">
-            <p class="rate__code">PR-02</p>
-            <div class="rate__job">
-              <h3>
-                <span data-i18n="pr.p.n">Listing platform</span>
-                <span class="stamp" data-i18n="pr.asked">Paling diminta</span>
-              </h3>
-              <p data-i18n="pr.p.d">Halaman listing, filter, auth, dan panel Filament.</p>
-            </div>
-            <p class="rate__price">
+          <article class="price price--hot">
+            <p class="chip" data-i18n="pr.asked">Paling diminta</p>
+            <h3 data-i18n="pr.p.n">Listing platform</h3>
+            <p data-i18n="pr.p.d">Halaman listing, filter, auth, dan panel Filament.</p>
+            <p class="price__num">
               <strong>Rp5jt</strong>
-              <span class="rate__fig">Rp5.000.000</span>
-              <span class="rate__meta" data-i18n="pr.p.meta">Selesai 40 hari</span>
+              <span>Rp5.000.000 · <span data-i18n="pr.p.meta">Selesai 40 hari</span></span>
             </p>
-            <a class="btn btn--lime" target="_blank" rel="noopener noreferrer" href="https://wa.me/6285117177883?text=Halo%20JadiDaring!%20Saya%20mau%20paket%20Professional%20Listing%20Platform%20(Rp5jt).">WhatsApp</a>
+            <a class="btn btn--ink" target="_blank" rel="noopener noreferrer" href="https://wa.me/6285117177883?text=Halo%20JadiDaring!%20Saya%20mau%20paket%20Professional%20Listing%20Platform%20(Rp5jt).">WhatsApp</a>
           </article>
-
-          <article class="invoice__row rate">
-            <p class="rate__code">EN-03</p>
-            <div class="rate__job">
-              <h3 data-i18n="pr.e.n">Marketplace</h3>
-              <p data-i18n="pr.e.d">Multi-vendor, Midtrans atau Xendit, escrow, review, dan rekomendasi.</p>
-            </div>
-            <p class="rate__price">
+          <article class="price price--dark">
+            <h3 data-i18n="pr.e.n">Marketplace</h3>
+            <p data-i18n="pr.e.d">Multi-vendor, Midtrans atau Xendit, escrow, review, dan rekomendasi.</p>
+            <p class="price__num">
               <strong>Rp30jt</strong>
-              <span class="rate__fig">Rp30.000.000</span>
-              <span class="rate__meta" data-i18n="pr.e.meta">60 hari + support 30 hari</span>
+              <span>Rp30.000.000 · <span data-i18n="pr.e.meta">60 hari + support 30 hari</span></span>
             </p>
             <a class="btn btn--lime" target="_blank" rel="noopener noreferrer" href="https://wa.me/6285117177883?text=Halo%20JadiDaring!%20Saya%20mau%20paket%20Enterprise%20Marketplace%20(Rp30jt).">WhatsApp</a>
           </article>
-
-          <p class="invoice__foot" data-i18n="pr.foot">Semua angka per project. Diskusi pertama gratis, lewat WhatsApp.</p>
         </div>
+        <p class="prices__note" data-i18n="pr.foot">Semua angka per project. Diskusi pertama gratis, lewat WhatsApp.</p>
       </div>
     </section>
 
     <section class="section" id="contact" aria-labelledby="ct-title">
-      <div class="wrap">
-        <div class="contact__grid">
-          <div class="contact__intro">
-            <p class="eyebrow"><span class="eyebrow__no">D</span> <span data-i18n="ct.eyebrow">Order</span></p>
-            <h2 id="ct-title" data-i18n="ct.title">Tiket order.</h2>
-            <p class="section__sub" data-i18n="ct.sub">Tiga kolom. Kami buka WhatsApp 0851-1717-7883 dengan teks yang kamu isi.</p>
-            <ul class="channels">
-              <li>
-                <a href="https://wa.me/6285117177883" target="_blank" rel="noopener noreferrer">
-                  <span class="mono channels__k">WhatsApp</span>
-                  <span class="channels__v">+62 851-1717-7883</span>
-                </a>
-              </li>
-              <li>
-                <a href="https://linkedin.com/in/andikanio" target="_blank" rel="noopener noreferrer">
-                  <span class="mono channels__k">LinkedIn</span>
-                  <span class="channels__v">linkedin.com/in/andikanio</span>
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <form class="form" id="contact-form" novalidate>
-            <div class="field">
-              <label for="f-name" data-i18n="ct.name">Nama</label>
-              <input id="f-name" name="name" type="text" autocomplete="name" required />
-            </div>
-            <div class="field">
-              <label for="f-budget" data-i18n="ct.budget">Budget</label>
-              <select id="f-budget" name="budget">
-                <option value="" data-i18n="ct.select">Pilih paket…</option>
-                <option value="Starter - Rp50rb (normal Rp200rb)" data-i18n="ct.o1">Starter - Rp50rb (normal Rp200rb)</option>
-                <option value="Professional - Rp5jt" data-i18n="ct.o2">Professional - Rp5jt</option>
-                <option value="Enterprise - Rp30jt" data-i18n="ct.o3">Enterprise - Rp30jt</option>
-                <option value="Custom" data-i18n="ct.o4">Budget custom</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="f-msg" data-i18n="ct.msg">Project</label>
-              <textarea id="f-msg" name="message" rows="5" required></textarea>
-            </div>
-            <p class="form__err" id="form-err" role="alert" hidden data-i18n="ct.err">Isi nama dan cerita project dulu.</p>
-            <button class="btn btn--lime" type="submit" data-i18n="ct.send">Kirim ke WhatsApp</button>
-            <p class="form__hint" data-i18n="ct.hint">Membuka WhatsApp dengan pesan yang sudah terisi.</p>
-          </form>
+      <div class="wrap contact">
+        <div class="contact__intro">
+          <p class="eyebrow" data-i18n="ct.eyebrow">Kontak</p>
+          <h2 id="ct-title" data-i18n="ct.title">Kirim brief-nya.</h2>
+          <p class="section__sub" data-i18n="ct.sub">Form ini membuka WhatsApp 0851-1717-7883 dengan teks yang kamu isi.</p>
+          <ul class="channels">
+            <li>
+              <a href="https://wa.me/6285117177883" target="_blank" rel="noopener noreferrer">
+                <span>WhatsApp</span>
+                <strong>+62 851-1717-7883</strong>
+              </a>
+            </li>
+            <li>
+              <a href="https://linkedin.com/in/andikanio" target="_blank" rel="noopener noreferrer">
+                <span>LinkedIn</span>
+                <strong>linkedin.com/in/andikanio</strong>
+              </a>
+            </li>
+          </ul>
         </div>
+        <form class="form" id="contact-form" novalidate>
+          <div class="field">
+            <label for="f-name" data-i18n="ct.name">Nama</label>
+            <input id="f-name" name="name" type="text" autocomplete="name" required />
+          </div>
+          <div class="field">
+            <label for="f-budget" data-i18n="ct.budget">Budget</label>
+            <select id="f-budget" name="budget">
+              <option value="" data-i18n="ct.select">Pilih paket…</option>
+              <option value="Starter - Rp50rb (normal Rp200rb)" data-i18n="ct.o1">Starter - Rp50rb (normal Rp200rb)</option>
+              <option value="Professional - Rp5jt" data-i18n="ct.o2">Professional - Rp5jt</option>
+              <option value="Enterprise - Rp30jt" data-i18n="ct.o3">Enterprise - Rp30jt</option>
+              <option value="Custom" data-i18n="ct.o4">Budget custom</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-msg" data-i18n="ct.msg">Project</label>
+            <textarea id="f-msg" name="message" rows="5" required></textarea>
+          </div>
+          <p class="form__err" id="form-err" role="alert" hidden data-i18n="ct.err">Isi nama dan cerita project dulu.</p>
+          <button class="btn btn--ink" type="submit" data-i18n="ct.send">Kirim ke WhatsApp</button>
+          <p class="form__hint" data-i18n="ct.hint">Membuka WhatsApp dengan pesan yang sudah terisi.</p>
+        </form>
       </div>
     </section>
   </main>
 
   <footer class="footer">
-    <div class="wrap footer__row">
-      <a class="brand" href="#top">
-        <img class="brand__mark" src="images/logo-mark.svg" alt="" width="40" height="40" />
-        <span class="brand__names">
-          <span class="brand__name">JadiDaring</span>
-          <span class="brand__aka">JaRing</span>
-        </span>
-      </a>
-      <p>© <span id="year">2026</span> JadiDaring / JaRing. <span data-i18n="ft.rights">Semua hak dilindungi.</span></p>
-      <nav aria-label="Footer">
+    <div class="wrap footer__grid">
+      <div class="footer__brand">
+        <a class="brand" href="#top">
+          <svg class="brand__mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="44" height="44" aria-hidden="true" focusable="false">
+            <rect width="36" height="36" fill="#D4FF3A"/>
+            <path d="M22 7v15.5c0 4.6-2.7 7-6.8 7-2.3 0-4.2-.7-5.6-2l2.2-3.4c.9.8 1.9 1.2 3 1.2 1.6 0 2.5-.9 2.5-3V7z" fill="#121211"/>
+          </svg>
+          <span class="brand__names">
+            <span class="brand__name">JadiDaring</span>
+            <span class="brand__aka">JaRing</span>
+          </span>
+        </a>
+        <p data-i18n="ft.blurb">JadiDaring (JaRing), studio web di Indonesia.</p>
+      </div>
+      <nav aria-label="Showcase">
+        <p class="footer__h">Showcase</p>
         <a href="#showcase" data-i18n="nav.showcase">Showcase</a>
-        <a href="#expertise" data-i18n="nav.expertise">Mesin</a>
-        <a href="#pricing" data-i18n="nav.pricing">Tarif</a>
-        <a href="#contact" data-i18n="nav.contact">Order</a>
         <a href="https://www.jadidaring.com/gamehub/">GameHub</a>
+        <a href="https://www.jadidaring.com/drawquarium/">Drawquarium</a>
+        <a href="https://www.jadidaring.com/langitbersama/">Langit Bersama</a>
       </nav>
+      <nav aria-label="Kontak">
+        <p class="footer__h" data-i18n="nav.contact">Kontak</p>
+        <a href="https://wa.me/6285117177883" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+        <a href="https://linkedin.com/in/andikanio" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="#pricing" data-i18n="nav.pricing">Harga</a>
+        <a href="#contact" data-i18n="ct.send">Kirim ke WhatsApp</a>
+      </nav>
+      <div class="footer__art" aria-hidden="true">
+        <svg viewBox="0 0 180 200" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="90" cy="184" rx="58" ry="8" fill="#F1EBDD" opacity="0.16"/>
+          <rect x="58" y="118" width="22" height="58" rx="11" fill="#F1EBDD"/>
+          <rect x="100" y="118" width="22" height="58" rx="11" fill="#F1EBDD"/>
+          <rect x="48" y="168" width="40" height="14" rx="7" fill="#D4FF3A"/>
+          <rect x="92" y="168" width="40" height="14" rx="7" fill="#D4FF3A"/>
+          <rect x="46" y="78" width="88" height="58" rx="24" fill="#D4FF3A"/>
+          <path d="M78 92v16c0 4.8-2.8 7.2-7 7.2-2.4 0-4.4-.7-5.8-2.1l2.3-3.5c.9.8 1.9 1.2 3.1 1.2 1.7 0 2.6-.9 2.6-3.1V92z" fill="#121211"/>
+          <path d="M128 96c22-4 34-24 28-46" fill="none" stroke="#F1EBDD" stroke-width="12" stroke-linecap="round"/>
+          <circle cx="154" cy="46" r="8" fill="#F1EBDD"/>
+          <circle cx="90" cy="52" r="32" fill="#F1EBDD"/>
+          <path d="M62 50c4-28 56-30 60 2-8-16-50-14-60-2z" fill="#121211"/>
+          <circle cx="78" cy="54" r="3.2" fill="#121211"/>
+          <circle cx="102" cy="54" r="3.2" fill="#121211"/>
+          <path d="M78 66c6 7 18 7 24 0" fill="none" stroke="#121211" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="wrap footer__bar">
+      <p>© <span id="year">2026</span> JadiDaring / JaRing. <span data-i18n="ft.rights">Semua hak dilindungi.</span></p>
     </div>
   </footer>
 

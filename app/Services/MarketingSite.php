@@ -8,7 +8,9 @@ namespace App\Services;
  * The HTML lives in resources/marketing. CSS, JS, and images live under
  * public/marketing so they never collide with /{tenant} game paths. Relative
  * asset hrefs/src and production /images/ URLs are rewritten to that prefix
- * when the document is served. Generated JaRing/logo bitmaps are not shipped.
+ * when the document is served. The JaRing mark is inlined in the nav, the
+ * mobile menu, and the footer; logo-mark.svg stays published and is the
+ * favicon. Generated JaRing/logo bitmaps are not shipped.
  */
 class MarketingSite
 {
