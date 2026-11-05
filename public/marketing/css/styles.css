@@ -112,11 +112,10 @@ button, a, select, label { cursor: pointer; }
   text-decoration: none;
 }
 .brand__mark {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
+  width: auto;
+  height: 52px;
   max-width: none;
-  flex: 0 0 40px;
+  flex: 0 0 auto;
   display: block;
 }
 .brand__names { display: flex; flex-direction: column; gap: 2px; min-width: 0; }

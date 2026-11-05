@@ -22,7 +22,7 @@ class MarketingHomeTest extends TestCase
                 ->assertSee('/marketing/images/favicon.svg', false)
                 ->assertSee('/marketing/images/logo-mark.svg', false)
                 ->assertSee('<svg class="brand__mark"', false)
-                ->assertSee('M22 7v15.5c0 4.6-2.7 7-6.8 7', false)
+                ->assertSee('M1307 2788', false)
                 ->assertSee('fill="#D4FF3A"', false)
                 ->assertDontSee('<img class="brand__mark"', false)
                 ->assertDontSee('JD-TARIF', false)
