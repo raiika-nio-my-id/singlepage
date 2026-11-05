@@ -47,7 +47,13 @@ class MarketingHomeTest extends TestCase
                 ->assertDontSee('jaring-icon', false)
                 ->assertDontSee('og-image.png', false);
 
-            $this->assertSame(3, substr_count($response->getContent(), '<svg class="brand__mark"'));
+            $html = $response->getContent();
+            $menuStart = strpos($html, 'id="mobile-menu"');
+            $menuEnd = strpos($html, '</nav>', $menuStart);
+            $this->assertNotFalse($menuStart);
+            $this->assertNotFalse($menuEnd);
+            $this->assertStringNotContainsString('brand__mark', substr($html, $menuStart, $menuEnd - $menuStart));
+            $this->assertSame(2, substr_count($html, '<svg class="brand__mark"'));
         }
     }
 
