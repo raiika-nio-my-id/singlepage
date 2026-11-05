@@ -6,6 +6,8 @@ name: Deploy to Production
 on:
   push:
     branches: [main]
+    # Empty commits do not run this workflow: with paths-ignore GitHub
+    # treats a no-file-change push as unmatched and skips the job.
     paths-ignore:
       - '**.md'
   workflow_dispatch:
