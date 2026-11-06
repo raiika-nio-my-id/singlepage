@@ -27,7 +27,15 @@ class CompanyProfileFactory extends Factory
             'status' => ProfileStatus::Draft,
             'expires_at' => now()->addYear()->toDateString(),
             'hide_footer' => false,
+            'is_game' => false,
         ];
+    }
+
+    public function game(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_game' => true,
+        ]);
     }
 
     public function published(): static

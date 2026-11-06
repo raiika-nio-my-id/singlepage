@@ -113,7 +113,8 @@ class GameHubPathTest extends TestCase
     public function test_hub_robots_and_sitemap_list_the_path_and_live_games(): void
     {
         $this->hub('<html><body>JaRing hub</body></html>');
-        CompanyProfile::factory()->published()->create(['subdomain' => 'drawquarium']);
+        CompanyProfile::factory()->published()->game()->create(['subdomain' => 'drawquarium']);
+        CompanyProfile::factory()->published()->create(['subdomain' => 'showcase']);
         CompanyProfile::factory()->create(['subdomain' => 'draft-game']);
 
         $this->get('http://www.jadidaring.test/gamehub/robots.txt')
@@ -129,6 +130,7 @@ class GameHubPathTest extends TestCase
             ->assertSee('http://www.jadidaring.test/drawquarium/', false)
             ->assertDontSee('drawquarium.jadidaring.test', false)
             ->assertDontSee('gamehub.jadidaring.test', false)
+            ->assertDontSee('showcase', false)
             ->assertDontSee('draft-game', false);
 
         $this->get('http://drawquarium.jadidaring.test/sitemap.xml')

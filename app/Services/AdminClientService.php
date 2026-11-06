@@ -39,6 +39,7 @@ class AdminClientService
                 'expires_at' => $data['expires_at'] ?? now()->addYears((int) config('singlepage.subscription_years', 1))->toDateString(),
                 'hide_footer' => (bool) ($data['hide_footer'] ?? false),
                 'is_pinned' => (bool) ($data['is_pinned'] ?? false),
+                'is_game' => (bool) ($data['is_game'] ?? false),
                 'sort_order' => (int) ($data['sort_order'] ?? 0),
             ]);
 
@@ -77,6 +78,10 @@ class AdminClientService
 
             if (array_key_exists('is_pinned', $data)) {
                 $payload['is_pinned'] = (bool) $data['is_pinned'];
+            }
+
+            if (array_key_exists('is_game', $data)) {
+                $payload['is_game'] = (bool) $data['is_game'];
             }
 
             if (array_key_exists('sort_order', $data)) {

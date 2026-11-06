@@ -25,6 +25,12 @@
             <option value="expired"   @selected($sort === 'expired')>Expiring soon</option>
             <option value="newest"    @selected($sort === 'newest')>Newest</option>
         </select>
+        <label for="game-filter" class="sort-form-label">GameHub:</label>
+        <select id="game-filter" name="game" class="sort-select" onchange="this.form.submit()">
+            <option value="" @selected($game === '')>All sites</option>
+            <option value="1" @selected($game === '1')>Games only</option>
+            <option value="0" @selected($game === '0')>Not games</option>
+        </select>
         <noscript>
             <button type="submit" class="button button-quiet button-small sort-submit-fallback">Apply</button>
         </noscript>
@@ -42,6 +48,7 @@
                         <th>Company / owner</th>
                         <th>Subdomain</th>
                         <th>Status</th>
+                        <th>Game</th>
                         <th>Expiry</th>
                         <th class="views-col" title="Unique visitors today / last 7 days / last 30 days">Views</th>
                         <th></th>
@@ -94,6 +101,13 @@
                                 <span class="badge badge-{{ $profile->status->value }}">{{ $profile->status->value }}</span>
                             </td>
                             <td>
+                                @if ($profile->is_game)
+                                    <span class="badge badge-published">game</span>
+                                @else
+                                    <span class="muted">—</span>
+                                @endif
+                            </td>
+                            <td>
                                 {{ $profile->expires_at?->format('d M Y') ?? '—' }}
                                 @if ($profile->isExpired())
                                     <div><span class="badge badge-expired">expired</span></div>
@@ -131,7 +145,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7">
+                            <td colspan="8">
                                 <div class="empty-state">
                                     <p>No company profiles yet.</p>
                                     <p class="muted">Create a client to publish their first one-page site.</p>

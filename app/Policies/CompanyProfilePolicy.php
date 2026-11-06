@@ -47,6 +47,11 @@ class CompanyProfilePolicy
         return $user->isAdmin() && $this->ownsOrAdministers($user, $companyProfile);
     }
 
+    public function updateGameTag(User $user, CompanyProfile $companyProfile): bool
+    {
+        return $user->isAdmin() && $this->ownsOrAdministers($user, $companyProfile);
+    }
+
     public function manageSettings(User $user): bool
     {
         return $user->isAdmin();

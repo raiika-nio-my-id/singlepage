@@ -10,10 +10,11 @@ use JsonException;
 /**
  * Live GameHub directory.
  *
- * Cards come from published, unexpired company profiles — the same clients
- * the admin UI and POST /api/admin/clients create. The stored hub HTML keeps
- * the chrome (hero, FAQ, styles). Its hand-written games list, prerendered
- * cards, and ItemList are replaced on each request.
+ * Cards come from published, unexpired company profiles tagged is_game.
+ * Profiles default to not a game, so company sites and demos stay out until
+ * an admin marks them. The stored hub HTML keeps the chrome (hero, FAQ,
+ * styles). Its hand-written games list, prerendered cards, and ItemList are
+ * replaced on each request.
  *
  * "Paling dilihat" counts rows in page_view_records. TenantController writes
  * one row per visitor per day when that game's path is opened. Bots are
@@ -151,6 +152,7 @@ class GameHubCatalog
 
         $query = CompanyProfile::query()
             ->live()
+            ->games()
             ->with('user:id,name')
             ->select('company_profiles.*')
             ->selectRaw('COALESCE(game_views.views_count, 0) as views_count')

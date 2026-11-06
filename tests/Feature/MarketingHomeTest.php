@@ -133,7 +133,7 @@ class MarketingHomeTest extends TestCase
     public function test_root_robots_and_sitemap_do_not_replace_tenant_seo(): void
     {
         CompanyProfile::factory()->published()->create(['subdomain' => 'gamehub']);
-        CompanyProfile::factory()->published()->create(['subdomain' => 'drawquarium']);
+        CompanyProfile::factory()->published()->game()->create(['subdomain' => 'drawquarium']);
 
         $this->get('http://www.jadidaring.test/robots.txt')
             ->assertOk()

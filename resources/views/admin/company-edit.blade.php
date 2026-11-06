@@ -152,6 +152,14 @@
                 Published
             </label>
 
+            @can('updateGameTag', $companyProfile)
+                <label>
+                    <input type="checkbox" name="is_game" value="1" @checked((bool) old('is_game', $companyProfile->is_game))>
+                    Game
+                </label>
+                <p class="muted">Lists this site on GameHub. Leave off for company profiles and demos.</p>
+            @endcan
+
             @can('updateFooterVisibility', $companyProfile)
                 <label>
                     <input type="checkbox" name="hide_footer" value="1" @checked((bool) old('hide_footer', $companyProfile->hide_footer))>

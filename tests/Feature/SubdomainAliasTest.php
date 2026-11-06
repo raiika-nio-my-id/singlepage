@@ -308,7 +308,7 @@ class SubdomainAliasTest extends TestCase
     public function test_gamehub_sitemap_does_not_list_alias_subdomains(): void
     {
         CompanyProfile::factory()->published()->create(['subdomain' => 'gamehub']);
-        $game = CompanyProfile::factory()->published()->create(['subdomain' => 'realgame']);
+        $game = CompanyProfile::factory()->published()->game()->create(['subdomain' => 'realgame']);
         CompanyProfileAlias::factory()->for($game)->create(['subdomain' => 'gamealias']);
 
         $this->get('http://www.jadidaring.test/gamehub/sitemap.xml')

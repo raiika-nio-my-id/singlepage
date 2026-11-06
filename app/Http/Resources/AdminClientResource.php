@@ -27,6 +27,7 @@ class AdminClientResource extends JsonResource
             'expires_at' => $this->expires_at?->toDateString(),
             'hide_footer' => (bool) $this->hide_footer,
             'is_pinned' => (bool) $this->is_pinned,
+            'is_game' => (bool) $this->is_game,
             'sort_order' => (int) $this->sort_order,
             'html' => $this->html,
             'aliases' => $this->aliases

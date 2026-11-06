@@ -50,6 +50,12 @@
             </label>
 
             <label>
+                <input type="checkbox" name="is_game" value="1" @checked((bool) old('is_game'))>
+                Game
+            </label>
+            <p class="muted">Lists this site on GameHub. Leave off for company profiles and demos. New sites stay off until you check this.</p>
+
+            <label>
                 <input type="checkbox" name="hide_footer" value="1" @checked((bool) old('hide_footer'))>
                 Hide platform footer
             </label>
