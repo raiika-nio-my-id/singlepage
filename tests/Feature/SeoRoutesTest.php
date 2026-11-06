@@ -56,12 +56,13 @@ class SeoRoutesTest extends TestCase
 
     // ── sitemap.xml ────────────────────────────────────────────────────────
 
-    public function test_gamehub_sitemap_lists_all_live_profiles(): void
+    public function test_gamehub_sitemap_lists_live_games_only(): void
     {
         CompanyProfile::factory()->published()->create(['subdomain' => 'gamehub']);
-        CompanyProfile::factory()->published()->create(['subdomain' => 'ulartangga']);
-        CompanyProfile::factory()->published()->create(['subdomain' => 'drawguess']);
-        CompanyProfile::factory()->create(['subdomain' => 'draft-game']); // draft – must be excluded
+        CompanyProfile::factory()->published()->game()->create(['subdomain' => 'ulartangga']);
+        CompanyProfile::factory()->published()->game()->create(['subdomain' => 'drawguess']);
+        CompanyProfile::factory()->published()->create(['subdomain' => 'showcase']);
+        CompanyProfile::factory()->game()->create(['subdomain' => 'draft-game']);
 
         $response = $this->get('http://www.jadidaring.test/gamehub/sitemap.xml');
 
@@ -72,6 +73,7 @@ class SeoRoutesTest extends TestCase
         $response->assertSee('http://www.jadidaring.test/drawguess/', false);
         $response->assertDontSee('ulartangga.jadidaring.test', false);
         $response->assertDontSee('gamehub.jadidaring.test', false);
+        $response->assertDontSee('showcase', false);
         $response->assertDontSee('draft-game', false);
     }
 

@@ -30,6 +30,7 @@ class StoreAdminClientRequest extends FormRequest
             'expires_at' => ['sometimes', 'nullable', 'date'],
             'hide_footer' => ['sometimes', 'boolean'],
             'is_pinned' => ['sometimes', 'boolean'],
+            'is_game' => ['sometimes', 'boolean'],
             'sort_order' => ['sometimes', 'integer', 'min:0'],
             'aliases' => ['sometimes', 'array'],
             'aliases.*' => ['string', 'max:63', new Subdomain],

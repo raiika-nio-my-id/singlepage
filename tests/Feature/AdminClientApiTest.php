@@ -64,6 +64,7 @@ class AdminClientApiTest extends TestCase
             ->assertJsonPath('data.status', 'published')
             ->assertJsonPath('data.hide_footer', true)
             ->assertJsonPath('data.is_pinned', true)
+            ->assertJsonPath('data.is_game', false)
             ->assertJsonPath('data.aliases', ['acme-old'])
             ->assertJsonPath('data.public_url', 'http://www.jadidaring.test/acme')
             ->assertJsonMissingPath('data.password');
@@ -73,6 +74,7 @@ class AdminClientApiTest extends TestCase
             'status' => 'published',
             'hide_footer' => true,
             'is_pinned' => true,
+            'is_game' => false,
         ]);
 
         $user = User::query()->where('email', 'acme@example.com')->firstOrFail();
@@ -97,6 +99,7 @@ class AdminClientApiTest extends TestCase
             'html' => '<html><body>Original</body></html>',
             'hide_footer' => false,
             'is_pinned' => false,
+            'is_game' => true,
         ]);
         $originalName = $profile->user->name;
         $originalEmail = $profile->user->email;
@@ -123,6 +126,7 @@ class AdminClientApiTest extends TestCase
         $this->assertSame($originalExpiry, $profile->expires_at?->toDateString());
         $this->assertFalse($profile->hide_footer);
         $this->assertFalse($profile->is_pinned);
+        $this->assertTrue($profile->is_game);
     }
 
     public function test_partial_update_by_subdomain(): void

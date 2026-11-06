@@ -69,6 +69,41 @@ class GameHubCatalogTest extends TestCase
             ->assertDontSee('Langit Bersama', false);
     }
 
+    public function test_published_company_sites_stay_out_of_the_catalog(): void
+    {
+        $this->hub('<html><body>JaRing hub</body></html>');
+        $this->game('drawquarium', 'Drawquarium', 'Akuarium.', now()->subDay());
+        $showcase = CompanyProfile::factory()->published()->create([
+            'subdomain' => 'showcase',
+            'html' => $this->page('JaRing Showcase', 'Bukan game.'),
+        ]);
+        CompanyProfile::factory()->published()->create([
+            'subdomain' => 'demo1',
+            'html' => $this->page('Demo Company', 'Situs klien.'),
+            'is_game' => null,
+        ]);
+        CompanyProfile::factory()->game()->create([
+            'subdomain' => 'draftgame',
+            'html' => $this->page('Draft Game', 'Masih draf.'),
+        ]);
+        $this->views($showcase, 12);
+
+        $response = $this->get('http://www.jadidaring.test/gamehub/?sort=views')
+            ->assertOk()
+            ->assertSee('data-game="drawquarium"', false)
+            ->assertDontSee('data-game="showcase"', false)
+            ->assertDontSee('data-game="demo1"', false)
+            ->assertDontSee('data-game="draftgame"', false)
+            ->assertDontSee('data-game="gamehub"', false)
+            ->assertDontSee('JaRing Showcase', false)
+            ->assertDontSee('Bukan game.', false)
+            ->assertDontSee('Demo Company', false)
+            ->assertDontSee('"subdomain":"showcase"', false)
+            ->assertDontSee('"subdomain":"demo1"', false);
+
+        $this->assertStringNotContainsString('Belum ada game.', $response->getContent());
+    }
+
     public function test_most_viewed_uses_page_view_records_and_opening_a_game_counts(): void
     {
         $this->hub('<html><body>JaRing hub</body></html>');
@@ -111,6 +146,7 @@ class GameHubCatalogTest extends TestCase
             'email' => 'draw@example.com',
             'subdomain' => 'drawquarium',
             'status' => 'published',
+            'is_game' => true,
             'expires_at' => now()->addYear()->toDateString(),
             'html' => $this->page(
                 'Drawquarium · Gambar ikan',
@@ -154,6 +190,7 @@ class GameHubCatalogTest extends TestCase
                 'email' => 'kopi@example.com',
                 'subdomain' => 'kopisenja',
                 'status' => 'published',
+                'is_game' => '1',
                 'html' => $this->page('Kopi Senja · Malam', 'Ngopi bareng.'),
                 'expires_at' => now()->addYear()->toDateString(),
             ])
@@ -180,7 +217,7 @@ class GameHubCatalogTest extends TestCase
 
     private function game(string $subdomain, string $title, string $description, Carbon $createdAt): CompanyProfile
     {
-        $profile = CompanyProfile::factory()->published()->create([
+        $profile = CompanyProfile::factory()->published()->game()->create([
             'subdomain' => $subdomain,
             'html' => $this->page($title, $description),
         ]);

@@ -28,6 +28,7 @@ class CompanyProfileAuthorizationTest extends TestCase
             ->assertSee('Expired')
             ->assertDontSee('name="expires_at"', false)
             ->assertDontSee('name="hide_footer"', false)
+            ->assertDontSee('name="is_game"', false)
             ->assertDontSee('Hide platform footer')
             ->assertDontSee('/clients/'.$profile->id);
 
@@ -156,6 +157,7 @@ class CompanyProfileAuthorizationTest extends TestCase
             'subdomain' => 'owned',
             'html' => '<html><body>Old</body></html>',
             'expires_at' => now()->addYear()->toDateString(),
+            'is_game' => true,
         ]);
         $originalExpiry = $profile->expires_at?->toDateString();
 
@@ -170,6 +172,7 @@ class CompanyProfileAuthorizationTest extends TestCase
                 'status' => 'published',
                 'expires_at' => now()->addYears(5)->toDateString(),
                 'hide_footer' => '1',
+                'is_game' => '0',
             ])
             ->assertRedirect();
 
@@ -182,6 +185,7 @@ class CompanyProfileAuthorizationTest extends TestCase
         $this->assertSame('<html><body>Updated by owner</body></html>', $profile->html);
         $this->assertSame($originalExpiry, $profile->expires_at?->toDateString());
         $this->assertFalse($profile->hide_footer);
+        $this->assertTrue($profile->is_game);
     }
 
     public function test_admin_can_change_expiration(): void

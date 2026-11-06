@@ -12,6 +12,7 @@ use App\Models\CompanyProfileAlias;
 use App\Models\User;
 use App\Rules\Subdomain;
 use App\Services\SubdomainService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -39,6 +40,8 @@ class CompanyProfileController extends Controller
         // Resolve sort: query-string overrides session; session persists last choice.
         // name_asc / name_desc combine direction into a single value for clean select option.
         $validSorts = ['custom', 'name_asc', 'name_desc', 'views', 'expired', 'newest'];
+        $game = $request->query('game');
+        $game = is_string($game) && in_array($game, ['0', '1'], true) ? $game : '';
         if ($request->has('sort')) {
             $sort = in_array($request->input('sort'), $validSorts, true)
                 ? $request->input('sort') : 'custom';
@@ -74,13 +77,22 @@ class CompanyProfileController extends Controller
                 ->orderByRaw('CASE WHEN expires_at IS NULL THEN 1 ELSE 0 END')
                 ->orderBy('expires_at'),
             'newest' => $query->orderByDesc('company_profiles.created_at'),
-            default  => $query->orderBy('sort_order')->orderBy('company_profiles.id'),
+            default => $query->orderBy('sort_order')->orderBy('company_profiles.id'),
         };
 
-        $profiles  = $query->paginate(25)->withQueryString();
+        if ($game === '1') {
+            $query->games();
+        } elseif ($game === '0') {
+            $query->where(function (Builder $inner): void {
+                $inner->where('company_profiles.is_game', false)
+                    ->orWhereNull('company_profiles.is_game');
+            });
+        }
+
+        $profiles = $query->paginate(25)->withQueryString();
         $viewStats = $this->viewStats($profiles->pluck('id')->all());
 
-        return view('admin.dashboard', compact('profiles', 'viewStats', 'sort'));
+        return view('admin.dashboard', compact('profiles', 'viewStats', 'sort', 'game'));
     }
 
     public function workspace(Request $request): View
@@ -143,6 +155,7 @@ class CompanyProfileController extends Controller
                 'status' => $request->published() ? ProfileStatus::Published : ProfileStatus::Draft,
                 'expires_at' => $request->validated('expires_at'),
                 'hide_footer' => $request->boolean('hide_footer'),
+                'is_game' => $request->boolean('is_game'),
             ]);
         });
 
@@ -197,6 +210,10 @@ class CompanyProfileController extends Controller
                 $payload['hide_footer'] = $request->boolean('hide_footer');
             }
 
+            if ($request->user()?->can('updateGameTag', $companyProfile)) {
+                $payload['is_game'] = $request->boolean('is_game');
+            }
+
             $companyProfile->update($payload);
 
             if (array_key_exists('subdomain', $payload)) {
@@ -226,8 +243,8 @@ class CompanyProfileController extends Controller
         $this->authorize('viewAny', CompanyProfile::class);
 
         $validated = $request->validate([
-            'ids'    => ['required', 'array'],
-            'ids.*'  => ['required', 'integer'],
+            'ids' => ['required', 'array'],
+            'ids.*' => ['required', 'integer'],
             'offset' => ['sometimes', 'integer', 'min:0'],
         ]);
 
@@ -290,7 +307,7 @@ class CompanyProfileController extends Controller
 
     /**
      * @param  int[]  $profileIds
-     * @return array<int, object>  keyed by company_profile_id
+     * @return array<int, object> keyed by company_profile_id
      */
     private function viewStats(array $profileIds): array
     {

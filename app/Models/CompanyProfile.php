@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
-#[Fillable(['user_id', 'subdomain', 'html', 'status', 'expires_at', 'hide_footer', 'sort_order', 'is_pinned'])]
+#[Fillable(['user_id', 'subdomain', 'html', 'status', 'expires_at', 'hide_footer', 'sort_order', 'is_pinned', 'is_game'])]
 class CompanyProfile extends Model
 {
     /** @use HasFactory<CompanyProfileFactory> */
@@ -29,6 +29,7 @@ class CompanyProfile extends Model
             'expires_at' => 'date',
             'hide_footer' => 'boolean',
             'is_pinned' => 'boolean',
+            'is_game' => 'boolean',
         ];
     }
 
@@ -104,5 +105,18 @@ class CompanyProfile extends Model
                 $query->whereNull('expires_at')
                     ->orWhereDate('expires_at', '>=', now()->toDateString());
             });
+    }
+
+    /**
+     * Profiles explicitly tagged for the GameHub catalog.
+     *
+     * Only rows stored as true are included. New rows default to false.
+     *
+     * @param  Builder<CompanyProfile>  $query
+     * @return Builder<CompanyProfile>
+     */
+    public function scopeGames(Builder $query): Builder
+    {
+        return $query->where($this->qualifyColumn('is_game'), true);
     }
 }
